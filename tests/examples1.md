@@ -55,7 +55,7 @@ area = π × r × r
 
 ---
 
-## ReverseString
+## Reverse
 
 ### Что демонстрирует
 
@@ -191,3 +191,40 @@ function main(): int
 - Рекурсивный случай: `n! = n × (n - 1)!`
 
 ---
+
+## ReverseString
+
+### Что демонстрирует
+
+- Тип `string`
+- Встроенную функцию `substring`и `len`
+- Конкатенацию строк
+- Использование арифметики в выражениях
+- цикл while
+
+### Код программы
+
+```plaintext
+function reverse(s: string): string 
+{
+var result: string = '';
+var i: int = len(s) - 1;
+    while (i >= 0) 
+    {
+        result = result + substring(s, i, 1);
+        i = i - 1;
+    }
+    return result;
+}
+function main(): int 
+{
+var input: string = readString();
+var reversed: string = reverse(input);
+print(reversed);
+return 0;
+}
+```
+
+### Пояснение
+
+Переворачивает строку.
