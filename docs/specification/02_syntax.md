@@ -132,7 +132,7 @@ toBool_function = "toBool", "(", expression, ")" ;
 toFloat_function = "toFloat", "(", expression, ")" ;
 
 (* Вывод *)
-print_statement = "print", "(", [ expression_list ], ")" ;
+print_statement = "print", "(", expression_list, ")" ;
 
 (* Блок инструкций *)
 block = "{", { statement }, "}" ;
