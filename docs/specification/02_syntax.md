@@ -38,7 +38,7 @@
 (* Программа состоит из определений и обязательной функции main *)
 program = { top_level_statement }, main_function ;
 
-(* Функция main — особая, всегда возвращает int *)
+(* Функция main — всегда возвращает int *)
 main_function = "function", "main", "(", ")", ":", "int", "{", { function_statement }, "}" ;
 
 (* Верхнеуровневая инструкция *)
