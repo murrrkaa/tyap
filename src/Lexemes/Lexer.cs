@@ -28,15 +28,6 @@ public class Lexer
         { "print", TokenType.Print },
         { "true", TokenType.True },
         { "false", TokenType.False },
-        { "readInt", TokenType.Identifier },
-        { "readFloat", TokenType.Identifier },
-        { "readString", TokenType.Identifier },
-        { "len", TokenType.Identifier },
-        { "substring", TokenType.Identifier },
-        { "toString", TokenType.Identifier },
-        { "parseInt", TokenType.Identifier },
-        { "toBool", TokenType.Identifier },
-        { "toFloat", TokenType.Identifier },
     };
 
     private static readonly Dictionary<char, char> SimpleEscapes = new()
@@ -274,6 +265,7 @@ public class Lexer
                     {
                         _scanner.Advance();
                     }
+
                     return new Token(TokenType.Error);
                 }
             }
@@ -341,11 +333,6 @@ public class Lexer
 
         if (Keywords.TryGetValue(text, out TokenType keywordType))
         {
-            if (keywordType == TokenType.Identifier)
-            {
-                return new Token(TokenType.Identifier, text);
-            }
-
             if (text == "true" || text == "false")
             {
                 return new Token(text == "true" ? TokenType.True : TokenType.False);
