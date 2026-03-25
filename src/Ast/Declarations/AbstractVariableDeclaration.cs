@@ -5,16 +5,10 @@
 /// </summary>
 public abstract class AbstractVariableDeclaration : Declaration
 {
-    protected AbstractVariableDeclaration(
-        string name, 
-        string typeName
-        )
+    protected AbstractVariableDeclaration(string name)
     {
-        Name = name;
-        TypeName = typeName;
-
+        this.Name = name;
     }
 
     public string Name { get; }
-    public string TypeName { get; } // int, float, string, bool
 }
