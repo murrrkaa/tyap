@@ -333,14 +333,16 @@ public class Lexer
 
         if (Keywords.TryGetValue(text, out TokenType keywordType))
         {
+            // ✅ Ключевые слова: устанавливаем Value = text
             if (text == "true" || text == "false")
             {
-                return new Token(text == "true" ? TokenType.True : TokenType.False);
+                return new Token(text == "true" ? TokenType.True : TokenType.False, text);
             }
 
-            return new Token(keywordType);
+            return new Token(keywordType, text);  // ← ДОБАВЛЕНО: , text
         }
 
+        // ✅ Идентификаторы: Value уже установлен
         return new Token(TokenType.Identifier, text);
     }
 

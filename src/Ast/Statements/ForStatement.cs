@@ -9,9 +9,9 @@ public sealed class ForStatement : Statement
 {
     public ForStatement(
         AssignmentStatement init,
-        AstExpression condition,
+        Expression condition,
         AssignmentStatement step,
-        AbstractStatement body)
+        Statement body)
     {
         Init = init;
         Condition = condition;
@@ -20,9 +20,9 @@ public sealed class ForStatement : Statement
     }
 
     public AssignmentStatement Init { get; }
-    public AstExpression Condition { get; }
+    public Expression Condition { get; }
     public AssignmentStatement Step { get; }
-    public AbstractStatement Body { get; }
+    public Statement Body { get; }
 
     public override void Accept(IAstVisitor visitor) => visitor.Visit(this);
 }

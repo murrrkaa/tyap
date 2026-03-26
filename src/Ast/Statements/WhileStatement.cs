@@ -7,14 +7,14 @@ namespace PsTiger.Ast.Statements;
 /// </summary>
 public sealed class WhileStatement : Statement
 {
-    public WhileStatement(AstExpression condition, AbstractStatement body)
+    public WhileStatement(Expression condition, Statement body)
     {
         Condition = condition;
         Body = body;
     }
 
-    public AstExpression Condition { get; }
-    public AbstractStatement Body { get; }
+    public Expression Condition { get; }
+    public Statement Body { get; }
 
     public override void Accept(IAstVisitor visitor) => visitor.Visit(this);
 }

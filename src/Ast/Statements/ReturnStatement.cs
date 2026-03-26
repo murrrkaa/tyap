@@ -7,12 +7,12 @@ namespace PsTiger.Ast.Statements;
 /// </summary>
 public sealed class ReturnStatement : Statement
 {
-    public ReturnStatement(AstExpression? expression)
+    public ReturnStatement(Expression? expression)
     {
         Expression = expression; // Может быть null, если просто "return;"
     }
 
-    public AstExpression? Expression { get; }
+    public Expression? Expression { get; }
 
     public override void Accept(IAstVisitor visitor) => visitor.Visit(this);
 }

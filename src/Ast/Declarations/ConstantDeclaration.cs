@@ -1,35 +1,26 @@
-﻿using System.Linq.Expressions;
+﻿using PsTiger.Ast.Expressions;
 
 namespace PsTiger.Ast.Declarations;
 
 /// <summary>
-/// Узел дерева, представляющий объявление константы (const).
-/// У константы указан неизменяемый тип.
+/// Объявление константы: const name: type = value.
 /// </summary>
 public sealed class ConstantDeclaration : AbstractVariableDeclaration
 {
-    private AstAttribute<AbstractTypeDeclaration?> _declaredType;
-
-    public ConstantDeclaration(string name, string? declaredTypeName, Expression initialValue)
+    public ConstantDeclaration(string name, string type, Expression initialValue)
         : base(name)
     {
-        DeclaredTypeName = declaredTypeName;
+        Name = name;
+        Type = type;
         InitialValue = initialValue;
     }
 
-    public string? DeclaredTypeName { get; }
-
+    public new string Name { get; }
+    public string Type { get; }  // ✅ Просто строка: "int", "float", etc.
     public Expression InitialValue { get; }
-
-    public AbstractTypeDeclaration? DeclaredType
-    {
-        get => _declaredType.Get();
-        set => _declaredType.Set(value);
-    }
 
     public override void Accept(IAstVisitor visitor)
     {
-        // Нужно будет добавить метод Visit(ConstantDeclaration node) в интерфейс IAstVisitor
         visitor.Visit(this);
     }
 }

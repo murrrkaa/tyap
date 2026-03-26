@@ -1,18 +1,25 @@
 ﻿using PsTiger.Ast.Expressions;
+using System.Collections.Generic;
 
 namespace PsTiger.Ast.Statements;
 
 /// <summary>
-/// Объявление инструкции вывода.
+/// Инструкция вывода: print(expr1, expr2, ...);
 /// </summary>
 public sealed class PrintStatement : Statement
 {
-    public PrintStatement(AstExpression expression)
+    public PrintStatement(IReadOnlyList<Expression> arguments)
     {
-        Expression = expression;
+        Arguments = arguments;
     }
 
-    public AstExpression Expression { get; }
+    /// <summary>
+    /// Список аргументов для вывода.
+    /// </summary>
+    public IReadOnlyList<Expression> Arguments { get; }
 
-    public override void Accept(IAstVisitor visitor) => visitor.Visit(this);
+    public override void Accept(IAstVisitor visitor)
+    {
+        visitor.Visit(this);
+    }
 }

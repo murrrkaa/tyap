@@ -1,38 +1,32 @@
-﻿using PsTiger.Ast.Attributes;
-using PsTiger.Ast.Expressions;
-using System.Collections.Generic;
-using System.Linq.Expressions;
+﻿using PsTiger.Ast.Statements;  // ← Обязательно добавьте это!
 
 namespace PsTiger.Ast.Declarations;
 
 /// <summary>
-/// Объявление пользовательской функции или процедуры.
+/// Объявление пользовательской функции: function name(params): returnType { body }.
 /// </summary>
 public sealed class FunctionDeclaration : AbstractFunctionDeclaration
 {
-    private AstAttribute<AbstractTypeDeclaration?> _declaredType;
-
     public FunctionDeclaration(
         string name,
         IReadOnlyList<ParameterDeclaration> parameters,
-        string? declaredTypeName,
-        IReadOnlyList<AstNode> statements
-    )
-        : base(name, parameters)
+        string returnType,
+        BlockStatement body
+    ) : base(name, parameters.Cast<AbstractParameterDeclaration>().ToList().AsReadOnly())
     {
-        DeclaredTypeName = declaredTypeName;
-        Statements = statements;
+        Name = name;
+        Parameters = parameters;
+        ReturnType = returnType;
+        Body = body;
     }
 
-    public string? DeclaredTypeName { get; }
+    public new string Name { get; }
 
-    public AbstractTypeDeclaration? DeclaredType
-    {
-        get => _declaredType.Get();
-        set => _declaredType.Set(value);
-    }
+    public new IReadOnlyList<ParameterDeclaration> Parameters { get; }
 
-    public IReadOnlyList<AstNode> Statements { get; }
+    public string ReturnType { get; }
+
+    public BlockStatement Body { get; }
 
     public override void Accept(IAstVisitor visitor)
     {

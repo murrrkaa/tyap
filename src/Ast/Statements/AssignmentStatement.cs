@@ -7,14 +7,14 @@ namespace PsTiger.Ast.Statements;
 /// </summary>
 public sealed class AssignmentStatement : Statement
 {
-    public AssignmentStatement(string variableName, AstExpression value)
+    public AssignmentStatement(string variableName, Expression value)
     {
         VariableName = variableName;
         Value = value;
     }
 
     public string VariableName { get; }
-    public AstExpression Value { get; }
+    public Expression Value { get; }
 
     public override void Accept(IAstVisitor visitor) => visitor.Visit(this);
 }
