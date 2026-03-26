@@ -1,0 +1,20 @@
+﻿using PsTiger.Ast.Expressions;
+
+namespace PsTiger.Ast.Statements;
+
+/// <summary>
+/// Объявление инструкции присваивания.
+/// </summary>
+public sealed class AssignmentStatement : Statement
+{
+    public AssignmentStatement(string variableName, AstExpression value)
+    {
+        VariableName = variableName;
+        Value = value;
+    }
+
+    public string VariableName { get; }
+    public AstExpression Value { get; }
+
+    public override void Accept(IAstVisitor visitor) => visitor.Visit(this);
+}

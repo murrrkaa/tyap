@@ -9,7 +9,6 @@ namespace PsTiger.Ast;
 /// </summary>
 public static class Builtins
 {
-    public const string Print = "print";
     public const string ReadInt = "readInt";
     public const string ReadFloat = "readFloat";
     public const string ReadString = "readString";
@@ -25,14 +24,6 @@ public static class Builtins
     /// </summary>
     public static readonly IReadOnlyList<BuiltinFunction> Functions =
     [
-        new(
-            Print, // `print(s: string)` — выводит строку в стандартный поток вывода
-            [
-                new BuiltinFunctionParameter("s", ValueType.String),
-            ],
-            ValueType.Void
-        ),
-
         new(
             ReadInt, // `readInt(): int` — Считывает число, возвращает значение типа int 
             [],
