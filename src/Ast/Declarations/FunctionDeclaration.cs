@@ -1,35 +1,27 @@
-﻿using PsTiger.Ast.Statements;  // ← Обязательно добавьте это!
+﻿using PsTiger.Ast.Statements;
+using PsTiger.Runtime;
+using ValueType = PsTiger.Runtime.ValueType;
 
 namespace PsTiger.Ast.Declarations;
 
-/// <summary>
-/// Объявление пользовательской функции: function name(params): returnType { body }.
-/// </summary>
 public sealed class FunctionDeclaration : AbstractFunctionDeclaration
 {
     public FunctionDeclaration(
         string name,
         IReadOnlyList<ParameterDeclaration> parameters,
-        string returnType,
+        string? declaredReturnType,
         BlockStatement body
-    ) : base(name, parameters.Cast<AbstractParameterDeclaration>().ToList().AsReadOnly())
+    ) : base(name, parameters.Cast<AbstractParameterDeclaration>().ToList())
     {
-        Name = name;
-        Parameters = parameters;
-        ReturnType = returnType;
+        DeclaredReturnTypeName = declaredReturnType;
         Body = body;
     }
 
-    public new string Name { get; }
-
-    public new IReadOnlyList<ParameterDeclaration> Parameters { get; }
-
-    public string ReturnType { get; }
+    public string? DeclaredReturnTypeName { get; }
 
     public BlockStatement Body { get; }
 
-    public override void Accept(IAstVisitor visitor)
-    {
-        visitor.Visit(this);
-    }
+    public ValueType ResolvedReturnType { get; set; }
+
+    public override void Accept(IAstVisitor visitor) => visitor.Visit(this);
 }

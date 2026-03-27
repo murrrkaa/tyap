@@ -13,9 +13,6 @@ public sealed class FunctionCallStatement : Statement
         Call = call;
     }
 
-    /// <summary>
-    /// Выражение вызова функции.
-    /// </summary>
     public FunctionCallExpression Call { get; }
 
     public override void Accept(IAstVisitor visitor)
