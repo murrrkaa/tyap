@@ -161,6 +161,10 @@ public class Lexer
                 _scanner.Advance();
                 return new Token(TokenType.Semicolon);
 
+            case ':':
+                _scanner.Advance();
+                return new Token(TokenType.Colon);
+
             case '#':
                 SkipHashComment();
                 return ParseToken();

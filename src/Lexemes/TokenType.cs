@@ -205,6 +205,8 @@ public enum TokenType
     /// </summary>
     CloseParenthesis,
 
+    Colon,
+
     /// <summary>
     /// Запятая <c>,</c>.
     /// </summary>
