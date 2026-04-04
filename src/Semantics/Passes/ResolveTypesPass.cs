@@ -164,25 +164,9 @@ public sealed class ResolveTypesPass : AbstractPass
         e.ResultType = ValueType.Void;
     }
 
-    public override void Visit(IfElseExpression e)
+    public override void Visit(IfStatement e)
     {
         base.Visit(e);
-
-        if (e.Condition.ResultType != ValueType.Bool)
-        {
-            throw new TypeErrorException($"Condition in 'if' must be bool, but got {e.Condition.ResultType}");
-        }
-
-        // Типы веток then и else должны совпадать или быть совместимыми.
-        if (e.ElseBranch != null)
-        {
-            e.ResultType = ValueTypeUtil.GetCommonType(e.ThenBranch.ResultType, e.ElseBranch.ResultType);
-        }
-        else
-        {
-            // if без else не возвращает значения
-            e.ResultType = ValueType.Void;
-        }
     }
 
     public override void Visit(WhileLoopExpression e)

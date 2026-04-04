@@ -58,19 +58,16 @@ public class CheckTypesPass : AbstractPass
         }
     }
 
-    public override void Visit(IfElseExpression e)
+    public override void Visit(IfStatement e)
     {
-        base.Visit(e);
+        s.Condition.Accept(this);
+        s.ThenBranch.Accept(this);
+        s.ElseBranch?.Accept(this);
 
-        CheckAreSameTypes("if-else condition", e.Condition, ValueType.Bool);
-
-        if (e.ElseBranch != null)
+        //условие д быть логическим
+        if (s.Condition.ResultType != ValueType.Bool)
         {
-            if (!ValueTypeUtil.AreCompatibleTypes(e.ThenBranch.ResultType, e.ElseBranch.ResultType) &&
-                !ValueTypeUtil.AreCompatibleTypes(e.ElseBranch.ResultType, e.ThenBranch.ResultType))
-            {
-                throw new TypeErrorException("Branches of if-else must have compatible types");
-            }
+            throw new TypeErrorException($"Condition in 'if' must be bool, but got {s.Condition.ResultType}");
         }
     }
 
