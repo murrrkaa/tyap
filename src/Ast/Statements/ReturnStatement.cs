@@ -9,7 +9,7 @@ public sealed class ReturnStatement : Statement
 {
     public ReturnStatement(Expression? expression)
     {
-        Expression = expression; // Может быть null, если просто "return;"
+        Expression = expression;
     }
 
     public Expression? Expression { get; }

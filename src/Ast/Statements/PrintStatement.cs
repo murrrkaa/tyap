@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace PsTiger.Ast.Statements;
 
 /// <summary>
-/// Инструкция вывода: print(expr1, expr2, ...);
+/// Инструкция вывода
 /// </summary>
 public sealed class PrintStatement : Statement
 {
@@ -13,9 +13,6 @@ public sealed class PrintStatement : Statement
         Arguments = arguments;
     }
 
-    /// <summary>
-    /// Список аргументов для вывода.
-    /// </summary>
     public IReadOnlyList<Expression> Arguments { get; }
 
     public override void Accept(IAstVisitor visitor)
