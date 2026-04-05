@@ -1,95 +1,21 @@
-using PsTiger.Tests.TestLibrary.TestDoubles;
+﻿using PsTiger.Tests.TestLibrary.TestDoubles;
 using PsTiger.VirtualMachine;
 using PsTiger.VirtualMachine.Builtins;
 using PsTiger.VirtualMachine.Instructions;
+
 using System.Collections.Generic;
+
+using Xunit;
 
 namespace PsTiger.VirtualMachine.UnitTests;
 
 public class CallBuiltinTest
 {
     [Theory]
-    [MemberData(nameof(GetUseInputAndOutputData))]
-    public void Can_use_input_and_output(
+    [MemberData(nameof(GetPrintData))]
+    public void Print_Writes_To_BufferedOutput(
         List<Instruction> program,
-        string input,
-        string expectedBufferedOutput,
-        string expectedFlushedOutput
-    )
-    {
-        FakeEnvironment environment = new();
-        environment.AddInput(input);
-
-        TigerVm vm = new(environment, program);
-
-        vm.RunProgram();
-
-        Assert.Equal(0, vm.ExitCode);
-        Assert.Equal(expectedBufferedOutput, environment.BufferedOutput);
-        Assert.Equal(expectedFlushedOutput, environment.FlushedOutput);
-    }
-
-    public static TheoryData<List<Instruction>, string, string, string> GetUseInputAndOutputData()
-    {
-        return new()
-        {
-            // print
-            {
-                [
-                    new Instruction(InstructionCode.Push, "Hello, world!"),
-                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
-                    new Instruction(InstructionCode.Push, 0),
-                    new Instruction(InstructionCode.Halt),
-                ],
-                string.Empty, "Hello, world!", string.Empty
-            },
-
-            // printi
-            {
-                [
-                    new Instruction(InstructionCode.Push, 762),
-                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.PrintI),
-                    new Instruction(InstructionCode.Push, 0),
-                    new Instruction(InstructionCode.Halt),
-                ],
-                string.Empty, "762", string.Empty
-            },
-
-            // flush
-            {
-                [
-                    new Instruction(InstructionCode.Push, "Hello, world!"),
-                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
-                    new Instruction(InstructionCode.Push, 111),
-                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.PrintI),
-                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Flush),
-                    new Instruction(InstructionCode.Push, 0),
-                    new Instruction(InstructionCode.Halt),
-                ],
-                string.Empty, string.Empty, "Hello, world!111"
-            },
-
-            // getchar
-            {
-                [
-                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.GetChar),
-                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
-                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.GetChar),
-                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
-                    new Instruction(InstructionCode.Push, 0),
-                    new Instruction(InstructionCode.Halt),
-                ],
-                "Input", "In", string.Empty
-            },
-        };
-    }
-
-    [Theory]
-    [MemberData(nameof(GetCallBuiltinFunctionsData))]
-    public void Can_call_builtin_functions(
-        List<Instruction> program,
-        string expectedBufferedOutput
-    )
+        string expectedBufferedOutput)
     {
         FakeEnvironment environment = new();
         TigerVm vm = new(environment, program);
@@ -101,74 +27,110 @@ public class CallBuiltinTest
         Assert.Equal(string.Empty, environment.FlushedOutput);
     }
 
-    public static TheoryData<List<Instruction>, string> GetCallBuiltinFunctionsData()
+    public static TheoryData<List<Instruction>, string> GetPrintData()
     {
-        return new()
+        return new TheoryData<List<Instruction>, string>
         {
-            // ord
+            // print string
             {
-                [
-                    new Instruction(InstructionCode.Push, "ABCD"),
-                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Ord),
-                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.PrintI),
-                    new Instruction(InstructionCode.Push, 0),
-                    new Instruction(InstructionCode.Halt),
-                ],
-                "65"
-            },
-
-            // chr
-            {
-                [
-                    new Instruction(InstructionCode.Push, 40),
-                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Chr),
-                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
-                    new Instruction(InstructionCode.Push, 41),
-                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Chr),
-                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
-                    new Instruction(InstructionCode.Push, 0),
-                    new Instruction(InstructionCode.Halt),
-                ],
-                "()"
-            },
-
-            // size
-            {
-                [
+                new List<Instruction>
+                {
                     new Instruction(InstructionCode.Push, "Hello, world!"),
-                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Size),
-                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.PrintI),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
                     new Instruction(InstructionCode.Push, 0),
                     new Instruction(InstructionCode.Halt),
-                ],
-                "13"
+                },
+                "Hello, world!"
+            },
+            // print number via toString
+            {
+                new List<Instruction>
+                {
+                    new Instruction(InstructionCode.Push, 42),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.ToString),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
+                },
+                "42"
+            },
+        };
+    }
+
+    [Theory]
+    [MemberData(nameof(GetBuiltinFunctionsData))]
+    public void Builtin_Functions_Work(
+        List<Instruction> program,
+        string expectedBufferedOutput)
+    {
+        FakeEnvironment environment = new();
+        TigerVm vm = new(environment, program);
+
+        vm.RunProgram();
+
+        Assert.Equal(0, vm.ExitCode);
+        Assert.Equal(expectedBufferedOutput, environment.BufferedOutput);
+    }
+
+    public static TheoryData<List<Instruction>, string> GetBuiltinFunctionsData()
+    {
+        return new TheoryData<List<Instruction>, string>
+        {
+            // len
+            {
+                new List<Instruction>
+                {
+                    new Instruction(InstructionCode.Push, "Hello"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Len),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.ToString),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
+                },
+                "5"
             },
 
             // substring
             {
-                [
-                    new Instruction(InstructionCode.Push, "Cogito, ergo sum"),
+                new List<Instruction>
+                {
+                    new Instruction(InstructionCode.Push, "Hello, world!"),
                     new Instruction(InstructionCode.Push, 0),
-                    new Instruction(InstructionCode.Push, 6),
+                    new Instruction(InstructionCode.Push, 5),
                     new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Substring),
                     new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
                     new Instruction(InstructionCode.Push, 0),
                     new Instruction(InstructionCode.Halt),
-                ],
-                "Cogito"
+                },
+                "Hello"
             },
 
-            // concat
+            // parseInt
             {
-                [
-                    new Instruction(InstructionCode.Push, "Cogito"),
-                    new Instruction(InstructionCode.Push, " ergo sum"),
-                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Concat),
+                new List<Instruction>
+                {
+                    new Instruction(InstructionCode.Push, "123"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.ParseInt),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.ToString),
                     new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
                     new Instruction(InstructionCode.Push, 0),
                     new Instruction(InstructionCode.Halt),
-                ],
-                "Cogito ergo sum"
+                },
+                "123"
+            },
+
+            // toFloat
+            {
+                new List<Instruction>
+                {
+                    new Instruction(InstructionCode.Push, 42),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.ToFloat),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.ToString),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
+                },
+                "42"
             },
         };
     }
