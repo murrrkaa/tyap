@@ -1,41 +1,35 @@
+using PsTiger.Tests.TestLibrary.TestDoubles;
 using PsTiger.VirtualMachine;
 using PsTiger.VirtualMachine.Instructions;
 
-using Xunit;
+namespace PsTiger.VirtualMachine.UnitTests;
 
 public class HaltTest
 {
-    [Fact]
-    public void Halt_Returns_ExitCode()
+    [Theory]
+    [MemberData(nameof(GetHaltVmData))]
+    public void Can_halt_VM(int exitCode)
     {
-        var env = new FakeEnvironment();
-        var program = new[]
-        {
-            new Instruction(InstructionCode.Push, 5),
-            new Instruction(InstructionCode.Halt)
-        };
+        FakeEnvironment environment = new();
+        TigerVm vm = new(environment,
+        [
+            new Instruction(InstructionCode.Push, exitCode),
+            new Instruction(InstructionCode.Halt),
+        ]);
 
-        var vm = new TigerVm(env, program);
         vm.RunProgram();
 
-        Assert.Equal(5, vm.ExitCode);
+        Assert.Equal(exitCode, vm.ExitCode);
+        Assert.Empty(environment.BufferedOutput);
+        Assert.Empty(environment.FlushedOutput);
     }
 
-    [Fact]
-    public void StoreResult_Returns_Value()
+    public static TheoryData<int> GetHaltVmData()
     {
-        var env = new FakeEnvironment();
-        var program = new[]
-        {
-            new Instruction(InstructionCode.Push, 42),
-            new Instruction(InstructionCode.StoreResult),
-            new Instruction(InstructionCode.Push, 0),
-            new Instruction(InstructionCode.Halt)
-        };
-
-        var vm = new TigerVm(env, program);
-        var result = vm.RunProgram();
-
-        Assert.Equal(42, result.AsInt());
+        return
+        [
+            0,
+            1,
+        ];
     }
 }

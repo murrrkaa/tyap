@@ -1,66 +1,175 @@
-using PsTiger.Runtime;
+using PsTiger.Tests.TestLibrary.TestDoubles;
 using PsTiger.VirtualMachine;
 using PsTiger.VirtualMachine.Builtins;
 using PsTiger.VirtualMachine.Instructions;
+using System.Collections.Generic;
 
-using Xunit;
+namespace PsTiger.VirtualMachine.UnitTests;
 
 public class CallBuiltinTest
 {
-    [Fact]
-    public void Print_Writes_String()
+    [Theory]
+    [MemberData(nameof(GetUseInputAndOutputData))]
+    public void Can_use_input_and_output(
+        List<Instruction> program,
+        string input,
+        string expectedBufferedOutput,
+        string expectedFlushedOutput
+    )
     {
-        var env = new FakeEnvironment();
-        var program = new[]
-        {
-            new Instruction(InstructionCode.Push, "hello"),
-            new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
-            new Instruction(InstructionCode.Push, 0),
-            new Instruction(InstructionCode.Halt)
-        };
+        FakeEnvironment environment = new();
+        environment.AddInput(input);
 
-        var vm = new TigerVm(env, program);
+        TigerVm vm = new(environment, program);
+
         vm.RunProgram();
 
-        Assert.Equal("hello", env.Output);
+        Assert.Equal(0, vm.ExitCode);
+        Assert.Equal(expectedBufferedOutput, environment.BufferedOutput);
+        Assert.Equal(expectedFlushedOutput, environment.FlushedOutput);
     }
 
-    [Fact]
-    public void Size_Returns_Length()
+    public static TheoryData<List<Instruction>, string, string, string> GetUseInputAndOutputData()
     {
-        var env = new FakeEnvironment();
-        var program = new[]
+        return new()
         {
-            new Instruction(InstructionCode.Push, "abc"),
-            new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Size),
-            new Instruction(InstructionCode.StoreResult),
-            new Instruction(InstructionCode.Push, 0),
-            new Instruction(InstructionCode.Halt)
+            // print
+            {
+                [
+                    new Instruction(InstructionCode.Push, "Hello, world!"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
+                ],
+                string.Empty, "Hello, world!", string.Empty
+            },
+
+            // printi
+            {
+                [
+                    new Instruction(InstructionCode.Push, 762),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.PrintI),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
+                ],
+                string.Empty, "762", string.Empty
+            },
+
+            // flush
+            {
+                [
+                    new Instruction(InstructionCode.Push, "Hello, world!"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
+                    new Instruction(InstructionCode.Push, 111),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.PrintI),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Flush),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
+                ],
+                string.Empty, string.Empty, "Hello, world!111"
+            },
+
+            // getchar
+            {
+                [
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.GetChar),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.GetChar),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
+                ],
+                "Input", "In", string.Empty
+            },
         };
-
-        var vm = new TigerVm(env, program);
-        var result = vm.RunProgram();
-
-        Assert.Equal(3, result.AsInt());
     }
 
-    [Fact]
-    public void Concat_Joins_Strings()
+    [Theory]
+    [MemberData(nameof(GetCallBuiltinFunctionsData))]
+    public void Can_call_builtin_functions(
+        List<Instruction> program,
+        string expectedBufferedOutput
+    )
     {
-        var env = new FakeEnvironment();
-        var program = new[]
+        FakeEnvironment environment = new();
+        TigerVm vm = new(environment, program);
+
+        vm.RunProgram();
+
+        Assert.Equal(0, vm.ExitCode);
+        Assert.Equal(expectedBufferedOutput, environment.BufferedOutput);
+        Assert.Equal(string.Empty, environment.FlushedOutput);
+    }
+
+    public static TheoryData<List<Instruction>, string> GetCallBuiltinFunctionsData()
+    {
+        return new()
         {
-            new Instruction(InstructionCode.Push, "ab"),
-            new Instruction(InstructionCode.Push, "cd"),
-            new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Concat),
-            new Instruction(InstructionCode.StoreResult),
-            new Instruction(InstructionCode.Push, 0),
-            new Instruction(InstructionCode.Halt)
+            // ord
+            {
+                [
+                    new Instruction(InstructionCode.Push, "ABCD"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Ord),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.PrintI),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
+                ],
+                "65"
+            },
+
+            // chr
+            {
+                [
+                    new Instruction(InstructionCode.Push, 40),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Chr),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
+                    new Instruction(InstructionCode.Push, 41),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Chr),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
+                ],
+                "()"
+            },
+
+            // size
+            {
+                [
+                    new Instruction(InstructionCode.Push, "Hello, world!"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Size),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.PrintI),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
+                ],
+                "13"
+            },
+
+            // substring
+            {
+                [
+                    new Instruction(InstructionCode.Push, "Cogito, ergo sum"),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Push, 6),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Substring),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
+                ],
+                "Cogito"
+            },
+
+            // concat
+            {
+                [
+                    new Instruction(InstructionCode.Push, "Cogito"),
+                    new Instruction(InstructionCode.Push, " ergo sum"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Concat),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
+                ],
+                "Cogito ergo sum"
+            },
         };
-
-        var vm = new TigerVm(env, program);
-        var result = vm.RunProgram();
-
-        Assert.Equal("abcd", result.AsString());
     }
 }

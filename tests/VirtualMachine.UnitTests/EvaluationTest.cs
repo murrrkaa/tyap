@@ -1,67 +1,116 @@
+using PsTiger.Tests.TestLibrary.TestDoubles;
 using PsTiger.VirtualMachine;
+using PsTiger.VirtualMachine.Builtins;
 using PsTiger.VirtualMachine.Instructions;
+using System.Collections.Generic;
 
-using Xunit;
+namespace PsTiger.VirtualMachine.UnitTests;
 
 public class EvaluationTest
 {
-    [Fact]
-    public void Add_Works()
+    [Theory]
+    [MemberData(nameof(GetEvaluateExpressionData))]
+    public void Can_evaluate_expression(
+        List<Instruction> program,
+        string expectedOutput)
     {
-        var env = new FakeEnvironment();
-        var program = new[]
-        {
-            new Instruction(InstructionCode.Push, 2),
-            new Instruction(InstructionCode.Push, 3),
-            new Instruction(InstructionCode.Add),
-            new Instruction(InstructionCode.StoreResult),
-            new Instruction(InstructionCode.Push, 0),
-            new Instruction(InstructionCode.Halt)
-        };
+        FakeEnvironment environment = new();
+        TigerVm vm = new(environment, program);
 
-        var vm = new TigerVm(env, program);
-        var result = vm.RunProgram();
+        vm.RunProgram();
 
-        Assert.Equal(5, result.AsInt());
+        Assert.Equal(0, vm.ExitCode);
+        Assert.Equal(expectedOutput, environment.BufferedOutput);
+        Assert.Empty(environment.FlushedOutput);
     }
 
-    [Fact]
-    public void Multiply_Works()
+    public static TheoryData<List<Instruction>, string> GetEvaluateExpressionData()
     {
-        var env = new FakeEnvironment();
-        var program = new[]
+        return new()
         {
-            new Instruction(InstructionCode.Push, 4),
-            new Instruction(InstructionCode.Push, 5),
-            new Instruction(InstructionCode.Multiply),
-            new Instruction(InstructionCode.StoreResult),
-            new Instruction(InstructionCode.Push, 0),
-            new Instruction(InstructionCode.Halt)
+            // (20 + 50) - 3 = 67
+            {
+                [
+                    new Instruction(InstructionCode.Push, 20),
+                    new Instruction(InstructionCode.Push, 50),
+                    new Instruction(InstructionCode.Add),
+                    new Instruction(InstructionCode.Push, 3),
+                    new Instruction(InstructionCode.Subtract),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.PrintI),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
+                ],
+                "67"
+            },
+
+            // (20 * 50) / -5 = -200
+            {
+                [
+                    new Instruction(InstructionCode.Push, 20),
+                    new Instruction(InstructionCode.Push, 50),
+                    new Instruction(InstructionCode.Multiply),
+                    new Instruction(InstructionCode.Push, -5),
+                    new Instruction(InstructionCode.Divide),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.PrintI),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
+                ],
+                "-200"
+            },
+
+            // 1 & 0 | 1 = 1
+            {
+                [
+                    new Instruction(InstructionCode.Push, 1),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.And),
+                    new Instruction(InstructionCode.Push, 1),
+                    new Instruction(InstructionCode.Or),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.PrintI),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
+                ],
+                "1"
+            },
+
+            // 17 < 20 = 1
+            {
+                [
+                    new Instruction(InstructionCode.Push, 17),
+                    new Instruction(InstructionCode.Push, 20),
+                    new Instruction(InstructionCode.Less),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.PrintI),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
+                ],
+                "1"
+            },
+
+            // unary minus
+            {
+                [
+                    new Instruction(InstructionCode.Push, 1024),
+                    new Instruction(InstructionCode.Negate),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.PrintI),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
+                ],
+                "-1024"
+            },
+
+            // pop test
+            {
+                [
+                    new Instruction(InstructionCode.Push, 1024),
+                    new Instruction(InstructionCode.Push, 702),
+                    new Instruction(InstructionCode.Pop),
+                    new Instruction(InstructionCode.Negate),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.PrintI),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
+                ],
+                "-1024"
+            }
         };
-
-        var vm = new TigerVm(env, program);
-        var result = vm.RunProgram();
-
-        Assert.Equal(20, result.AsInt());
-    }
-
-    [Fact]
-    public void Less_Works()
-    {
-        var env = new FakeEnvironment();
-        var program = new[]
-        {
-            new Instruction(InstructionCode.Push, 1),
-            new Instruction(InstructionCode.Push, 2),
-            new Instruction(InstructionCode.Less),
-            new Instruction(InstructionCode.StoreResult),
-            new Instruction(InstructionCode.Push, 0),
-            new Instruction(InstructionCode.Halt)
-        };
-
-        var vm = new TigerVm(env, program);
-        var result = vm.RunProgram();
-
-        Assert.Equal(1, result.AsInt());
     }
 }
