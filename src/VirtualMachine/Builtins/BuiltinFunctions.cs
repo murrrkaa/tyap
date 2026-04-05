@@ -5,76 +5,128 @@ namespace PsTiger.VirtualMachine.Builtins;
 
 public class BuiltinFunctions
 {
-	private IEnvironment _environment;
+    private readonly IEnvironment _environment;
 
-	public BuiltinFunctions(IEnvironment environment)
-	{
-		_environment = environment;
-	}
+    public BuiltinFunctions(IEnvironment environment)
+    {
+        _environment = environment;
+    }
 
-	public void Print(Value value)
-	{
-		_environment.Print(value.AsString());
-	}
+    public void Print(Value value)
+    {
+        if (value.IsString())
+        {
+            _environment.Print(value.AsString());
+        }
+        else if (value.IsInt())
+        {
+            _environment.PrintInt(value.AsInt());
+        }
+        else if (value.IsFloat())
+        {
+            _environment.Print(value.AsFloat().ToString(System.Globalization.CultureInfo.InvariantCulture));
+        }
+        else if (value.IsBool())
+        {
+            _environment.Print(value.AsBool() ? "true" : "false");
+        }
+    }
 
-	public void PrintI(Value value)
-	{
-		_environment.PrintInt(value.AsInt());
-	}
+    public Value ReadInt()
+    {
+        string input = Console.ReadLine() ?? "0";
+        if (int.TryParse(input, out int result))
+        {
+            return new Value(result);
+        }
+        return new Value(0);
+    }
 
-	public void Flush()
-	{
-		_environment.Flush();
-	}
+    public Value ReadFloat()
+    {
+        string input = Console.ReadLine() ?? "0";
+        if (double.TryParse(input, System.Globalization.NumberStyles.Float,
+            System.Globalization.CultureInfo.InvariantCulture, out double result))
+        {
+            return new Value(result);
+        }
+        return new Value(0.0);
+    }
 
-	public Value GetChar()
-	{
-		int code = _environment.ReadChar();
-		if (code == -1)
-		{
-			return new Value("");
-		}
+    public Value ReadString()
+    {
+        string input = Console.ReadLine() ?? "";
+        return new Value(input);
+    }
 
-		char c = (code < 128) ? (char)code : '?';
-		return new Value(c.ToString());
-	}
+    public Value Len(Value text)
+    {
+        return new Value(text.AsString().Length);
+    }
 
-	public Value Ord(Value value)
-	{
-		string text = value.AsString();
-		int result = (text.Length > 0) ? text[0] : -1;
-		return new Value(result);
-	}
+    public Value Substring(Value value, Value startIndex, Value count)
+    {
+        string text = value.AsString();
+        int start = startIndex.AsInt();
+        int length = count.AsInt();
 
-	public Value Chr(Value value)
-	{
-		int code = value.AsInt();
-		if (code < 0 || code >= 128)
-		{
-			throw new ProgramAbortedException($"Invalid character code {code}");
-		}
+        if (start < 0) start = 0;
+        if (start >= text.Length) return new Value("");
+        if (length < 0) length = 0;
+        if (start + length > text.Length)
+        {
+            length = text.Length - start;
+        }
 
-		char ch = (char)code;
-		return new Value(ch.ToString());
-	}
+        return new Value(text.Substring(start, length));
+    }
 
-	public Value Size(Value text)
-	{
-		return new Value(text.AsString().Length);
-	}
+    public Value ToString(Value value)
+    {
+        if (value.IsInt())
+        {
+            return new Value(value.AsInt().ToString());
+        }
+        else if (value.IsFloat())
+        {
+            return new Value(value.AsFloat().ToString(System.Globalization.CultureInfo.InvariantCulture));
+        }
+        else if (value.IsBool())
+        {
+            return new Value(value.AsBool() ? "true" : "false");
+        }
+        return new Value("");
+    }
 
-	public Value Substring(Value value, Value fromIndex, Value length)
-	{
-		string text = value.AsString();
+    public Value ParseInt(Value value)
+    {
+        string text = value.AsString();
+        if (int.TryParse(text, out int result))
+        {
+            return new Value(result);
+        }
+        return new Value(0);
+    }
 
-		// Разрешаем выход за границы строки, в этом случае результат будет короче заданной длины.
-		int safeLength = int.Min(length.AsInt(), text.Length - fromIndex.AsInt());
+    public Value ToBool(Value value)
+    {
+        if (value.IsInt())
+        {
+            return new Value(value.AsInt() != 0 ? 1 : 0);
+        }
+        else if (value.IsFloat())
+        {
+            return new Value(value.AsFloat() != 0.0 ? 1 : 0);
+        }
+        return new Value(0);
+    }
 
-		return new Value(text.Substring(fromIndex.AsInt(), safeLength));
-	}
-
-	public Value Concat(Value s1, Value s2)
-	{
-		return new Value(s1.AsString() + s2.AsString());
-	}
+    public Value ToFloat(Value value)
+    {
+        if (value.IsInt())
+        {
+            return new Value((double)value.AsInt());
+        }
+        return new Value(value.AsFloat());
+    }
 }

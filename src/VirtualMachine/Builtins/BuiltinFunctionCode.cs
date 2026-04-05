@@ -6,47 +6,52 @@
 public enum BuiltinFunctionCode
 {
     /// <summary>
-    /// `print(s: string)` — выводит строку в стандартный поток вывода
+    /// `print(...)` — выводит значения в стандартный поток вывода
     /// </summary>
     Print = 0,
 
     /// <summary>
-    /// `printi(i: int)` — выводит целое число в стандартный поток вывода
+    /// `readInt(): int` — считывает число типа int
     /// </summary>
-    PrintI = 1,
+    ReadInt = 1,
 
     /// <summary>
-    /// `flush()` — записывает данные в буфере стандартного потока вывода
+    /// `readFloat(): float` — считывает число типа float
     /// </summary>
-    Flush = 2,
+    ReadFloat = 2,
 
     /// <summary>
-    /// `getchar(): string` — читает один символ из stdin
+    /// `readString(): string` — считывает строку
     /// </summary>
-    GetChar = 3,
+    ReadString = 3,
 
     /// <summary>
-    /// `ord(s: string): int` — возвращает ASCII-код первого символа `s`
+    /// `len(s: string): int` — возвращает длину строки
     /// </summary>
-    Ord = 4,
+    Len = 4,
 
     /// <summary>
-    /// `chr(i: int): string` — возвращает строку из одного символа для ASCII-значения `i`
+    /// `substring(s: string, start: int, count: int): string` — возвращает подстроку
     /// </summary>
-    Chr = 5,
+    Substring = 5,
 
     /// <summary>
-    /// `size(s: string): int` — возвращает количество символов в строке `s`
+    /// `toString(num): string` — преобразует число в строку
     /// </summary>
-    Size = 6,
+    ToString = 6,
 
     /// <summary>
-    /// `substring(s: string, f: int, n: int): string` — возвращает подстроку `s`, начинающуюся с индекса `f`, длиной `n`
+    /// `parseInt(str: string): int` — преобразует строку в число
     /// </summary>
-    Substring = 7,
+    ParseInt = 7,
 
     /// <summary>
-    /// `concat(s1: string, s2: string): string` — возвращает результат конкатенации строк `s1` и `s2`
+    /// `toBool(num): bool` — преобразует число в булевый тип
     /// </summary>
-    Concat = 8,
+    ToBool = 8,
+
+    /// <summary>
+    /// `toFloat(num): float` — преобразует int в float
+    /// </summary>
+    ToFloat = 9,
 }

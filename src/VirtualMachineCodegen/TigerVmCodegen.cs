@@ -1,6 +1,7 @@
 ﻿using PsTiger.Ast;
 using PsTiger.Ast.Declarations;
 using PsTiger.Ast.Expressions;
+using PsTiger.Ast.Statements;
 using PsTiger.Runtime;
 using PsTiger.VirtualMachine.Builtins;
 using PsTiger.VirtualMachine.Instructions;
@@ -10,186 +11,65 @@ using ValueType = PsTiger.Runtime.ValueType;
 namespace PsTiger.VirtualMachineCodegen;
 
 /// <summary>
-/// Генерирует инструкции виртуальной машины TigerVm путём обхода абстрактного синтаксического дерева (AST) программы.
+/// Генерирует инструкции виртуальной машины TigerVm путём обхода AST.
+/// Соответствует спецификации 02_syntax.md
 /// </summary>
 public class TigerVmCodegen : IAstVisitor
 {
     private static readonly IReadOnlyDictionary<string, BuiltinFunctionCode> BuiltinFunctionsMap =
         new Dictionary<string, BuiltinFunctionCode>
         {
-            {
-                Builtins.Print, BuiltinFunctionCode.Print
-            },
-            {
-                Builtins.PrintI, BuiltinFunctionCode.PrintI
-            },
-            {
-                Builtins.Flush, BuiltinFunctionCode.Flush
-            },
-            {
-                Builtins.GetChar, BuiltinFunctionCode.GetChar
-            },
-            {
-                Builtins.Ord, BuiltinFunctionCode.Ord
-            },
-            {
-                Builtins.Chr, BuiltinFunctionCode.Chr
-            },
-            {
-                Builtins.Size, BuiltinFunctionCode.Size
-            },
-            {
-                Builtins.Substring, BuiltinFunctionCode.Substring
-            },
-            {
-                Builtins.Concat, BuiltinFunctionCode.Concat
-            },
+            { "print", BuiltinFunctionCode.Print },
+            { "readInt", BuiltinFunctionCode.ReadInt },
+            { "readFloat", BuiltinFunctionCode.ReadFloat },
+            { "readString", BuiltinFunctionCode.ReadString },
+            { "len", BuiltinFunctionCode.Len },
+            { "substring", BuiltinFunctionCode.Substring },
+            { "toString", BuiltinFunctionCode.ToString },
+            { "parseInt", BuiltinFunctionCode.ParseInt },
+            { "toBool", BuiltinFunctionCode.ToBool },
+            { "toFloat", BuiltinFunctionCode.ToFloat },
         };
 
     private readonly InstructionsBuilder _builder = new();
     private CodegenSymbolsTable? _symbolsTable;
+    private readonly Stack<BasicBlock> _loopEndBlocks = new();
 
-    /// <summary>
-    /// Стек со ссылками на блоки после текущих циклов (while и for).
-    /// Используется для генерации прерывания цикла (break).
-    /// </summary>
-    private readonly Stack<BasicBlock> _currentLoopFinalBlockStack = new();
-
-    public List<Instruction> GenerateCode(Expression program)
+    public List<Instruction> GenerateCode(Program program)
     {
-        program.Accept(this);
+        _symbolsTable = new CodegenSymbolsTable(null);
 
-        if (program.ResultType != ValueType.Void)
+        // Резервируем блоки для функций верхнего уровня
+        foreach (Declaration decl in program.TopLevelStatements)
         {
-            _builder.Append(new Instruction(InstructionCode.StoreResult));
+            if (decl is FunctionDeclaration func)
+            {
+                BasicBlock block = _builder.CreateBasicBlock();
+                _symbolsTable.AddFunctionEntry(func.Name, block);
+            }
         }
 
+        // Генерируем код для top-level деклараций
+        foreach (Declaration decl in program.TopLevelStatements)
+        {
+            decl.Accept(this);
+        }
+
+        // Генерируем main
+        program.MainFunction.Accept(this);
+
+        // Завершение программы
         _builder.Append(new Instruction(InstructionCode.Push, 0));
         _builder.Append(new Instruction(InstructionCode.Halt));
 
         return _builder.Finish();
     }
 
+    // === Expressions ===
+
     public void Visit(LiteralExpression e)
     {
         _builder.Append(new Instruction(InstructionCode.Push, e.Value));
-    }
-
-    public void Visit(BinaryOperationExpression e)
-    {
-        switch (e.Operation)
-        {
-            case BinaryOperation.Add:
-                GenerateBinaryOperationCode(e.Left, e.Right, InstructionCode.Add);
-                break;
-            case BinaryOperation.Subtract:
-                GenerateBinaryOperationCode(e.Left, e.Right, InstructionCode.Subtract);
-                break;
-            case BinaryOperation.Multiply:
-                GenerateBinaryOperationCode(e.Left, e.Right, InstructionCode.Multiply);
-                break;
-            case BinaryOperation.Divide:
-                GenerateBinaryOperationCode(e.Left, e.Right, InstructionCode.Divide);
-                break;
-            case BinaryOperation.And:
-                GenerateLogicalAndCode(e);
-                break;
-
-            case BinaryOperation.Or:
-                GenerateLogicalOrCode(e);
-                break;
-
-            case BinaryOperation.Equal:
-                GenerateBinaryOperationCode(e.Left, e.Right, InstructionCode.Equal);
-                break;
-            case BinaryOperation.NotEqual:
-                GenerateBinaryOperationCode(e.Left, e.Right, InstructionCode.NotEqual);
-                break;
-            case BinaryOperation.LessThan:
-                GenerateBinaryOperationCode(e.Left, e.Right, InstructionCode.Less);
-                break;
-            case BinaryOperation.LessThanOrEqual:
-                GenerateBinaryOperationCode(e.Left, e.Right, InstructionCode.LessOrEqual);
-                break;
-            case BinaryOperation.GreaterThan:
-                // Меняем операнды местами, потому что у нашей виртуальной машины нет инструкции Greater.
-                GenerateBinaryOperationCode(e.Right, e.Left, InstructionCode.Less);
-                break;
-            case BinaryOperation.GreaterThanOrEqual:
-                // Меняем операнды местами, потому что у нашей виртуальной машины нет инструкции GreaterOrEqual.
-                GenerateBinaryOperationCode(e.Right, e.Left, InstructionCode.LessOrEqual);
-                break;
-            default:
-                throw new NotImplementedException($"Unsupported binary operation type {e.Operation}");
-        }
-    }
-
-    public void Visit(SequenceExpression e)
-    {
-        GenerateExpressionsSequenceCode(e.Sequence);
-    }
-
-    public void Visit(UnaryMinusExpression e)
-    {
-        e.Operand.Accept(this);
-        _builder.Append(new Instruction(InstructionCode.Negate));
-    }
-
-    public void Visit(FunctionCallExpression e)
-    {
-        foreach (Expression argument in e.Arguments)
-        {
-            argument.Accept(this);
-        }
-
-        switch (e.Function)
-        {
-            case BuiltinFunction builtin:
-                Instruction instruction = builtin.Name switch
-                {
-                    Builtins.Not => new Instruction(InstructionCode.Not),
-                    Builtins.Exit => new Instruction(InstructionCode.Halt),
-                    _ => new Instruction(InstructionCode.CallBuiltin, GetBuiltinFunctionCode(builtin.Name)),
-                };
-                _builder.Append(instruction);
-                break;
-
-            case FunctionDeclaration functionDeclaration:
-                {
-                    BasicBlock functionBlock = _symbolsTable!.GetFunctionEntry(functionDeclaration.Name);
-                    _builder.AppendJump(InstructionCode.Call, functionBlock);
-                }
-
-                break;
-
-            default:
-                throw new NotImplementedException($"Unsupported AST subclass {e.Function.GetType()}");
-        }
-    }
-
-    public void Visit(ScopeExpression e)
-    {
-        PushLexicalScope();
-
-        // Заранее резервируем базовые блоки для функций в текущей области видимости,
-        //  чтобы поддержать взаимную рекурсию функций.
-        foreach (Declaration declaration in e.Declarations)
-        {
-            if (declaration is FunctionDeclaration functionDeclaration)
-            {
-                BasicBlock functionBlock = _builder.CreateBasicBlock();
-                _symbolsTable!.AddFunctionEntry(functionDeclaration.Name, functionBlock);
-            }
-        }
-
-        foreach (Declaration declaration in e.Declarations)
-        {
-            declaration.Accept(this);
-        }
-
-        GenerateExpressionsSequenceCode(e.Expressions);
-
-        PopLexicalScope();
     }
 
     public void Visit(VariableAccessExpression e)
@@ -197,85 +77,196 @@ public class TigerVmCodegen : IAstVisitor
         _builder.Append(new Instruction(InstructionCode.LoadVar, e.Variable.Name));
     }
 
-    public void Visit(AssignmentExpression e)
+    public void Visit(BinaryOperationExpression e)
     {
-        /*
-         Пример кода, генерируемого для выражения `arr[x][y] := 10`:
-           Push 10
-           LoadVar "arr"
-           LoadVar "x"
-           LoadArray
-           LoadVar "y"
-           StoreArray
-
-        Здесь StoreArray используется только один раз, чтобы сохранить значение 10 по индексу `y` в массив `arr[x]`.
-         */
-
+        e.Left.Accept(this);
         e.Right.Accept(this);
 
-        switch (e.Left)
+        InstructionCode code = e.Operation switch
         {
-            case VariableAccessExpression variableAccess:
-                _builder.Append(new Instruction(InstructionCode.StoreVar, variableAccess.Variable.Name));
-                break;
+            BinaryOperation.Add => InstructionCode.Add,
+            BinaryOperation.Subtract => InstructionCode.Subtract,
+            BinaryOperation.Multiply => InstructionCode.Multiply,
+            BinaryOperation.Divide => InstructionCode.Divide,
+            BinaryOperation.And => InstructionCode.And,
+            BinaryOperation.Or => InstructionCode.Or,
+            BinaryOperation.Equal => InstructionCode.Equal,
+            BinaryOperation.NotEqual => InstructionCode.NotEqual,
+            BinaryOperation.LessThan => InstructionCode.Less,
+            BinaryOperation.LessThanOrEqual => InstructionCode.LessOrEqual,
+            BinaryOperation.GreaterThan => InstructionCode.GreaterThan,
+            BinaryOperation.GreaterThanOrEqual => InstructionCode.GreaterThanOrEqual,
+            _ => throw new NotImplementedException($"Unsupported binary operation: {e.Operation}")
+        };
+        _builder.Append(new Instruction(code));
+    }
 
-            case ArrayAccessExpression arrayAccess:
-                arrayAccess.Array.Accept(this);
-                arrayAccess.Index.Accept(this);
-                _builder.Append(new Instruction(InstructionCode.StoreArray));
-                break;
+    public void Visit(UnaryNotExpression e)
+    {
+        e.Operand.Accept(this);
+        _builder.Append(new Instruction(InstructionCode.Not));
+    }
 
-            case FieldAccessExpression fieldAccess:
-                fieldAccess.Record.Accept(this);
-                _builder.Append(new Instruction(InstructionCode.StoreField, fieldAccess.FieldName));
-                break;
-
-            default:
-                throw new NotImplementedException();
+    public void Visit(FunctionCallExpression e)
+    {
+        // Аргументы
+        foreach (Expression arg in e.Arguments)
+        {
+            arg.Accept(this);
         }
+
+        if (e.Function is BuiltinFunction builtin)
+        {
+            if (BuiltinFunctionsMap.TryGetValue(builtin.Name, out BuiltinFunctionCode code))
+            {
+                _builder.Append(new Instruction(InstructionCode.CallBuiltin, (int)code));
+            }
+            else
+            {
+                throw new NotImplementedException($"Unknown builtin: {builtin.Name}");
+            }
+        }
+        else if (e.Function is FunctionDeclaration func)
+        {
+            BasicBlock block = _symbolsTable!.GetFunctionEntry(func.Name);
+            _builder.AppendJump(InstructionCode.Call, block);
+        }
+    }
+
+    // === Statements ===
+
+    public void Visit(AssignmentStatement e)
+    {
+        e.Value.Accept(this);
+        _builder.Append(new Instruction(InstructionCode.StoreVar, e.VariableName));
     }
 
     public void Visit(IfStatement e)
     {
+        BasicBlock elseBlock = _builder.CreateBasicBlock();
+        BasicBlock finalBlock = _builder.CreateBasicBlock();
+
+        e.Condition.Accept(this);
+        _builder.AppendJump(InstructionCode.JumpIfFalse, elseBlock);
+
+        e.ThenBranch.Accept(this);
+        _builder.AppendJump(InstructionCode.Jump, finalBlock);
+
+        _builder.InsertPoint = elseBlock;
         if (e.ElseBranch != null)
         {
-            // Конструкция if ... then ... else ... выполняется так:
-            // 1) Вычисляется условие
-            // 2) Если результат равен нулю, то прыгаем на ветку else
-            // 3) Иначе выполняем ветку then и затем перепрыгиваем через ветку else
-            BasicBlock elseBlock = _builder.CreateBasicBlock();
-            BasicBlock finalBlock = _builder.CreateBasicBlock();
-
-            e.Condition.Accept(this);
-            _builder.AppendJump(InstructionCode.JumpIfFalse, elseBlock);
-
-            e.ThenBranch.Accept(this);
-            _builder.AppendJump(InstructionCode.Jump, finalBlock);
-
-            _builder.InsertPoint = elseBlock;
             e.ElseBranch.Accept(this);
-            _builder.AppendJump(InstructionCode.Jump, finalBlock);
-
-            _builder.InsertPoint = finalBlock;
         }
-        else
+        _builder.AppendJump(InstructionCode.Jump, finalBlock);
+
+        _builder.InsertPoint = finalBlock;
+    }
+
+    public void Visit(WhileStatement e)
+    {
+        BasicBlock loopStart = _builder.CreateBasicBlock();
+        BasicBlock loopEnd = _builder.CreateBasicBlock();
+        _loopEndBlocks.Push(loopEnd);
+
+        _builder.AppendJump(InstructionCode.Jump, loopStart);
+        _builder.InsertPoint = loopStart;
+
+        e.Condition.Accept(this);
+        _builder.AppendJump(InstructionCode.JumpIfFalse, loopEnd);
+
+        e.Body.Accept(this);
+        _builder.AppendJump(InstructionCode.Jump, loopStart);
+
+        _loopEndBlocks.Pop();
+        _builder.InsertPoint = loopEnd;
+    }
+
+    public void Visit(ForStatement e)
+    {
+        BasicBlock loopStart = _builder.CreateBasicBlock();
+        BasicBlock loopEnd = _builder.CreateBasicBlock();
+        _loopEndBlocks.Push(loopEnd);
+
+        PushLexicalScope();
+
+        // Инициализация
+        e.Init.Accept(this);
+
+        _builder.AppendJump(InstructionCode.Jump, loopStart);
+        _builder.InsertPoint = loopStart;
+
+        // Условие
+        e.Condition.Accept(this);
+        _builder.AppendJump(InstructionCode.JumpIfFalse, loopEnd);
+
+        // Тело
+        e.Body.Accept(this);
+
+        // Шаг
+        e.Step.Accept(this);
+        _builder.AppendJump(InstructionCode.Jump, loopStart);
+
+        _loopEndBlocks.Pop();
+        _builder.InsertPoint = loopEnd;
+        PopLexicalScope();
+    }
+
+    public void Visit(BreakStatement e)
+    {
+        BasicBlock loopEnd = _loopEndBlocks.Peek();
+        _builder.AppendJump(InstructionCode.Jump, loopEnd);
+    }
+
+    public void Visit(ContinueStatement e)
+    {
+        BasicBlock loopEnd = _loopEndBlocks.Peek();
+        _builder.AppendJump(InstructionCode.Jump, loopEnd);
+    }
+
+    public void Visit(ReturnStatement e)
+    {
+        if (e.Expression != null)
         {
-            // Конструкция if ... then выполняется так:
-            // 1) Вычисляется условие
-            // 2) Если результат равен нулю, то перепрыгиваем через ветку then
-            BasicBlock finalBlock = _builder.CreateBasicBlock();
+            e.Expression.Accept(this);
+        }
+        _builder.Append(new Instruction(InstructionCode.Return));
+    }
 
-            e.Condition.Accept(this);
-            _builder.AppendJump(InstructionCode.JumpIfFalse, finalBlock);
-
-            e.ThenBranch.Accept(this);
-            _builder.AppendJump(InstructionCode.Jump, finalBlock);
-
-            _builder.InsertPoint = finalBlock;
+    public void Visit(PrintStatement e)
+    {
+        foreach (Expression arg in e.Arguments)
+        {
+            arg.Accept(this);
+            _builder.Append(new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print));
         }
     }
 
+    public void Visit(FunctionCallStatement e)
+    {
+        e.Call.Accept(this);
+        _builder.Append(new Instruction(InstructionCode.Pop));
+    }
+
+    public void Visit(BlockStatement e)
+    {
+        foreach (AstNode node in e.Nodes)
+        {
+            if (node is Statement stmt)
+            {
+                stmt.Accept(this);
+            }
+        }
+    }
+
+    // === Declarations ===
+
     public void Visit(VariableDeclaration d)
+    {
+        d.InitialValue.Accept(this);
+        _builder.Append(new Instruction(InstructionCode.DefineVar, d.Name));
+    }
+
+    public void Visit(ConstantDeclaration d)
     {
         d.InitialValue.Accept(this);
         _builder.Append(new Instruction(InstructionCode.DefineVar, d.Name));
@@ -284,27 +275,23 @@ public class TigerVmCodegen : IAstVisitor
     public void Visit(FunctionDeclaration d)
     {
         BasicBlock functionBlock = _symbolsTable!.GetFunctionEntry(d.Name);
-
         BasicBlock previousBlock = _builder.InsertPoint;
         _builder.InsertPoint = functionBlock;
+
         try
         {
-            // Создание области видимости, дочерней от области, в которой находилось объявление функции.
             PushLexicalScope();
 
-            // Сохранение параметров со стека в переменные (в обратном порядке).
-            foreach (AbstractParameterDeclaration declaration in d.Parameters.Reverse())
+            // Параметры в обратном порядке
+            foreach (ParameterDeclaration param in d.Parameters)
             {
-                _builder.Append(new Instruction(InstructionCode.DefineVar, declaration.Name));
+                _builder.Append(new Instruction(InstructionCode.DefineVar, param.Name));
             }
 
-            // Генерация кода для тела функции.
             d.Body.Accept(this);
+            _builder.Append(new Instruction(InstructionCode.Return));
 
             PopLexicalScope();
-
-            // Возврат из функции.
-            _builder.Append(new Instruction(InstructionCode.Return));
         }
         finally
         {
@@ -312,207 +299,33 @@ public class TigerVmCodegen : IAstVisitor
         }
     }
 
-    public void Visit(ParameterDeclaration d)
+    public void Visit(ParameterDeclaration d) { }
+
+    // === Program ===
+
+    public void Visit(Program e)
     {
+        // Обработка в GenerateCode
     }
 
-    public void Visit(WhileLoopExpression e)
-    {
-        BasicBlock loopBlock = _builder.CreateBasicBlock();
-        BasicBlock finalBlock = _builder.CreateBasicBlock();
-        _currentLoopFinalBlockStack.Push(finalBlock);
+    // === Not used in this iteration ===
 
-        // Переход в начало цикла.
-        _builder.AppendJump(InstructionCode.Jump, loopBlock);
-        _builder.InsertPoint = loopBlock;
+    public void Visit(BuiltinFunction e) { }
+    public void Visit(BuiltinFunctionParameter e) { }
+    public void Visit(BuiltinType e) { }
 
-        // Проверяем условие и завершаем цикл, если оно ложно.
-        e.Condition.Accept(this);
-        _builder.AppendJump(InstructionCode.JumpIfFalse, finalBlock);
+    // === Helpers ===
 
-        // Генерируем тело цикла и переход к началу цикла.
-        e.LoopBody.Accept(this);
-        _builder.AppendJump(InstructionCode.Jump, loopBlock);
-
-        _currentLoopFinalBlockStack.Pop();
-        _builder.InsertPoint = finalBlock;
-    }
-
-    public void Visit(ForLoopExpression e)
-    {
-        BasicBlock loopBlock = _builder.CreateBasicBlock();
-        BasicBlock finalBlock = _builder.CreateBasicBlock();
-        _currentLoopFinalBlockStack.Push(finalBlock);
-
-        // Итератор может скрывать переменные окружающей области видимости, поэтому мы добавляем область видимости.
-        PushLexicalScope();
-
-        // Инициализация итератора цикла
-        e.StartValue.Accept(this);
-        _builder.Append(new Instruction(InstructionCode.DefineVar, e.Iterator.Name));
-
-        // Переход в начало цикла
-        _builder.AppendJump(InstructionCode.Jump, loopBlock);
-        _builder.InsertPoint = loopBlock;
-
-        // Проверяем значение итератора и завершаем цикл, если итератор больше своего финального значения.
-        _builder.Append(new Instruction(InstructionCode.LoadVar, e.Iterator.Name));
-        e.EndValue.Accept(this);
-        _builder.Append(new Instruction(InstructionCode.LessOrEqual));
-        _builder.AppendJump(InstructionCode.JumpIfFalse, finalBlock);
-
-        // Генерируем тело цикла, инкремент итератора и переход к началу цикла
-        e.LoopBody.Accept(this);
-        _builder.Append(new Instruction(InstructionCode.LoadVar, e.Iterator.Name));
-        _builder.Append(new Instruction(InstructionCode.Push, 1));
-        _builder.Append(new Instruction(InstructionCode.Add));
-        _builder.Append(new Instruction(InstructionCode.StoreVar, e.Iterator.Name));
-        _builder.AppendJump(InstructionCode.Jump, loopBlock);
-
-        _currentLoopFinalBlockStack.Pop();
-        _builder.InsertPoint = finalBlock;
-        PopLexicalScope();
-    }
-
-    public void Visit(ForIteratorDeclaration d)
-    {
-    }
-
-    public void Visit(BreakLoopExpression e)
-    {
-        BasicBlock loopFinalBlock = _currentLoopFinalBlockStack.Peek();
-        _builder.AppendJump(InstructionCode.Jump, loopFinalBlock);
-    }
-
-    public void Visit(TypeDeclaration d)
-    {
-    }
-
-    public void Visit(NamedTypeExpression e)
-    {
-    }
-
-    public void Visit(ArrayAccessExpression e)
-    {
-        e.Array.Accept(this);
-        e.Index.Accept(this);
-        _builder.Append(new Instruction(InstructionCode.LoadArray));
-    }
-
-    public void Visit(FieldDeclaration d)
-    {
-    }
-
-    public void Visit(FieldInitializer e)
-    {
-        e.Value.Accept(this);
-        _builder.Append(new Instruction(InstructionCode.InitField, e.Name));
-    }
-
-    private void GenerateExpressionsSequenceCode(IReadOnlyList<Expression> sequence) // IReadOnlyList<AstNode>?
-    {
-        for (int i = 0, iMax = sequence.Count - 1; i <= iMax; ++i)
-        {
-            Expression expression = sequence[i];
-            expression.Accept(this);
-
-            // Отбрасываем результат всех выражений, кроме последнего.
-            if (i != iMax && node is Expression expr && expr.ResultType != ValueType.Void)
-            {
-                _builder.Append(new Instruction(InstructionCode.Pop));
-            }
-        }
-    }
-
-    private void GenerateBinaryOperationCode(Expression left, Expression right, InstructionCode code)
-    {
-        left.Accept(this);
-        right.Accept(this);
-        _builder.Append(new Instruction(code));
-    }
-
-    private void GenerateLogicalAndCode(BinaryOperationExpression e)
-    {
-        // Логическое "И" вычисляется по короткой схеме: если первый операнд обращается в "ЛОЖЬ",
-        //  то второй операнд не вычисляется.
-        BasicBlock shortCircuitBlock = _builder.CreateBasicBlock();
-        BasicBlock finalBlock = _builder.CreateBasicBlock();
-
-        // Вычисляем первый операнд.
-        e.Left.Accept(this);
-
-        // Переходим к короткой схеме, если первый операнд обращается в "ЛОЖЬ".
-        _builder.AppendJump(InstructionCode.JumpIfFalse, shortCircuitBlock);
-
-        // Иначе вычисляем второй операнд.
-        // Затем используем операцию "X <> 0", чтобы привести "X" к булеву значению (1 или 0).
-        e.Right.Accept(this);
-        _builder.Append(new Instruction(InstructionCode.Push, 0));
-        _builder.Append(new Instruction(InstructionCode.NotEqual));
-        _builder.AppendJump(InstructionCode.Jump, finalBlock);
-
-        // Выполняем короткую схему вычислений: левый операнд обратился в "ЛОЖЬ", и результат будет "ЛОЖЬ".
-        _builder.InsertPoint = shortCircuitBlock;
-        _builder.Append(new Instruction(InstructionCode.Push, 0));
-        _builder.AppendJump(InstructionCode.Jump, finalBlock);
-
-        _builder.InsertPoint = finalBlock;
-    }
-
-    private void GenerateLogicalOrCode(BinaryOperationExpression e)
-    {
-        // Логическое "ИЛИ" вычисляется по короткой схеме: если первый операнд обращается в "ИСТИНУ",
-        //  то второй операнд не вычисляется.
-        BasicBlock shortCircuitBlock = _builder.CreateBasicBlock();
-        BasicBlock finalBlock = _builder.CreateBasicBlock();
-
-        // Вычисляем первый операнд.
-        e.Left.Accept(this);
-
-        // Переходим к короткой схеме, если первый операнд в "ИСТИНУ".
-        _builder.AppendJump(InstructionCode.JumpIfTrue, shortCircuitBlock);
-
-        // Иначе вычисляем второй операнд.
-        // Затем используем операцию "X <> 0", чтобы привести "X" к булеву значению (1 или 0).
-        e.Right.Accept(this);
-        _builder.Append(new Instruction(InstructionCode.Push, 0));
-        _builder.Append(new Instruction(InstructionCode.NotEqual));
-        _builder.AppendJump(InstructionCode.Jump, finalBlock);
-
-        // Выполняем короткую схему вычислений: левый операнд обратился в "ИСТИНУ", и результат будет "ИСТИНА".
-        _builder.InsertPoint = shortCircuitBlock;
-        _builder.Append(new Instruction(InstructionCode.Push, 1));
-        _builder.AppendJump(InstructionCode.Jump, finalBlock);
-
-        _builder.InsertPoint = finalBlock;
-    }
-
-    /// <summary>
-    /// Добавляет лексическую область видимости в стек.
-    /// </summary>
     private void PushLexicalScope()
     {
-        int parentScopeDepth = _symbolsTable?.Depth ?? 0;
+        int parentDepth = _symbolsTable?.Depth ?? 0;
         _symbolsTable = new CodegenSymbolsTable(_symbolsTable);
-        _builder.Append(new Instruction(InstructionCode.PushVars, parentScopeDepth));
+        _builder.Append(new Instruction(InstructionCode.PushVars, parentDepth));
     }
 
-    /// <summary>
-    /// Убирает лексическую область видимости из стека.
-    /// </summary>
     private void PopLexicalScope()
     {
         _builder.Append(new Instruction(InstructionCode.PopVars));
         _symbolsTable = _symbolsTable!.Parent;
-    }
-
-    private static int GetBuiltinFunctionCode(string name)
-    {
-        if (!BuiltinFunctionsMap.TryGetValue(name, out BuiltinFunctionCode code))
-        {
-            throw new NotImplementedException($"Unsupported builtin function {name}");
-        }
-
-        return (int)code;
     }
 }
