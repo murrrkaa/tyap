@@ -92,16 +92,4 @@ public static class Builtins
             ValueType.Float
         ),
     ];
-
-    /// <summary>
-    /// Список встроенных типов языка.
-    /// </summary>
-    public static readonly IReadOnlyList<BuiltinType> Types =
-    [
-        new("int", ValueType.Int),
-        new("float", ValueType.Float),
-        new("string", ValueType.String),
-        new("bool", ValueType.Bool),
-        new("void", ValueType.Void),
-    ];
 }

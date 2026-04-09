@@ -15,9 +15,6 @@ public class InstructionsBuilder
         _insertPoint = CreateBasicBlock();
     }
 
-    /// <summary>
-    /// Базовый блок, в который выполняется вставка инструкций
-    /// </summary>
     public BasicBlock InsertPoint
     {
         get => _insertPoint;
@@ -26,7 +23,6 @@ public class InstructionsBuilder
         {
             if (!ReferenceEquals(_basicBlocks[value.Id], value))
             {
-                // Такого не должно быть по логике кодогенерации.
                 throw new InvalidOperationException("Basic block does not belong to the current instructions builder");
             }
 
@@ -34,10 +30,6 @@ public class InstructionsBuilder
         }
     }
 
-    /// <summary>
-    /// Собирает финальный список инструкций из базовых блоков, заменяя адреса во всех инструкциях перехода
-    ///  на окончательные адреса инструкций.
-    /// </summary>
     public List<Instruction> Finish()
     {
         List<int> addresses = CalculateBasicBlockAddresses();
@@ -49,7 +41,6 @@ public class InstructionsBuilder
             {
                 if (IsJump(instruction.Code))
                 {
-                    // Заменяем номер базового блока на окончательный адрес перехода.
                     int newAddress = addresses[instruction.Operand.AsInt()];
                     instructions.Add(new Instruction(instruction.Code, newAddress));
                 }
@@ -63,10 +54,6 @@ public class InstructionsBuilder
         return instructions;
     }
 
-    /// <summary>
-    /// Добавляет инструкцию в текущий базовый блок.
-    /// Инструкции перехода добавляются другим методом.
-    /// </summary>
     public void Append(Instruction instruction)
     {
         if (IsJump(instruction.Code))
@@ -77,9 +64,6 @@ public class InstructionsBuilder
         _insertPoint.Append(instruction);
     }
 
-    /// <summary>
-    /// Добавляет инструкцию перехода на указанный базовый блок.
-    /// </summary>
     public void AppendJump(InstructionCode code, BasicBlock target)
     {
         if (!IsJump(code))
@@ -90,9 +74,6 @@ public class InstructionsBuilder
         _insertPoint.Append(new Instruction(code, target.Id));
     }
 
-    /// <summary>
-    /// Создаёт базовый блок инструкций и возвращает ссылку на него.
-    /// </summary>
     public BasicBlock CreateBasicBlock()
     {
         BasicBlock bb = new(_basicBlocks.Count);
@@ -101,9 +82,6 @@ public class InstructionsBuilder
         return bb;
     }
 
-    /// <summary>
-    /// Проверяет, является ли указанная инструкция переходом.
-    /// </summary>
     private bool IsJump(InstructionCode code)
     {
         return code switch
@@ -117,9 +95,6 @@ public class InstructionsBuilder
         };
     }
 
-    /// <summary>
-    /// Вычисляет адреса последовательно расположенных базовых блоков инструкций.
-    /// </summary>
     private List<int> CalculateBasicBlockAddresses()
     {
         List<int> basicBlockAddresses = new(capacity: _basicBlocks.Count);

@@ -11,8 +11,10 @@ public class BuiltinFunctionParameter : AbstractParameterDeclaration
     public BuiltinFunctionParameter(string name, ValueType type)
         : base(name)
     {
-        ResultType = type;
+        Type = type;
     }
+
+    public ValueType Type { get; }
 
     public override void Accept(IAstVisitor visitor)
     {

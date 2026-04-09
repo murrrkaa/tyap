@@ -38,7 +38,6 @@ public class TigerVm
             Instruction instruction = _instructions[_instructionPointer++];
             switch (instruction.Code)
             {
-
                 case InstructionCode.Push:
                     _evaluationStack.Push(instruction.Operand);
                     break;
@@ -75,7 +74,30 @@ public class TigerVm
                     {
                         Value right = _evaluationStack.Pop();
                         Value left = _evaluationStack.Pop();
-                        _evaluationStack.Push(new Value(left.AsInt() + right.AsInt()));
+
+                        if (left.IsString() && right.IsString())
+                        {
+                            string result = left.AsString() + right.AsString();
+                            _evaluationStack.Push(new Value(result));
+                        }
+
+                        else if (left.IsInt() && right.IsInt())
+                        {
+                            _evaluationStack.Push(new Value(left.AsInt() + right.AsInt()));
+                        }
+
+                        else if (left.IsFloat() || right.IsFloat())
+                        {
+                            double l = left.IsFloat() ? left.AsFloat() : left.AsInt();
+                            double r = right.IsFloat() ? right.AsFloat() : right.AsInt();
+                            _evaluationStack.Push(new Value(l + r));
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException(
+                                $"Cannot add values of types {left} and {right}"
+                            );
+                        }
                     }
                     break;
 
@@ -181,20 +203,14 @@ public class TigerVm
                 case InstructionCode.JumpIfTrue:
                     {
                         Value condition = _evaluationStack.Pop();
-                        if (condition.AsInt() != 0)
-                        {
-                            _instructionPointer = instruction.Operand.AsInt();
-                        }
+                        if (condition.AsInt() != 0) _instructionPointer = instruction.Operand.AsInt();
                     }
                     break;
 
                 case InstructionCode.JumpIfFalse:
                     {
                         Value condition = _evaluationStack.Pop();
-                        if (condition.AsInt() == 0)
-                        {
-                            _instructionPointer = instruction.Operand.AsInt();
-                        }
+                        if (condition.AsInt() == 0) _instructionPointer = instruction.Operand.AsInt();
                     }
                     break;
 
@@ -209,11 +225,41 @@ public class TigerVm
                     }
                     break;
 
+                // ✅ ИСПРАВЛЕНО: Корректная обработка возврата из main и вложенных функций
                 case InstructionCode.Return:
                     {
-                        ReturnContext context = _returnStack.Pop();
-                        _instructionPointer = context.InstructionPointer;
-                        _variables = context.Variables;
+                        Value returnValue = Value.Void;
+                        if (_evaluationStack.Count > 0)
+                        {
+                            returnValue = _evaluationStack.Pop();
+                        }
+
+                        if (_returnStack.Count == 0)
+                        {
+                            _result = returnValue;
+
+                            if (returnValue.IsInt())
+                            {
+                                _exitCode = returnValue.AsInt();
+                            }
+                            else if (returnValue.IsBool())
+                            {
+                                _exitCode = returnValue.AsBool() ? 1 : 0;
+                            }
+
+                            return _result;
+                        }
+                        else
+                        { 
+                            if (returnValue != Value.Void)
+                            {
+                                _evaluationStack.Push(returnValue);
+                            }
+
+                            ReturnContext context = _returnStack.Pop();
+                            _instructionPointer = context.InstructionPointer;
+                            _variables = context.Variables;
+                        }
                     }
                     break;
 
@@ -222,7 +268,10 @@ public class TigerVm
                     break;
 
                 case InstructionCode.Halt:
-                    _exitCode = _evaluationStack.Pop().AsInt();
+                    if (_evaluationStack.Count > 0)
+                    {
+                        _exitCode = _evaluationStack.Pop().AsInt();
+                    }
                     return _result;
 
                 case InstructionCode.PushVars:

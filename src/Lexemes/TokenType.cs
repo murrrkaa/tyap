@@ -6,214 +6,214 @@
 public enum TokenType
 {
     /// <summary>
-    /// Ключевое слово <c>if</c>.
+    /// Ключевое слово if
     /// </summary>
     If,
 
     /// <summary>
-    /// Ключевое слово <c>else</c>.
+    /// Ключевое слово else
     /// </summary>
     Else,
 
     /// <summary>
-    /// Ключевое слово <c>for</c>.
+    /// Ключевое слово for
     /// </summary>
     For,
 
     /// <summary>
-    /// Ключевое слово <c>while</c>.
+    /// Ключевое слово while
     /// </summary>
     While,
 
     /// <summary>
-    /// Ключевое слово <c>function</c>.
+    /// Ключевое слово function
     /// </summary>
     Function,
 
     /// <summary>
-    /// Ключевое слово <c>return</c>.
+    /// Ключевое слово return
     /// </summary>
     Return,
 
     /// <summary>
-    /// Ключевое слово <c>break</c>.
+    /// Ключевое слово  break
     /// </summary>
     Break,
 
     /// <summary>
-    /// Ключевое слово <c>continue</c>.
+    /// Ключевое слово  continue
     /// </summary>
     Continue,
 
     /// <summary>
-    /// Ключевое слово <c>var</c>.
+    /// Ключевое слово  var
     /// </summary>
     Var,
 
     /// <summary>
-    /// Ключевое слово <c>const</c>.
+    /// Ключевое слово  const
     /// </summary>
     Const,
 
     /// <summary>
-    /// Ключевое слово <c>and</c>.
+    /// Ключевое слово  and
     /// </summary>
     And,
 
     /// <summary>
-    /// Ключевое слово <c>or</c>.
+    /// Ключевое слово  or
     /// </summary>
     Or,
 
     /// <summary>
-    /// Ключевое слово <c>int</c> (тип данных).
+    /// Ключевое слово  int
     /// </summary>
     Int,
 
     /// <summary>
-    /// Ключевое слово <c>float</c> (тип данных).
+    /// Ключевое слово float
     /// </summary>
     Float,
 
     /// <summary>
-    /// Ключевое слово <c>string</c> (тип данных).
+    /// Ключевое слово string
     /// </summary>
     String,
 
     /// <summary>
-    /// Ключевое слово <c>void</c> (тип данных).
+    /// Ключевое слово void
     /// </summary>
     Void,
 
     /// <summary>
-    /// Ключевое слово <c>bool</c> (тип данных).
+    /// Ключевое слово bool
     /// </summary>
     Bool,
 
     /// <summary>
-    /// Ключевое слово <c>print</c> (встроенная функция вывода).
+    /// Ключевое слово print
     /// </summary>
     Print,
 
-    /// <summary>
-    /// Логический литерал <c>true</c>.
+    /// <summary
+    /// Логический литерал true
     /// </summary>
     True,
 
     /// <summary>
-    /// Логический литерал <c>false</c>.
+    /// Логический литерал false
     /// </summary>
     False,
 
     /// <summary>
-    /// Идентификатор (имя переменной, функции и т.д.).
+    /// Идентификатор
     /// </summary>
     Identifier,
 
     /// <summary>
-    /// Литерал целого числа.
+    /// Литерал целого числа
     /// </summary>
     IntLiteral,
 
     /// <summary>
-    /// Литерал числа с плавающей точкой.
+    /// Литерал числа с плавающей точкой
     /// </summary>
     FloatLiteral,
 
     /// <summary>
-    /// Строковый литерал.
+    /// Строковый литерал
     /// </summary>
     StringLiteral,
 
     /// <summary>
-    /// Оператор сложения <c>+</c>.
+    /// Оператор сложения +
     /// </summary>
     Plus,
 
     /// <summary>
-    /// Оператор вычитания <c>-</c>.
+    /// Оператор вычитания -
     /// </summary>
     Minus,
 
     /// <summary>
-    /// Оператор умножения <c>*</c>.
+    /// Оператор умножения *
     /// </summary>
     Multiply,
 
     /// <summary>
-    /// Оператор деления <c>/</c>.
+    /// Оператор деления /
     /// </summary>
     Divide,
 
     /// <summary>
-    /// Оператор сравнения «равно» <c>==</c>.
+    /// Оператор сравнения «равно» ==
     /// </summary>
     Equal,
 
     /// <summary>
-    /// Оператор сравнения «не равно» <c>!=</c>.
+    /// Оператор сравнения «не равно» !=
     /// </summary>
     NotEqual,
 
     /// <summary>
-    /// Оператор сравнения «меньше» <c>&lt;</c>.
+    /// Оператор сравнения «меньше»
     /// </summary>
     LessThan,
 
     /// <summary>
-    /// Оператор сравнения «меньше или равно» <c>&lt;=</c>.
+    /// Оператор сравнения «меньше или равно»
     /// </summary>
     LessThanOrEqual,
 
     /// <summary>
-    /// Оператор сравнения «больше» <c>&gt;</c>.
+    /// Оператор сравнения «больше»
     /// </summary>
     GreaterThan,
 
     /// <summary>
-    /// Оператор сравнения «больше или равно» <c>&gt;=</c>.
+    /// Оператор сравнения «больше или равно»
     /// </summary>
     GreaterThanOrEqual,
 
     /// <summary>
-    /// Логический оператор «НЕ» <c>!</c>.
+    /// Логический оператор «НЕ»
     /// </summary>
     Not,
 
     /// <summary>
-    /// Оператор присваивания <c>=</c>.
+    /// Оператор присваивания
     /// </summary>
     Assign,
 
     /// <summary>
-    /// Открывающая фигурная скобка <c>{</c>.
+    /// Открывающая фигурная скобка {
     /// </summary>
     OpenBrace,
 
     /// <summary>
-    /// Закрывающая фигурная скобка <c>}</c>.
+    /// Закрывающая фигурная скобка }
     /// </summary>
     CloseBrace,
 
     /// <summary>
-    /// Открывающая круглая скобка <c>(</c>.
+    /// Открывающая круглая скобка (
     /// </summary>
     OpenParenthesis,
 
     /// <summary>
-    /// Закрывающая круглая скобка <c>)</c>.
+    /// Закрывающая круглая скобка )
     /// </summary>
     CloseParenthesis,
 
     Colon,
 
     /// <summary>
-    /// Запятая <c>,</c>.
+    /// Запятая ,
     /// </summary>
     Comma,
 
     /// <summary>
-    /// Точка с запятой <c>;</c>.
+    /// Точка с запятой ;
     /// </summary>
     Semicolon,
 

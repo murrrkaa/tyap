@@ -1,26 +1,25 @@
-﻿using PsTiger.Ast.Expressions;
+﻿using PsTiger.Runtime;
+using PsTiger.Ast.Expressions;
+
+using ValueType = PsTiger.Runtime.ValueType;
 
 namespace PsTiger.Ast.Declarations;
 
-/// <summary>
-/// Объявление константы: const name: type = value.
-/// </summary>
 public sealed class ConstantDeclaration : AbstractVariableDeclaration
 {
-    public ConstantDeclaration(string name, string type, Expression initialValue)
+    public ConstantDeclaration(string name, string declaredTypeName, Expression initialValue)
         : base(name)
     {
         Name = name;
-        Type = type;
+        DeclaredTypeName = declaredTypeName;
         InitialValue = initialValue;
     }
 
     public new string Name { get; }
-    public string Type { get; }  // ✅ Просто строка: "int", "float", etc.
+    public string DeclaredTypeName { get; }
+    public ValueType ResolvedType { get; set; }
+
     public Expression InitialValue { get; }
 
-    public override void Accept(IAstVisitor visitor)
-    {
-        visitor.Visit(this);
-    }
+    public override void Accept(IAstVisitor visitor) => visitor.Visit(this);
 }

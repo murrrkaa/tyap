@@ -3,9 +3,6 @@ using System.Collections.Generic;
 
 namespace PsTiger.VirtualMachineCodegen;
 
-/// <summary>
-/// Таблица символов, основанная на лексических областях видимости (областях действия) символов в коде.
-/// </summary>
 public sealed class CodegenSymbolsTable
 {
     private readonly CodegenSymbolsTable? _parent;
@@ -23,17 +20,11 @@ public sealed class CodegenSymbolsTable
 
     public CodegenSymbolsTable? Parent => _parent;
 
-    /// <summary>
-    /// Добавляет ссылку на базовый блок, с которого начинается указанная функция.
-    /// </summary>
     public void AddFunctionEntry(string name, BasicBlock block)
     {
         _functions.Add(name, block);
     }
 
-    /// <summary>
-    /// Получает ссылку на базовый блок, с которого начинается указанная функция.
-    /// </summary>
     public BasicBlock GetFunctionEntry(string name)
     {
         if (_functions.TryGetValue(name, out BasicBlock? block))

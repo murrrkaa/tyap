@@ -1,5 +1,6 @@
-using PsTiger.Interpreter;
+п»їusing PsTiger.Interpreter;
 using PsTiger.Tests.TestLibrary.TestDoubles;
+
 using Xunit;
 
 namespace Interpreter.IntegrationTests;
@@ -36,7 +37,7 @@ public class EntryPointTest
     {
         return new TheoryData<string, string, int>
         {
-            // пустая программа
+            // РїСѓСЃС‚Р°СЏ РїСЂРѕРіСЂР°РјРјР°
             {
                 """
                 function main(): int {
@@ -47,19 +48,19 @@ public class EntryPointTest
                 0
             },
 
-            // вывод
+            // РІС‹РІРѕРґ
             {
                 """
                 function main(): int {
-                    print("Hello");
+                    print('hello');
                     return 0;
                 }
                 """,
-                "Hello",
+                "hello",
                 0
             },
 
-            // возврат ненулевого exit code
+            // РІРѕР·РІСЂР°С‚ РЅРµРЅСѓР»РµРІРѕРіРѕ exit code
             {
                 """
                 function main(): int {
@@ -70,7 +71,7 @@ public class EntryPointTest
                 5
             },
 
-            // выражение + вывод
+            // РІС‹СЂР°Р¶РµРЅРёРµ + РІС‹РІРѕРґ
             {
                 """
                 function main(): int {
@@ -88,28 +89,28 @@ public class EntryPointTest
     {
         return new TheoryData<string>
         {
-            // нет main
+            // РЅРµС‚ main
             """
             function test(): int {
                 return 0;
             }
             """,
 
-            // main без return
+            // main Р±РµР· return
             """
             function main(): int {
                 print(1);
             }
             """,
 
-            // неправильный тип return
+            // РЅРµРїСЂР°РІРёР»СЊРЅС‹Р№ С‚РёРї return
             """
             function main(): int {
-                return "hello";
+                return 'hello';
             }
             """,
 
-            // несколько функций (если у вас запрещено)
+            // РЅРµСЃРєРѕР»СЊРєРѕ С„СѓРЅРєС†РёР№ (РµСЃР»Рё Сѓ РІР°СЃ Р·Р°РїСЂРµС‰РµРЅРѕ)
             """
             function main(): int {
                 return 0;
@@ -120,10 +121,10 @@ public class EntryPointTest
             }
             """,
 
-            // неверный тип main
+            // РЅРµРІРµСЂРЅС‹Р№ С‚РёРї main
             """
             function main(): string {
-                return "hello";
+                return 'hello';
             }
             """
         };

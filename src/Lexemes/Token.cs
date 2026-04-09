@@ -31,9 +31,6 @@ public class Token
 
     public TokenValue? Value { get; }
 
-    /// <summary>
-    /// Сравнивает токены по типу и значению.
-    /// </summary>
     public override bool Equals(object? obj)
     {
         if (obj is Token other)
@@ -44,17 +41,11 @@ public class Token
         return false;
     }
 
-    /// <summary>
-    /// Возвращает хеш от свойств токена.
-    /// </summary>
     public override int GetHashCode()
     {
         return HashCode.Combine((int)Type, Value);
     }
 
-    /// <summary>
-    /// Форматирует токен в стиле "Type (Value)".
-    /// </summary>
     public override string ToString()
     {
         StringBuilder sb = new();
