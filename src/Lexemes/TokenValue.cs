@@ -3,13 +3,13 @@ using System.Globalization;
 
 namespace PsTiger.Lexemes;
 
-public class TokenValue
+public sealed class TokenValue
 {
     private readonly object _value;
 
     public TokenValue(string value)
     {
-        _value = value;
+        _value = value ?? throw new ArgumentNullException(nameof(value));
     }
 
     public TokenValue(int value)
@@ -22,35 +22,40 @@ public class TokenValue
         _value = value;
     }
 
+    public bool IsString() => _value is string;
+
+    public bool IsInt() => _value is int;
+
+    public bool IsDouble() => _value is double;
+
+    public string AsString()
+    {
+        return _value as string ?? throw new InvalidCastException("TokenValue is not a string");
+    }
+
+    public int AsInt()
+    {
+        return _value is int i ? i : throw new InvalidCastException("TokenValue is not an integer");
+    }
+
+    public double AsDouble()
+    {
+        return _value switch
+        {
+            double d => d,
+            int i => i,
+            _ => throw new InvalidCastException("TokenValue is not a number"),
+        };
+    }
+
     public override string ToString()
     {
         return _value switch
         {
             string s => s,
-            int d => d.ToString(CultureInfo.InvariantCulture),
-            double f => f.ToString(CultureInfo.InvariantCulture),
-            _ => throw new NotImplementedException(),
-        };
-    }
-
-    public int ToInt()
-    {
-        return _value switch
-        {
-            string s => int.Parse(s, CultureInfo.InvariantCulture),
-            int i => i,
-            _ => throw new NotImplementedException(),
-        };
-    }
-
-    public double ToDouble()
-    {
-        return _value switch
-        {
-            string s => double.Parse(s, CultureInfo.InvariantCulture),
-            double f => f,
-            int i => i,
-            _ => throw new NotImplementedException(),
+            int i => i.ToString(CultureInfo.InvariantCulture),
+            double d => d.ToString(CultureInfo.InvariantCulture),
+            _ => _value?.ToString() ?? "null",
         };
     }
 
@@ -58,13 +63,7 @@ public class TokenValue
     {
         if (obj is TokenValue other)
         {
-            return _value switch
-            {
-                string s => other._value is string os && s == os,
-                int i => other._value is int oi && i == oi,
-                double f => other._value is double of && f == of,
-                _ => throw new NotImplementedException(),
-            };
+            return Equals(_value, other._value);
         }
 
         return false;
@@ -72,6 +71,6 @@ public class TokenValue
 
     public override int GetHashCode()
     {
-        return _value.GetHashCode();
+        return _value?.GetHashCode() ?? 0;
     }
 }
