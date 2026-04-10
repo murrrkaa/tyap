@@ -87,7 +87,7 @@ public class LexerTests
                 new Token(TokenType.IntLiteral, 678)
             }
         },
-        // Слишком большое целое → ошибка парсинга
+        // Слишком большое целое - ошибка парсинга
         { "999999999999999999999999",
             new List<Token> {
                 new Token(TokenType.Error, "Invalid integer literal: '999999999999999999999999'")
