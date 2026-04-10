@@ -1,9 +1,9 @@
-﻿using PsTiger.Tests.TestLibrary.TestDoubles;
+﻿using System.Collections.Generic;
+
+using PsTiger.Tests.TestLibrary.TestDoubles;
 using PsTiger.VirtualMachine;
 using PsTiger.VirtualMachine.Builtins;
 using PsTiger.VirtualMachine.Instructions;
-
-using System.Collections.Generic;
 
 using Xunit;
 
@@ -109,7 +109,7 @@ public class EvaluationTest
                     new Instruction(InstructionCode.Halt),
                 },
                 "1024"
-            }
+            },
         };
     }
 }

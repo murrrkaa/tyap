@@ -38,7 +38,6 @@ public class TigerVm
             Instruction instruction = _instructions[_instructionPointer++];
             switch (instruction.Code)
             {
-
                 case InstructionCode.Push:
                     _evaluationStack.Push(instruction.Operand);
                     break;
@@ -53,6 +52,7 @@ public class TigerVm
                         string variableName = instruction.Operand.AsString();
                         _variables!.AssignVariable(variableName, value);
                     }
+
                     break;
 
                 case InstructionCode.DefineVar:
@@ -61,6 +61,7 @@ public class TigerVm
                         string variableName = instruction.Operand.AsString();
                         _variables!.DefineVariable(variableName, value);
                     }
+
                     break;
 
                 case InstructionCode.LoadVar:
@@ -69,14 +70,37 @@ public class TigerVm
                         Value value = _variables!.GetVariable(variableName);
                         _evaluationStack.Push(value);
                     }
+
                     break;
 
                 case InstructionCode.Add:
                     {
                         Value right = _evaluationStack.Pop();
                         Value left = _evaluationStack.Pop();
-                        _evaluationStack.Push(new Value(left.AsInt() + right.AsInt()));
+
+                        if (left.IsString() && right.IsString())
+                        {
+                            string result = left.AsString() + right.AsString();
+                            _evaluationStack.Push(new Value(result));
+                        }
+                        else if (left.IsInt() && right.IsInt())
+                        {
+                            _evaluationStack.Push(new Value(left.AsInt() + right.AsInt()));
+                        }
+                        else if (left.IsFloat() || right.IsFloat())
+                        {
+                            double l = left.IsFloat() ? left.AsFloat() : left.AsInt();
+                            double r = right.IsFloat() ? right.AsFloat() : right.AsInt();
+                            _evaluationStack.Push(new Value(l + r));
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException(
+                                $"Cannot add values of types {left} and {right}"
+                            );
+                        }
                     }
+
                     break;
 
                 case InstructionCode.Subtract:
@@ -85,6 +109,7 @@ public class TigerVm
                         Value left = _evaluationStack.Pop();
                         _evaluationStack.Push(new Value(left.AsInt() - right.AsInt()));
                     }
+
                     break;
 
                 case InstructionCode.Multiply:
@@ -93,6 +118,7 @@ public class TigerVm
                         Value left = _evaluationStack.Pop();
                         _evaluationStack.Push(new Value(left.AsInt() * right.AsInt()));
                     }
+
                     break;
 
                 case InstructionCode.Divide:
@@ -101,6 +127,7 @@ public class TigerVm
                         Value left = _evaluationStack.Pop();
                         _evaluationStack.Push(new Value(left.AsInt() / right.AsInt()));
                     }
+
                     break;
 
                 case InstructionCode.And:
@@ -109,6 +136,7 @@ public class TigerVm
                         Value left = _evaluationStack.Pop();
                         _evaluationStack.Push(new Value((left.AsInt() != 0 && right.AsInt() != 0) ? 1 : 0));
                     }
+
                     break;
 
                 case InstructionCode.Or:
@@ -117,6 +145,7 @@ public class TigerVm
                         Value left = _evaluationStack.Pop();
                         _evaluationStack.Push(new Value((left.AsInt() != 0 || right.AsInt() != 0) ? 1 : 0));
                     }
+
                     break;
 
                 case InstructionCode.Not:
@@ -124,6 +153,7 @@ public class TigerVm
                         Value operand = _evaluationStack.Pop();
                         _evaluationStack.Push(new Value(operand.AsInt() == 0 ? 1 : 0));
                     }
+
                     break;
 
                 case InstructionCode.Equal:
@@ -132,6 +162,7 @@ public class TigerVm
                         Value left = _evaluationStack.Pop();
                         _evaluationStack.Push(new Value(left.Equals(right) ? 1 : 0));
                     }
+
                     break;
 
                 case InstructionCode.NotEqual:
@@ -140,6 +171,7 @@ public class TigerVm
                         Value left = _evaluationStack.Pop();
                         _evaluationStack.Push(new Value(left.Equals(right) ? 0 : 1));
                     }
+
                     break;
 
                 case InstructionCode.Less:
@@ -148,6 +180,7 @@ public class TigerVm
                         Value left = _evaluationStack.Pop();
                         _evaluationStack.Push(new Value(left.LessThan(right) ? 1 : 0));
                     }
+
                     break;
 
                 case InstructionCode.LessOrEqual:
@@ -156,6 +189,7 @@ public class TigerVm
                         Value left = _evaluationStack.Pop();
                         _evaluationStack.Push(new Value(left.LessThanOrEqual(right) ? 1 : 0));
                     }
+
                     break;
 
                 case InstructionCode.GreaterThan:
@@ -164,6 +198,7 @@ public class TigerVm
                         Value left = _evaluationStack.Pop();
                         _evaluationStack.Push(new Value(left.GreaterThan(right) ? 1 : 0));
                     }
+
                     break;
 
                 case InstructionCode.GreaterThanOrEqual:
@@ -172,6 +207,7 @@ public class TigerVm
                         Value left = _evaluationStack.Pop();
                         _evaluationStack.Push(new Value(left.GreaterThanOrEqual(right) ? 1 : 0));
                     }
+
                     break;
 
                 case InstructionCode.Jump:
@@ -186,6 +222,7 @@ public class TigerVm
                             _instructionPointer = instruction.Operand.AsInt();
                         }
                     }
+
                     break;
 
                 case InstructionCode.JumpIfFalse:
@@ -196,6 +233,7 @@ public class TigerVm
                             _instructionPointer = instruction.Operand.AsInt();
                         }
                     }
+
                     break;
 
                 case InstructionCode.CallBuiltin:
@@ -207,14 +245,45 @@ public class TigerVm
                         _returnStack.Push(new ReturnContext(_instructionPointer, _variables));
                         _instructionPointer = instruction.Operand.AsInt();
                     }
+
                     break;
 
                 case InstructionCode.Return:
                     {
-                        ReturnContext context = _returnStack.Pop();
-                        _instructionPointer = context.InstructionPointer;
-                        _variables = context.Variables;
+                        Value returnValue = Value.Void;
+                        if (_evaluationStack.Count > 0)
+                        {
+                            returnValue = _evaluationStack.Pop();
+                        }
+
+                        if (_returnStack.Count == 0)
+                        {
+                            _result = returnValue;
+
+                            if (returnValue.IsInt())
+                            {
+                                _exitCode = returnValue.AsInt();
+                            }
+                            else if (returnValue.IsBool())
+                            {
+                                _exitCode = returnValue.AsBool() ? 1 : 0;
+                            }
+
+                            return _result;
+                        }
+                        else
+                        {
+                            if (returnValue != Value.Void)
+                            {
+                                _evaluationStack.Push(returnValue);
+                            }
+
+                            ReturnContext context = _returnStack.Pop();
+                            _instructionPointer = context.InstructionPointer;
+                            _variables = context.Variables;
+                        }
                     }
+
                     break;
 
                 case InstructionCode.StoreResult:
@@ -222,7 +291,11 @@ public class TigerVm
                     break;
 
                 case InstructionCode.Halt:
-                    _exitCode = _evaluationStack.Pop().AsInt();
+                    if (_evaluationStack.Count > 0)
+                    {
+                        _exitCode = _evaluationStack.Pop().AsInt();
+                    }
+
                     return _result;
 
                 case InstructionCode.PushVars:
@@ -233,6 +306,7 @@ public class TigerVm
                             : null;
                         _variables = new VariablesTable(parentTable);
                     }
+
                     break;
 
                 case InstructionCode.PopVars:
@@ -276,6 +350,7 @@ public class TigerVm
                     Value value = _evaluationStack.Pop();
                     _evaluationStack.Push(_builtinFunctions.Substring(value, start, count));
                 }
+
                 break;
 
             case BuiltinFunctionCode.ToString:

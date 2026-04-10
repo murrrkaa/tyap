@@ -14,6 +14,7 @@ public sealed class AssignmentStatement : Statement
     }
 
     public string VariableName { get; }
+
     public Expression Value { get; }
 
     public override void Accept(IAstVisitor visitor) => visitor.Visit(this);

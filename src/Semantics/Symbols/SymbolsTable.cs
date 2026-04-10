@@ -1,8 +1,7 @@
-﻿using PsTiger.Ast.Declarations;
+﻿using System.Diagnostics;
+
+using PsTiger.Ast.Declarations;
 using PsTiger.Semantics.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace PsTiger.Semantics.Symbols;
 
@@ -12,24 +11,23 @@ namespace PsTiger.Semantics.Symbols;
 public sealed class SymbolsTable
 {
     private readonly SymbolsTable? _parent;
-
-    private readonly Dictionary<string, Declaration> _variablesAndFunctions;
+    private readonly Dictionary<string, Declaration> _symbols;
 
     public SymbolsTable(SymbolsTable? parent)
     {
         _parent = parent;
-        _variablesAndFunctions = [];
+        _symbols = [];
     }
 
     public SymbolsTable? Parent => _parent;
 
     public AbstractVariableDeclaration GetVariableDeclaration(string name)
     {
-        Declaration? declaration = FindDeclaration(table => table._variablesAndFunctions, name);
+        Declaration? declaration = FindDeclaration(name);
         return declaration switch
         {
             AbstractVariableDeclaration variable => variable,
-            AbstractFunctionDeclaration _ => throw new InvalidSymbolException(name, "function", "variable"),
+            AbstractFunctionDeclaration _ => throw new InvalidSymbolException(name, "variable", "function"),
             null => throw UnknownSymbolException.UndefinedVariableOrFunction(name),
             _ => throw new UnreachableException(),
         };
@@ -37,7 +35,7 @@ public sealed class SymbolsTable
 
     public AbstractFunctionDeclaration GetFunctionDeclaration(string name)
     {
-        Declaration? declaration = FindDeclaration(table => table._variablesAndFunctions, name);
+        Declaration? declaration = FindDeclaration(name);
         return declaration switch
         {
             AbstractFunctionDeclaration function => function,
@@ -49,7 +47,7 @@ public sealed class SymbolsTable
 
     public void DeclareVariable(AbstractVariableDeclaration symbol)
     {
-        if (!_variablesAndFunctions.TryAdd(symbol.Name, symbol))
+        if (!_symbols.TryAdd(symbol.Name, symbol))
         {
             throw DuplicateSymbolException.DuplicateVariableOrFunction(symbol.Name);
         }
@@ -57,19 +55,27 @@ public sealed class SymbolsTable
 
     public void DeclareFunction(AbstractFunctionDeclaration symbol)
     {
-        if (!_variablesAndFunctions.TryAdd(symbol.Name, symbol))
+        if (!_symbols.TryAdd(symbol.Name, symbol))
         {
             throw DuplicateSymbolException.DuplicateVariableOrFunction(symbol.Name);
         }
     }
 
-    private Declaration? FindDeclaration(Func<SymbolsTable, Dictionary<string, Declaration>> getTable, string name)
+    public void DeclareParameter(AbstractVariableDeclaration symbol)
     {
-        if (getTable(this).TryGetValue(name, out Declaration? declaration))
+        if (!_symbols.TryAdd(symbol.Name, symbol))
+        {
+            throw DuplicateSymbolException.ParameterHidesLocalVariable(symbol.Name);
+        }
+    }
+
+    private Declaration? FindDeclaration(string name)
+    {
+        if (_symbols.TryGetValue(name, out Declaration? declaration))
         {
             return declaration;
         }
 
-        return _parent?.FindDeclaration(getTable, name);
+        return _parent?.FindDeclaration(name);
     }
 }

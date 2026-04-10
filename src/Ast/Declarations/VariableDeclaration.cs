@@ -11,24 +11,19 @@ namespace PsTiger.Ast.Declarations;
 /// </summary>
 public sealed class VariableDeclaration : AbstractVariableDeclaration
 {
-    private AstAttribute<AbstractTypeDeclaration?> _declaredType;
-
-    public VariableDeclaration(string name, string? declaredTypeName, Expression initialValue)
+    public VariableDeclaration(string name, string declaredTypeName, ValueType resolvedType, Expression initialValue)
         : base(name)
     {
         DeclaredTypeName = declaredTypeName;
+        ResolvedType = resolvedType;
         InitialValue = initialValue;
     }
 
-    public string? DeclaredTypeName { get; }
+    public string DeclaredTypeName { get; }
+
+    public ValueType ResolvedType { get; set; }
 
     public Expression InitialValue { get; }
-
-    public AbstractTypeDeclaration? DeclaredType
-    {
-        get => _declaredType.Get();
-        set => _declaredType.Set(value);
-    }
 
     public override void Accept(IAstVisitor visitor)
     {

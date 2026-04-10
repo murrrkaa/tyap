@@ -27,7 +27,7 @@ public class LexerTest
     {
         return new TheoryData<string, List<Token>>
     {
-        // Простые идентификаторы 
+        // Простые идентификаторы
         {
             "x foo Bar_123 _private",
             [
@@ -44,7 +44,7 @@ public class LexerTest
             [
                 new Token(TokenType.Identifier, "Var"),
                 new Token(TokenType.Identifier, "VAR"),
-                new Token(TokenType.Var, "var"),  
+                new Token(TokenType.Var, "var"),
             ]
         },
 
@@ -52,12 +52,12 @@ public class LexerTest
         {
             "if else for while break continue",
             [
-                new Token(TokenType.If, "if"), 
-                new Token(TokenType.Else, "else"), 
-                new Token(TokenType.For, "for"), 
-                new Token(TokenType.While, "while"), 
+                new Token(TokenType.If, "if"),
+                new Token(TokenType.Else, "else"),
+                new Token(TokenType.For, "for"),
+                new Token(TokenType.While, "while"),
                 new Token(TokenType.Break, "break"),
-                new Token(TokenType.Continue, "continue"),  
+                new Token(TokenType.Continue, "continue"),
             ]
         },
 
@@ -65,10 +65,10 @@ public class LexerTest
         {
             "function return var const",
             [
-                new Token(TokenType.Function, "function"),  
-                new Token(TokenType.Return, "return"),      
-                new Token(TokenType.Var, "var"),       
-                new Token(TokenType.Const, "const"),    
+                new Token(TokenType.Function, "function"),
+                new Token(TokenType.Return, "return"),
+                new Token(TokenType.Var, "var"),
+                new Token(TokenType.Const, "const"),
             ]
         },
 
@@ -76,11 +76,11 @@ public class LexerTest
         {
             "int float string void bool",
             [
-                new Token(TokenType.Int, "int"),        
-                new Token(TokenType.Float, "float"),    
-                new Token(TokenType.String, "string"),  
-                new Token(TokenType.Void, "void"),      
-                new Token(TokenType.Bool, "bool"),      
+                new Token(TokenType.Int, "int"),
+                new Token(TokenType.Float, "float"),
+                new Token(TokenType.String, "string"),
+                new Token(TokenType.Void, "void"),
+                new Token(TokenType.Bool, "bool"),
             ]
         },
 
@@ -88,18 +88,18 @@ public class LexerTest
         {
             "and or true false",
             [
-                new Token(TokenType.And, "and"),        
-                new Token(TokenType.Or, "or"),          
-                new Token(TokenType.True, "true"),      
-                new Token(TokenType.False, "false"),    
+                new Token(TokenType.And, "and"),
+                new Token(TokenType.Or, "or"),
+                new Token(TokenType.True, "true"),
+                new Token(TokenType.False, "false"),
             ]
         },
 
-        // Встроенная функция print 
+        // Встроенная функция print
         {
             "print(x)",
             [
-                new Token(TokenType.Print, "print"),  
+                new Token(TokenType.Print, "print"),
                 new Token(TokenType.OpenParenthesis),
                 new Token(TokenType.Identifier, "x"),
                 new Token(TokenType.CloseParenthesis),

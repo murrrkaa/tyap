@@ -1,10 +1,13 @@
-﻿using PsTiger.Ast.Expressions;
+﻿using PsTiger.Ast;
+using PsTiger.Ast.Expressions;
 using PsTiger.Parsing;
 using PsTiger.Runtime;
 using PsTiger.Semantics;
 using PsTiger.VirtualMachine;
 using PsTiger.VirtualMachine.Instructions;
 using PsTiger.VirtualMachineCodegen;
+
+using AstProgram = PsTiger.Ast.Program;
 
 namespace PsTiger.Interpreter;
 
@@ -24,7 +27,7 @@ public class TigerInterpreter
     {
         // 1. Разбор программы.
         Parser parser = new(code);
-        Expression program = parser.ParseProgram();
+        AstProgram program = parser.ParseProgram();  // ← Используем алиас
 
         // 2. Проверка соответствия типов в программе.
         SemanticsChecker checker = new();

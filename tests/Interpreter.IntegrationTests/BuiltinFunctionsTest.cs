@@ -1,5 +1,6 @@
 ﻿using PsTiger.Interpreter;
 using PsTiger.Tests.TestLibrary.TestDoubles;
+
 using Xunit;
 
 namespace PsTiger.Interpreter.IntegrationTests;
@@ -26,7 +27,7 @@ public class BuiltinFunctionsTest
             {
                 """
                 function main(): int {
-                    print(len("hello"));
+                    print(len('hello'));
                     return 0;
                 }
                 """,
@@ -37,7 +38,7 @@ public class BuiltinFunctionsTest
             {
                 """
                 function main(): int {
-                    print(substring("hello", 1, 3));
+                    print(substring('hello', 1, 3));
                     return 0;
                 }
                 """,
@@ -59,7 +60,7 @@ public class BuiltinFunctionsTest
             {
                 """
                 function main(): int {
-                    print(parseInt("42"));
+                    print(parseInt('42'));
                     return 0;
                 }
                 """,
@@ -76,7 +77,6 @@ public class BuiltinFunctionsTest
                 """,
                 "false"
             },
-
             {
                 """
                 function main(): int {
@@ -96,7 +96,7 @@ public class BuiltinFunctionsTest
                 }
                 """,
                 "10"
-            }
+            },
         };
     }
 
@@ -130,7 +130,7 @@ public class BuiltinFunctionsTest
                 """,
                 "abc",
                 "abc"
-            }
+            },
         };
     }
 }

@@ -1,6 +1,8 @@
-﻿using PsTiger.Ast.Attributes;
+﻿using System.Linq.Expressions;
+
+using PsTiger.Ast.Attributes;
+
 using PsTiger.Ast.Declarations;
-using System.Linq.Expressions;
 
 namespace PsTiger.Ast.Expressions;
 
@@ -9,23 +11,23 @@ namespace PsTiger.Ast.Expressions;
 /// </summary>
 public sealed class VariableAccessExpression : Expression
 {
-	private AstAttribute<AbstractVariableDeclaration> _variable;
+    private AstAttribute<AbstractVariableDeclaration> _variable;
 
-	public VariableAccessExpression(string name)
-	{
-		Name = name;
-	}
+    public VariableAccessExpression(string name)
+    {
+        Name = name;
+    }
 
-	public string Name { get; }
+    public string Name { get; }
 
-	public AbstractVariableDeclaration Variable
-	{
-		get => _variable.Get();
-		set => _variable.Set(value);
-	}
+    public AbstractVariableDeclaration Variable
+    {
+        get => _variable.Get();
+        set => _variable.Set(value);
+    }
 
-	public override void Accept(IAstVisitor visitor)
-	{
-		visitor.Visit(this);
-	}
+    public override void Accept(IAstVisitor visitor)
+    {
+        visitor.Visit(this);
+    }
 }

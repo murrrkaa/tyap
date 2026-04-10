@@ -8,9 +8,9 @@ namespace PsTiger.Semantics.Exceptions;
 /// </summary>
 public class InvalidFunctionCallException : Exception
 {
-	public InvalidFunctionCallException(string message)
-		: base(message)
-	{
-	}
+    public InvalidFunctionCallException(string message)
+        : base(message)
+    {
+    }
 }
 #pragma warning restore RCS1194

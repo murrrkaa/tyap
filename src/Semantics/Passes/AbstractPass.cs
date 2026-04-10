@@ -1,36 +1,28 @@
 ﻿using PsTiger.Ast;
 using PsTiger.Ast.Declarations;
 using PsTiger.Ast.Expressions;
-using System.Linq.Expressions;
+using PsTiger.Ast.Statements;
 
 namespace PsTiger.Semantics.Passes;
 
-/// <summary>
-/// Базовый класс для проходов по AST с целью вычисления атрибутов и семантических проверок.
-/// </summary>
 public abstract class AbstractPass : IAstVisitor
 {
+    public virtual void Visit(Program node)
+    {
+        foreach (Declaration declaration in node.TopLevelStatements)
+        {
+            declaration.Accept(this);
+        }
+
+        node.MainFunction.Accept(this);
+    }
+
     public virtual void Visit(LiteralExpression e)
     {
     }
 
-    public virtual void Visit(BinaryOperationExpression e)
+    public virtual void Visit(VariableAccessExpression e)
     {
-        e.Left.Accept(this);
-        e.Right.Accept(this);
-    }
-
-    public virtual void Visit(SequenceExpression e)
-    {
-        foreach (Expression nested in e.Sequence)
-        {
-            nested.Accept(this);
-        }
-    }
-
-    public virtual void Visit(UnaryMinusExpression e)
-    {
-        e.Operand.Accept(this);
     }
 
     public virtual void Visit(FunctionCallExpression e)
@@ -41,56 +33,82 @@ public abstract class AbstractPass : IAstVisitor
         }
     }
 
-    public virtual void Visit(ScopeExpression e)
-    {
-        foreach (Declaration declaration in e.Declarations)
-        {
-            declaration.Accept(this);
-        }
-
-        foreach (Expression nested in e.Expressions)
-        {
-            nested.Accept(this);
-        }
-    }
-
-    public virtual void Visit(VariableAccessExpression e)
-    {
-    }
-
-    public virtual void Visit(AssignmentExpression e)
+    public virtual void Visit(BinaryOperationExpression e)
     {
         e.Left.Accept(this);
         e.Right.Accept(this);
     }
 
-    public virtual void Visit(IfStatement e)
+    public virtual void Visit(UnaryNotExpression e)
     {
-        e.Condition.Accept(this);
-        e.ThenBranch.Accept(this);
-        e.ElseBranch?.Accept(this);
+        e.Operand.Accept(this);
     }
 
-    public virtual void Visit(WhileLoopExpression e)
+    public virtual void Visit(BlockStatement node)
     {
-        e.Condition.Accept(this);
-        e.LoopBody.Accept(this);
+        foreach (AstNode astNode in node.Nodes)
+        {
+            if (astNode is Statement statement)
+            {
+                statement.Accept(this);
+            }
+            else if (astNode is Declaration declaration)
+            {
+                declaration.Accept(this);
+            }
+        }
     }
 
-    public virtual void Visit(ForLoopExpression e)
+    public virtual void Visit(AssignmentStatement node)
     {
-        e.Iterator.Accept(this);
-        e.StartValue.Accept(this);
-        e.EndValue.Accept(this);
-        e.LoopBody.Accept(this);
+        node.Value.Accept(this);
     }
 
-    public virtual void Visit(ForIteratorDeclaration d)
+    public virtual void Visit(IfStatement node)
+    {
+        node.Condition.Accept(this);
+        node.ThenBranch.Accept(this);
+        node.ElseBranch?.Accept(this);
+    }
+
+    public virtual void Visit(WhileStatement node)
+    {
+        node.Condition.Accept(this);
+        node.Body.Accept(this);
+    }
+
+    public virtual void Visit(ForStatement node)
+    {
+        node.Init.Accept(this);
+        node.Condition.Accept(this);
+        node.Step.Accept(this);
+        node.Body.Accept(this);
+    }
+
+    public virtual void Visit(BreakStatement node)
     {
     }
 
-    public virtual void Visit(BreakLoopExpression e)
+    public virtual void Visit(ContinueStatement node)
     {
+    }
+
+    public virtual void Visit(ReturnStatement node)
+    {
+        node.Expression?.Accept(this);
+    }
+
+    public virtual void Visit(PrintStatement node)
+    {
+        foreach (Expression argument in node.Arguments)
+        {
+            argument.Accept(this);
+        }
+    }
+
+    public virtual void Visit(FunctionCallStatement node)
+    {
+        node.Call.Accept(this);
     }
 
     public virtual void Visit(VariableDeclaration d)
@@ -98,72 +116,30 @@ public abstract class AbstractPass : IAstVisitor
         d.InitialValue.Accept(this);
     }
 
-    public virtual void Visit(FunctionDeclaration d)
+    public virtual void Visit(ConstantDeclaration d)
     {
-        foreach (AbstractParameterDeclaration declaration in d.Parameters)
-        {
-            declaration.Accept(this);
-        }
-
-        d.Body.Accept(this);
+        d.InitialValue.Accept(this);
     }
 
     public virtual void Visit(ParameterDeclaration d)
     {
     }
 
-    public virtual void Visit(TypeDeclaration d)
+    public virtual void Visit(FunctionDeclaration d)
     {
-        d.TypeExpression.Accept(this);
-    }
-
-    public virtual void Visit(NamedTypeExpression e)
-    {
-    }
-
-    public virtual void Visit(ArrayTypeExpression e)
-    {
-    }
-
-    public virtual void Visit(ArrayAccessExpression e)
-    {
-        e.Array.Accept(this);
-        e.Index.Accept(this);
-    }
-
-    public virtual void Visit(ArrayLiteralExpression e)
-    {
-        e.Size.Accept(this);
-        e.InitialValue.Accept(this);
-    }
-
-    public virtual void Visit(RecordTypeExpression e)
-    {
-        foreach (FieldDeclaration field in e.FieldDeclarations)
+        foreach (AbstractParameterDeclaration parameter in d.Parameters)
         {
-            field.Accept(this);
+            parameter.Accept(this);
         }
+
+        d.Body.Accept(this);
     }
 
-    public virtual void Visit(FieldDeclaration d)
+    public virtual void Visit(BuiltinFunction d)
     {
     }
 
-    public virtual void Visit(RecordLiteralExpression e)
+    public virtual void Visit(BuiltinFunctionParameter d)
     {
-        foreach (FieldInitializer initializer in e.Initializers)
-        {
-            initializer.Accept(this);
-        }
-    }
-
-    public virtual void Visit(FieldInitializer e)
-    {
-        e.Value.Accept(this);
-    }
-
-    public virtual void Visit(FieldAccessExpression e)
-    {
-        e.Record.Accept(this);
     }
 }

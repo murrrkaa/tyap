@@ -10,10 +10,6 @@ using ValueType = PsTiger.Runtime.ValueType;
 
 namespace PsTiger.VirtualMachineCodegen;
 
-/// <summary>
-/// Генерирует инструкции виртуальной машины TigerVm путём обхода AST.
-/// Соответствует спецификации 02_syntax.md
-/// </summary>
 public class TigerVmCodegen : IAstVisitor
 {
     private static readonly IReadOnlyDictionary<string, BuiltinFunctionCode> BuiltinFunctionsMap =
@@ -39,7 +35,6 @@ public class TigerVmCodegen : IAstVisitor
     {
         _symbolsTable = new CodegenSymbolsTable(null);
 
-        // Резервируем блоки для функций верхнего уровня
         foreach (Declaration decl in program.TopLevelStatements)
         {
             if (decl is FunctionDeclaration func)
@@ -49,23 +44,21 @@ public class TigerVmCodegen : IAstVisitor
             }
         }
 
-        // Генерируем код для top-level деклараций
+        BasicBlock mainBlock = _builder.CreateBasicBlock();
+        _symbolsTable.AddFunctionEntry(program.MainFunction.Name, mainBlock);
+
         foreach (Declaration decl in program.TopLevelStatements)
         {
             decl.Accept(this);
         }
 
-        // Генерируем main
         program.MainFunction.Accept(this);
 
-        // Завершение программы
-        _builder.Append(new Instruction(InstructionCode.Push, 0));
+        _builder.InsertPoint = mainBlock;
         _builder.Append(new Instruction(InstructionCode.Halt));
 
         return _builder.Finish();
     }
-
-    // === Expressions ===
 
     public void Visit(LiteralExpression e)
     {
@@ -96,7 +89,7 @@ public class TigerVmCodegen : IAstVisitor
             BinaryOperation.LessThanOrEqual => InstructionCode.LessOrEqual,
             BinaryOperation.GreaterThan => InstructionCode.GreaterThan,
             BinaryOperation.GreaterThanOrEqual => InstructionCode.GreaterThanOrEqual,
-            _ => throw new NotImplementedException($"Unsupported binary operation: {e.Operation}")
+            _ => throw new NotImplementedException($"Unsupported binary operation: {e.Operation}"),
         };
         _builder.Append(new Instruction(code));
     }
@@ -109,7 +102,6 @@ public class TigerVmCodegen : IAstVisitor
 
     public void Visit(FunctionCallExpression e)
     {
-        // Аргументы
         foreach (Expression arg in e.Arguments)
         {
             arg.Accept(this);
@@ -133,8 +125,6 @@ public class TigerVmCodegen : IAstVisitor
         }
     }
 
-    // === Statements ===
-
     public void Visit(AssignmentStatement e)
     {
         e.Value.Accept(this);
@@ -157,6 +147,7 @@ public class TigerVmCodegen : IAstVisitor
         {
             e.ElseBranch.Accept(this);
         }
+
         _builder.AppendJump(InstructionCode.Jump, finalBlock);
 
         _builder.InsertPoint = finalBlock;
@@ -189,20 +180,16 @@ public class TigerVmCodegen : IAstVisitor
 
         PushLexicalScope();
 
-        // Инициализация
         e.Init.Accept(this);
 
         _builder.AppendJump(InstructionCode.Jump, loopStart);
         _builder.InsertPoint = loopStart;
 
-        // Условие
         e.Condition.Accept(this);
         _builder.AppendJump(InstructionCode.JumpIfFalse, loopEnd);
 
-        // Тело
         e.Body.Accept(this);
 
-        // Шаг
         e.Step.Accept(this);
         _builder.AppendJump(InstructionCode.Jump, loopStart);
 
@@ -229,6 +216,7 @@ public class TigerVmCodegen : IAstVisitor
         {
             e.Expression.Accept(this);
         }
+
         _builder.Append(new Instruction(InstructionCode.Return));
     }
 
@@ -258,8 +246,6 @@ public class TigerVmCodegen : IAstVisitor
         }
     }
 
-    // === Declarations ===
-
     public void Visit(VariableDeclaration d)
     {
         d.InitialValue.Accept(this);
@@ -282,14 +268,12 @@ public class TigerVmCodegen : IAstVisitor
         {
             PushLexicalScope();
 
-            // Параметры в обратном порядке
             foreach (ParameterDeclaration param in d.Parameters)
             {
                 _builder.Append(new Instruction(InstructionCode.DefineVar, param.Name));
             }
 
             d.Body.Accept(this);
-            _builder.Append(new Instruction(InstructionCode.Return));
 
             PopLexicalScope();
         }
@@ -299,22 +283,26 @@ public class TigerVmCodegen : IAstVisitor
         }
     }
 
-    public void Visit(ParameterDeclaration d) { }
-
-    // === Program ===
+    public void Visit(ParameterDeclaration d)
+    {
+    }
 
     public void Visit(Program e)
     {
-        // Обработка в GenerateCode
     }
 
-    // === Not used in this iteration ===
+    public void Visit(BuiltinFunction e)
+    {
+    }
 
-    public void Visit(BuiltinFunction e) { }
-    public void Visit(BuiltinFunctionParameter e) { }
-    public void Visit(BuiltinType e) { }
+    public void Visit(BuiltinFunctionParameter e)
+    {
+    }
 
-    // === Helpers ===
+    private bool IsJump(InstructionCode code)
+    {
+        return code is InstructionCode.Jump or InstructionCode.JumpIfTrue or InstructionCode.JumpIfFalse or InstructionCode.Call;
+    }
 
     private void PushLexicalScope()
     {

@@ -1,5 +1,7 @@
-﻿using PsTiger.Ast.Declarations;
+﻿using PsTiger.Ast;
+using PsTiger.Ast.Declarations;
 using PsTiger.Ast.Expressions;
+using PsTiger.Ast.Statements;
 using PsTiger.Runtime;
 using PsTiger.Semantics.Exceptions;
 using PsTiger.Semantics.Helpers;
@@ -8,117 +10,180 @@ using ValueType = PsTiger.Runtime.ValueType;
 
 namespace PsTiger.Semantics.Passes;
 
-/// <summary>
-/// Проход по AST для проверки корректности программы с точки зрения совместимости типов данных.
-/// </summary>
-/// <exception cref="TypeErrorException">Бросается при несоответствии типов данных в процессе проверки.</exception>
 public class CheckTypesPass : AbstractPass
 {
-    /// <summary>
-    /// Проверяет соответствие типов параметров функции и аргументов при вызове этой функции.
-    /// </summary>
+    private FunctionDeclaration? _currentFunction;
+
+    public override void Visit(Program node)
+    {
+        base.Visit(node);
+
+        if (node.MainFunction.ResolvedReturnType != ValueType.Int)
+        {
+            throw new TypeErrorException("Function main must return type int");
+        }
+
+        if (!HasReturnInBlock(node.MainFunction.Body))
+        {
+            throw new TypeErrorException("Function main must contain a return statement");
+        }
+    }
+
+    public override void Visit(FunctionDeclaration d)
+    {
+        FunctionDeclaration? previous = _currentFunction;
+        _currentFunction = d;
+
+        base.Visit(d);
+
+        if (d.ResolvedReturnType != ValueType.Void && !HasReturnInBlock(d.Body))
+        {
+            throw new TypeErrorException($"Function {d.Name} must contain a return statement");
+        }
+
+        _currentFunction = previous;
+    }
+
+    public override void Visit(ReturnStatement e)
+    {
+        base.Visit(e);
+
+        if (_currentFunction != null)
+        {
+            if (e.Expression != null)
+            {
+                if (!ValueTypeUtil.AreCompatibleTypes(e.Expression.ResultType, _currentFunction.ResolvedReturnType))
+                {
+                    throw new TypeErrorException(
+                        $"Return type {e.Expression.ResultType} does not match function {_currentFunction.Name} return type {_currentFunction.ResolvedReturnType}"
+                    );
+                }
+            }
+            else if (_currentFunction.ResolvedReturnType != ValueType.Void)
+            {
+                throw new TypeErrorException(
+                    $"Function {_currentFunction.Name} expects return value of type {_currentFunction.ResolvedReturnType}"
+                );
+            }
+        }
+    }
+
     public override void Visit(FunctionCallExpression e)
     {
         base.Visit(e);
         CheckFunctionArgumentTypes(e, e.Function);
     }
 
-    public override void Visit(FunctionDeclaration d)
-    {
-        base.Visit(d);
-        CheckAreSameTypes("function body", d.Body, d.ResultType);
-    }
-
-    /// <summary>
-    /// Проверяет тип переменной и тип выражения, которым она инициализируется.
-    /// </summary>
     public override void Visit(VariableDeclaration d)
     {
         base.Visit(d);
-
-        ValueType inferredType = d.InitialValue.ResultType;
-
-        if (d.ResolvedDeclaredType != ValueType.Void)
+        if (d.InitialValue.ResultType == ValueType.Void)
         {
-            if (!ValueTypeUtil.AreCompatibleTypes(d.ResolvedDeclaredType, inferredType))
+            throw new TypeErrorException("Cannot initialize variable from void expression");
+        }
+
+        if (!ValueTypeUtil.AreCompatibleTypes(d.ResolvedType, d.InitialValue.ResultType))
+        {
+            throw new TypeErrorException($"Type mismatch: expected {d.ResolvedType}, got {d.InitialValue.ResultType}");
+        }
+    }
+
+    public override void Visit(ConstantDeclaration d)
+    {
+        base.Visit(d);
+        if (d.InitialValue.ResultType == ValueType.Void)
+        {
+            throw new TypeErrorException("Cannot initialize constant from void expression");
+        }
+
+        if (!ValueTypeUtil.AreCompatibleTypes(d.ResolvedType, d.InitialValue.ResultType))
+        {
+            throw new TypeErrorException($"Type mismatch: expected {d.ResolvedType}, got {d.InitialValue.ResultType}");
+        }
+    }
+
+    public override void Visit(AssignmentStatement node)
+    {
+        base.Visit(node);
+    }
+
+    public override void Visit(PrintStatement node)
+    {
+        base.Visit(node);
+        foreach (Expression arg in node.Arguments)
+        {
+            if (arg.ResultType == ValueType.Void)
             {
-                throw new TypeErrorException($"Cannot initialize {d.ResolvedDeclaredType} with {inferredType}");
+                throw new TypeErrorException("Cannot print void expression");
             }
         }
     }
 
-    public override void Visit(AssignmentExpression e)
+    public override void Visit(IfStatement node)
     {
-        base.Visit(e);
-        if (!ValueTypeUtil.AreCompatibleTypes(e.Left.ResultType, e.Right.ResultType))
+        base.Visit(node);
+        if (node.Condition.ResultType != ValueType.Bool)
         {
-            throw new TypeErrorException(
-                $"Cannot assign value of type {e.Right.ResultType} to variable of type {e.Left.ResultType}"
-            );
+            throw new TypeErrorException("Condition must be of type bool");
         }
     }
 
-    public override void Visit(IfStatement e)
+    public override void Visit(WhileStatement node)
     {
-        s.Condition.Accept(this);
-        s.ThenBranch.Accept(this);
-        s.ElseBranch?.Accept(this);
-
-        //условие д быть логическим
-        if (s.Condition.ResultType != ValueType.Bool)
+        base.Visit(node);
+        if (node.Condition.ResultType != ValueType.Bool)
         {
-            throw new TypeErrorException($"Condition in 'if' must be bool, but got {s.Condition.ResultType}");
+            throw new TypeErrorException("Condition must be of type bool");
         }
     }
 
-    public override void Visit(WhileLoopExpression e)
+    public override void Visit(ForStatement node)
     {
-        base.Visit(e);
-
-        CheckAreSameTypes("while loop condition", e.Condition, ValueType.Bool);
+        base.Visit(node);
+        if (node.Condition.ResultType != ValueType.Bool)
+        {
+                throw new TypeErrorException("Condition must be of type bool");
+        }
     }
 
-    public override void Visit(ForLoopExpression e)
+    private bool HasReturnInBlock(BlockStatement block)
     {
-        base.Visit(e);
+        foreach (AstNode node in block.Nodes)
+        {
+            if (node is ReturnStatement)
+            {
+                return true;
+            }
 
-        CheckAreSameTypes("for loop start value", e.StartValue, ValueType.Int);
-        CheckAreSameTypes("for loop end value", e.EndValue, ValueType.Int);
-        CheckAreSameTypes("for loop body", e.LoopBody, ValueType.Void);
+            if (node is BlockStatement innerBlock && HasReturnInBlock(innerBlock))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
-    /// <summary>
-    /// Проверяет соответствие типов формальных параметров и фактических параметров (аргументов) при вызове функции.
-    /// </summary>
     private static void CheckFunctionArgumentTypes(FunctionCallExpression e, AbstractFunctionDeclaration function)
     {
-        // Для каждого i-го аргумента выводим тип и сверяем с типом i-го параметра функции.
         for (int i = 0, iMax = e.Arguments.Count; i < iMax; ++i)
         {
             Expression argument = e.Arguments[i];
             AbstractParameterDeclaration parameter = function.Parameters[i];
-            if (!ValueTypeUtil.AreCompatibleTypes(argument.ResultType, parameter.ResultType))
+
+            ValueType paramType = parameter switch
+            {
+                BuiltinFunctionParameter builtin => builtin.Type,
+                ParameterDeclaration user => user.ResolvedType,
+                _ => ValueType.Void,
+            };
+
+            if (!ValueTypeUtil.AreCompatibleTypes(argument.ResultType, paramType))
             {
                 throw new TypeErrorException(
-                    $"Cannot apply argument #{i} of type {argument.ResultType} to function {e.Name} parameter {parameter.Name} which has type {parameter.ResultType}"
+                    $"Argument #{i} type {argument.ResultType} does not match parameter {parameter.Name} type {paramType}"
                 );
             }
-        }
-    }
-
-    private static void CheckAreSameTypes(string category, Expression expression, ValueType expectedType)
-    {
-        if (!ValueTypeUtil.AreCompatibleTypes(expression.ResultType, expectedType))
-        {
-            throw new TypeErrorException(category, expectedType, expression.ResultType);
-        }
-    }
-
-    private static void CheckAreCompatibleTypes(string category, Expression expression, ValueType expectedType)
-    {
-        if (!ValueTypeUtil.AreCompatibleTypes(expression.ResultType, expectedType))
-        {
-            throw new TypeErrorException(category, expectedType, expression.ResultType);
         }
     }
 }

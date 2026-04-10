@@ -14,7 +14,7 @@ public static class Builtins
     public const string ReadString = "readString";
     public const string Len = "len";
     public const string Substring = "substring";
-    public const string ToString = "toString";
+    public new const string ToString = "toString";
     public const string ParseInt = "parseInt";
     public const string ToBool = "toBool";
     public const string ToFloat = "toFloat";
@@ -25,7 +25,7 @@ public static class Builtins
     public static readonly IReadOnlyList<BuiltinFunction> Functions =
     [
         new(
-            ReadInt, // `readInt(): int` — Считывает число, возвращает значение типа int 
+            ReadInt, // `readInt(): int` — Считывает число, возвращает значение типа int
             [],
             ValueType.Int
         ),
@@ -46,7 +46,7 @@ public static class Builtins
             Len, // `len(s: string)` - Вычисляет длину строки
             [
                 new BuiltinFunctionParameter("s", ValueType.String)
-            ], 
+            ],
             ValueType.Int
         ),
 
@@ -91,17 +91,5 @@ public static class Builtins
             ],
             ValueType.Float
         ),
-    ];
-
-    /// <summary>
-    /// Список встроенных типов языка.
-    /// </summary>
-    public static readonly IReadOnlyList<BuiltinType> Types =
-    [
-        new("int", ValueType.Int),
-        new("float", ValueType.Float),
-        new("string", ValueType.String),
-        new("bool", ValueType.Bool),
-        new("void", ValueType.Void),
     ];
 }

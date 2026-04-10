@@ -1,27 +1,21 @@
-﻿using PsTiger.Ast.Declarations;
+﻿using PsTiger.Ast;
+using PsTiger.Ast.Declarations;
 using PsTiger.Ast.Expressions;
+using PsTiger.Ast.Statements;
+using PsTiger.Runtime;
 using PsTiger.Semantics.Exceptions;
-using System.Collections.Generic;
-using System.Linq.Expressions;
+
+using ValueType = PsTiger.Runtime.ValueType;
 
 namespace PsTiger.Semantics.Passes;
 
-/// <summary>
-/// Проверяет соблюдение контекстно-зависимых правил языка.
-/// </summary>
-/// <remarks>
-/// Контекстно-зависимые правила не могли быть проверены при синтаксическом анализе, поскольку синтаксический анализатор
-///  разбирает контекстно-свободную грамматику.
-/// </remarks>
 public sealed class CheckContextSensitiveRulesPass : AbstractPass
 {
-    // Стек контекстов выражений используется для проверки контекстно-зависимых правил.
-    private readonly Stack<ExpressionContext> _expressionContextStack;
+    private readonly Stack<ExpressionContext> _contextStack = [];
 
     public CheckContextSensitiveRulesPass()
     {
-        _expressionContextStack = [];
-        _expressionContextStack.Push(ExpressionContext.Default);
+        _contextStack.Push(ExpressionContext.Default);
     }
 
     private enum ExpressionContext
@@ -30,14 +24,11 @@ public sealed class CheckContextSensitiveRulesPass : AbstractPass
         InsideLoop,
     }
 
-    /// <summary>
-    /// Проверяет корректность программы с точки зрения использования функций.
-    /// </summary>
-    /// <exception cref="InvalidFunctionCallException">Бросается при неправильном вызове функций.</exception>
+    public override void Visit(Program node) => base.Visit(node);
+
     public override void Visit(FunctionCallExpression e)
     {
         base.Visit(e);
-
         if (e.Arguments.Count != e.Function.Parameters.Count)
         {
             throw new InvalidFunctionCallException(
@@ -46,84 +37,88 @@ public sealed class CheckContextSensitiveRulesPass : AbstractPass
         }
     }
 
-    public override void Visit(AssignmentExpression e)
+    public override void Visit(AssignmentStatement node)
     {
-        base.Visit(e);
+        base.Visit(node);
 
-        // Проверяем контекстно-зависимые правила присваивания:
-        // 1) Левая часть присваивания должна быть lvalue.
-        // 2) Не допускается присваивание значения итератору цикла for.
-        if (!IsLvalue(e.Left))
+        if (node.Value.ResultType == ValueType.Void)
         {
-            throw new InvalidAssignmentException("Left side of assignment must be a lvalue");
+            throw new InvalidAssignmentException("Cannot assign a void expression to a variable");
         }
+    }
 
-        if (e.Left is VariableAccessExpression { Variable: ForIteratorDeclaration })
+    public override void Visit(IfStatement node)
+    {
+        base.Visit(node);
+        if (node.Condition.ResultType != ValueType.Bool)
         {
-            throw new InvalidAssignmentException("Assigning a for loop iterator is not allowed");
+            throw new InvalidExpressionException("Condition in if statement must be of type bool");
+        }
+    }
+
+    public override void Visit(WhileStatement node)
+    {
+        _contextStack.Push(ExpressionContext.InsideLoop);
+        try
+        {
+            base.Visit(node);
+
+            if (node.Condition.ResultType != ValueType.Bool)
+            {
+                throw new InvalidExpressionException("Condition in while loop must be of type bool");
+            }
+        }
+        finally
+        {
+            _contextStack.Pop();
+        }
+    }
+
+    public override void Visit(ForStatement node)
+    {
+        _contextStack.Push(ExpressionContext.InsideLoop);
+        try
+        {
+            base.Visit(node);
+            if (node.Condition.ResultType != ValueType.Bool)
+            {
+                throw new InvalidExpressionException("Condition in for loop must be of type bool");
+            }
+        }
+        finally
+        {
+            _contextStack.Pop();
+        }
+    }
+
+    public override void Visit(BreakStatement node)
+    {
+        base.Visit(node);
+        if (_contextStack.Peek() != ExpressionContext.InsideLoop)
+        {
+            throw new InvalidExpressionException("The \"break\" statement is allowed only inside a loop");
+        }
+    }
+
+    public override void Visit(ContinueStatement node)
+    {
+        base.Visit(node);
+        if (_contextStack.Peek() != ExpressionContext.InsideLoop)
+        {
+            throw new InvalidExpressionException("The \"continue\" statement is allowed only inside a loop");
         }
     }
 
     public override void Visit(FunctionDeclaration d)
     {
-        // Меняем текущий контекст: дочерние узлы AST находятся в контексте по умолчанию.
-        _expressionContextStack.Push(ExpressionContext.Default);
+        _contextStack.Push(ExpressionContext.Default);
         try
         {
             base.Visit(d);
         }
         finally
         {
-            _expressionContextStack.Pop();
+            _contextStack.Pop();
         }
-    }
-
-    public override void Visit(WhileLoopExpression e)
-    {
-        // Меняем текущий контекст: дочерние узлы AST находятся внутри цикла.
-        _expressionContextStack.Push(ExpressionContext.InsideLoop);
-        try
-        {
-            base.Visit(e);
-        }
-        finally
-        {
-            _expressionContextStack.Pop();
-        }
-    }
-
-    public override void Visit(ForLoopExpression e)
-    {
-        // Меняем текущий контекст: дочерние узлы AST находятся внутри цикла.
-        _expressionContextStack.Push(ExpressionContext.InsideLoop);
-        try
-        {
-            base.Visit(e);
-        }
-        finally
-        {
-            _expressionContextStack.Pop();
-        }
-    }
-
-    public override void Visit(BreakLoopExpression e)
-    {
-        base.Visit(e);
-
-        // Контекстно-зависимое правило: "break" допускается только внутри цикла,
-        //  расположенного в пределах текущей функции.
-        if (_expressionContextStack.Peek() != ExpressionContext.InsideLoop)
-        {
-            throw new InvalidExpressionException("The \"break\" expression is allowed only inside the loop");
-        }
-    }
-
-    /// <summary>
-    /// Проверяет, является ли выражение lvalue-выражением.
-    /// Термин lvalue означает «значение слева от присваивания».
-    /// </summary>
-    private static bool IsLvalue(Expression e)
-    {
-        return e is VariableAccessExpression;
     }
 }

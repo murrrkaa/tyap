@@ -3,9 +3,6 @@ using System.Globalization;
 
 namespace PsTiger.Lexemes;
 
-/// <summary>
-/// Представляет значение токена — идентификатора или литерала.
-/// </summary>
 public class TokenValue
 {
     private readonly object _value;
@@ -25,9 +22,6 @@ public class TokenValue
         _value = value;
     }
 
-    /// <summary>
-    /// Возвращает значение токена в виде строки.
-    /// </summary>
     public override string ToString()
     {
         return _value switch
@@ -39,9 +33,6 @@ public class TokenValue
         };
     }
 
-    /// <summary>
-    /// Возвращает значение токена в виде целого числа.
-    /// </summary>
     public int ToInt()
     {
         return _value switch
@@ -52,9 +43,6 @@ public class TokenValue
         };
     }
 
-    /// <summary>
-    /// Возвращает значение токена в виде числа с плавающей точкой.
-    /// </summary>
     public double ToDouble()
     {
         return _value switch
@@ -66,9 +54,6 @@ public class TokenValue
         };
     }
 
-    /// <summary>
-    /// Проверяет равенство значений токенов. Значения разных типов всегда считаются разными.
-    /// </summary>
     public override bool Equals(object? obj)
     {
         if (obj is TokenValue other)
@@ -85,9 +70,6 @@ public class TokenValue
         return false;
     }
 
-    /// <summary>
-    /// Явное определение стандартной функции GetHashCode.
-    /// </summary>
     public override int GetHashCode()
     {
         return _value.GetHashCode();

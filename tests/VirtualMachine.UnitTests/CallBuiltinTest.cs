@@ -1,9 +1,10 @@
-﻿using PsTiger.Tests.TestLibrary.TestDoubles;
+﻿using System.Collections.Generic;
+
+using PsTiger.Tests.TestLibrary.TestDoubles;
 using PsTiger.VirtualMachine;
 using PsTiger.VirtualMachine.Builtins;
-using PsTiger.VirtualMachine.Instructions;
 
-using System.Collections.Generic;
+using PsTiger.VirtualMachine.Instructions;
 
 using Xunit;
 
@@ -42,6 +43,7 @@ public class CallBuiltinTest
                 },
                 "Hello, world!"
             },
+
             // print number via toString
             {
                 new List<Instruction>

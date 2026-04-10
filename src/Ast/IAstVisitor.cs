@@ -10,25 +10,46 @@ namespace PsTiger.Ast;
 public interface IAstVisitor
 {
     void Visit(LiteralExpression e);
+
     void Visit(VariableAccessExpression e);
+
     void Visit(FunctionCallExpression e);
+
     void Visit(BinaryOperationExpression e);
+
     void Visit(UnaryNotExpression e);
+
     void Visit(BlockStatement node);
+
     void Visit(AssignmentStatement node);
+
     void Visit(IfStatement node);
+
     void Visit(WhileStatement node);
+
     void Visit(ForStatement node);
+
     void Visit(BreakStatement node);
+
     void Visit(ContinueStatement node);
+
     void Visit(ReturnStatement node);
+
     void Visit(PrintStatement node);
+
     void Visit(FunctionCallStatement node);
+
     void Visit(VariableDeclaration d);
+
     void Visit(ConstantDeclaration d);
+
     void Visit(ParameterDeclaration d);
+
     void Visit(FunctionDeclaration d);
+
     void Visit(BuiltinFunction d);
+
     void Visit(BuiltinFunctionParameter d);
+
     void Visit(Program node);
 }

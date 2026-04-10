@@ -1,11 +1,12 @@
-﻿using PsTiger.Ast;
+﻿using System.Globalization;
+
+using PsTiger.Ast;
 using PsTiger.Ast.Declarations;
 using PsTiger.Ast.Expressions;
 using PsTiger.Ast.Statements;
 using PsTiger.Lexemes;
 using PsTiger.Parsing;
 using PsTiger.Runtime;
-using System.Globalization;
 
 using Expression = PsTiger.Ast.Expressions.Expression;
 using ValueType = PsTiger.Runtime.ValueType;
@@ -24,8 +25,6 @@ public class Parser
         _tokens = new TokenStream(code);
     }
 
-    #region Program
-
     /// <summary>
     /// Разбирает программу.
     /// Правило: program = { top_level_statement }, main_function ;
@@ -39,11 +38,75 @@ public class Parser
             topLevelStatements.Add(ParseTopLevelStatement());
         }
 
-        FunctionDeclaration mainFunction = ParseMainFunction(); // ← ИЗМЕНЕНО
+        FunctionDeclaration mainFunction = ParseMainFunction();
 
         Match(TokenType.EndOfFile);
 
         return new Program(topLevelStatements.AsReadOnly(), mainFunction);
+    }
+
+    /// <summary>
+    /// Разбирает объявление функции.
+    /// Правило: function_definition = "function", identifier, "(", [typed_parameter_list], ")", [":", return_type], "{", {function_statement}, "}" ;
+    /// </summary>
+    public FunctionDeclaration ParseFunctionDeclaration()
+    {
+        Match(TokenType.Function);
+        string name = Match(TokenType.Identifier).Value!.ToString();
+
+        Match(TokenType.OpenParenthesis);
+        List<ParameterDeclaration> parameters = ParseTypedParameterList();
+        Match(TokenType.CloseParenthesis);
+
+        ValueType returnType = ValueType.Void;
+        if (_tokens.Peek().Type == TokenType.Colon)
+        {
+            _tokens.Advance();
+            returnType = ParseReturnType();
+        }
+
+        Match(TokenType.OpenBrace);
+        BlockStatement body = ParseFunctionBlock();
+        Match(TokenType.CloseBrace);
+
+        return new FunctionDeclaration(
+            name,
+            parameters.AsReadOnly(),
+            returnType == ValueType.Void ? "void" : returnType.ToString().ToLower(),
+            returnType,
+            body);
+    }
+
+    /// <summary>
+    /// Разбирает объявление переменной.
+    /// Правило: variable_declaration = "var", identifier, ":", type, "=", expression ;
+    /// </summary>
+    public VariableDeclaration ParseVariableDeclaration()
+    {
+        Match(TokenType.Var);
+        string name = Match(TokenType.Identifier).Value!.ToString();
+        Match(TokenType.Colon);
+        ValueType type = ParseType();
+        Match(TokenType.Assign);
+        Expression value = ParseExpression();
+
+        return new VariableDeclaration(name, type.ToString().ToLower(), type, value);
+    }
+
+    /// <summary>
+    /// Разбирает объявление константы.
+    /// Правило: constant_declaration = "const", identifier, ":", type, "=", expression ;
+    /// </summary>
+    public ConstantDeclaration ParseConstantDeclaration()
+    {
+        Match(TokenType.Const);
+        string name = Match(TokenType.Identifier).Value!.ToString();
+        Match(TokenType.Colon);
+        ValueType type = ParseType();
+        Match(TokenType.Assign);
+        Expression value = ParseExpression();
+
+        return new ConstantDeclaration(name, type.ToString().ToLower(), type, value);
     }
 
     /// <summary>
@@ -60,7 +123,7 @@ public class Parser
     /// Разбирает функцию main.
     /// Правило: main_function = "function", "main", "(", ")", ":", "int", "{", ...
     /// </summary>
-    private FunctionDeclaration ParseMainFunction() // ← ДОБАВЛЕНО
+    private FunctionDeclaration ParseMainFunction()
     {
         Match(TokenType.Function);
         string name = Match(TokenType.Identifier).Value!.ToString();
@@ -68,9 +131,9 @@ public class Parser
         Match(TokenType.OpenParenthesis);
         Match(TokenType.CloseParenthesis);
 
-        Match(TokenType.Colon); // ← обязательно ": int"
-        string returnType = ParseType();
-        if (returnType != "int")
+        Match(TokenType.Colon);
+        ValueType returnType = ParseType();
+        if (returnType != ValueType.Int)
         {
             throw new UnexpectedLexemeException(
                 _tokens.Peek(),
@@ -82,7 +145,12 @@ public class Parser
         BlockStatement body = ParseFunctionBlock();
         Match(TokenType.CloseBrace);
 
-        return new FunctionDeclaration(name, new List<ParameterDeclaration>().AsReadOnly(), returnType, body);
+        return new FunctionDeclaration(
+            name,
+            new List<ParameterDeclaration>().AsReadOnly(),
+            returnType.ToString().ToLower(),
+            returnType,
+            body);
     }
 
     /// <summary>
@@ -109,37 +177,6 @@ public class Parser
                     [TokenType.Function, TokenType.Var, TokenType.Const]
                 );
         }
-    }
-
-    #endregion
-
-    #region Functions
-
-    /// <summary>
-    /// Разбирает объявление функции.
-    /// Правило: function_definition = "function", identifier, "(", [typed_parameter_list], ")", [":", return_type], "{", {function_statement}, "}" ;
-    /// </summary>
-    public FunctionDeclaration ParseFunctionDeclaration()
-    {
-        Match(TokenType.Function);
-        string name = Match(TokenType.Identifier).Value!.ToString();
-
-        Match(TokenType.OpenParenthesis);
-        List<ParameterDeclaration> parameters = ParseTypedParameterList();
-        Match(TokenType.CloseParenthesis);
-
-        string returnType = "void";
-        if (_tokens.Peek().Type == TokenType.Colon) // ← ИЗМЕНЕНО: проверка ':'
-        {
-            _tokens.Advance(); // пропускаем ':'
-            returnType = ParseReturnType(); // ← ИЗМЕНЕНО: новый метод
-        }
-
-        Match(TokenType.OpenBrace);
-        BlockStatement body = ParseFunctionBlock();
-        Match(TokenType.CloseBrace);
-
-        return new FunctionDeclaration(name, parameters.AsReadOnly(), returnType, body);
     }
 
     /// <summary>
@@ -170,57 +207,57 @@ public class Parser
     private ParameterDeclaration ParseTypedParameter()
     {
         string name = Match(TokenType.Identifier).Value!.ToString();
-        Match(TokenType.Colon); // ← ДОБАВЛЕНО: двоеточие перед типом
-        string type = ParseType();
+        Match(TokenType.Colon);
+        ValueType type = ParseType();
 
-        return new ParameterDeclaration(name, type);
+        return new ParameterDeclaration(name, type.ToString().ToLower(), type);
     }
 
     /// <summary>
     /// Разбирает тип возврата функции.
     /// Правило: return_type = type | "void" ;
     /// </summary>
-    private string ParseReturnType() // ← ДОБАВЛЕНО
+    private ValueType ParseReturnType()
     {
         Token token = _tokens.Peek();
-        switch (token.Type)
+        ValueType returnType = token.Type switch
         {
-            case TokenType.Int:
-            case TokenType.Float:
-            case TokenType.String:
-            case TokenType.Bool:
-            case TokenType.Void: // ← ДОБАВЛЕНО: поддержка void
-                _tokens.Advance();
-                return token.Value!.ToString();
-            default:
-                throw new UnexpectedLexemeException(
-                    token,
-                    [TokenType.Int, TokenType.Float, TokenType.String, TokenType.Bool, TokenType.Void]
-                );
-        }
+            TokenType.Int => ValueType.Int,
+            TokenType.Float => ValueType.Float,
+            TokenType.String => ValueType.String,
+            TokenType.Bool => ValueType.Bool,
+            TokenType.Void => ValueType.Void,
+            _ => throw new UnexpectedLexemeException(
+                token,
+                [TokenType.Int, TokenType.Float, TokenType.String, TokenType.Bool, TokenType.Void]
+            ),
+        };
+
+        _tokens.Advance();
+        return returnType;
     }
 
     /// <summary>
     /// Разбирает тип данных.
     /// Правило: type = "int" | "float" | "string" | "bool" ;
     /// </summary>
-    private string ParseType()
+    private ValueType ParseType()
     {
         Token token = _tokens.Peek();
-        switch (token.Type)
+        ValueType type = token.Type switch
         {
-            case TokenType.Int:
-            case TokenType.Float:
-            case TokenType.String:
-            case TokenType.Bool:
-                _tokens.Advance();
-                return token.Value!.ToString();
-            default:
-                throw new UnexpectedLexemeException(
-                    token,
-                    [TokenType.Int, TokenType.Float, TokenType.String, TokenType.Bool]
-                );
-        }
+            TokenType.Int => ValueType.Int,
+            TokenType.Float => ValueType.Float,
+            TokenType.String => ValueType.String,
+            TokenType.Bool => ValueType.Bool,
+            _ => throw new UnexpectedLexemeException(
+                token,
+                [TokenType.Int, TokenType.Float, TokenType.String, TokenType.Bool]
+            ),
+        };
+
+        _tokens.Advance();
+        return type;
     }
 
     /// <summary>
@@ -260,10 +297,6 @@ public class Parser
         }
     }
 
-    #endregion
-
-    #region Statements
-
     /// <summary>
     /// Разбирает простую инструкцию.
     /// </summary>
@@ -284,9 +317,10 @@ public class Parser
                 }
                 else
                 {
-                    FunctionCallExpression call = ParseFunctionCallOrBuiltIn(); // ← ИЗМЕНЕНО
+                    FunctionCallExpression call = ParseFunctionCallOrBuiltIn();
                     return new FunctionCallStatement(call);
                 }
+
             default:
                 throw new UnexpectedLexemeException(
                     _tokens.Peek(),
@@ -294,7 +328,6 @@ public class Parser
                 );
         }
     }
-
 
     /// <summary>
     /// Разбирает присваивание.
@@ -311,7 +344,7 @@ public class Parser
     /// <summary>
     /// Разбирает вызов функции или встроенной функции.
     /// </summary>
-    private FunctionCallExpression ParseFunctionCallOrBuiltIn() // ← ДОБАВЛЕНО
+    private FunctionCallExpression ParseFunctionCallOrBuiltIn()
     {
         string name = _tokens.Peek().Value!.ToString();
         _tokens.Advance();
@@ -327,7 +360,7 @@ public class Parser
     /// <summary>
     /// Разбирает вызов функции как выражение.
     /// </summary>
-    private FunctionCallExpression ParseFunctionCall(string name) // ← ИЗМЕНЕНО: принимает имя
+    private FunctionCallExpression ParseFunctionCall(string name)
     {
         Match(TokenType.OpenParenthesis);
 
@@ -345,38 +378,6 @@ public class Parser
         Match(TokenType.CloseParenthesis);
 
         return new FunctionCallExpression(name, arguments.AsReadOnly());
-    }
-
-    /// <summary>
-    /// Разбирает объявление переменной.
-    /// Правило: variable_declaration = "var", identifier, ":", type, "=", expression ;
-    /// </summary>
-    public VariableDeclaration ParseVariableDeclaration()
-    {
-        Match(TokenType.Var);
-        string name = Match(TokenType.Identifier).Value!.ToString();
-        Match(TokenType.Colon); // ← ДОБАВЛЕНО: двоеточие перед типом
-        string type = ParseType();
-        Match(TokenType.Assign);
-        Expression value = ParseExpression();
-
-        return new VariableDeclaration(name, type, value);
-    }
-
-    /// <summary>
-    /// Разбирает объявление константы.
-    /// Правило: constant_declaration = "const", identifier, ":", type, "=", expression ;
-    /// </summary>
-    public ConstantDeclaration ParseConstantDeclaration()
-    {
-        Match(TokenType.Const);
-        string name = Match(TokenType.Identifier).Value!.ToString();
-        Match(TokenType.Colon); // ← ДОБАВЛЕНО: двоеточие перед типом
-        string type = ParseType();
-        Match(TokenType.Assign);
-        Expression value = ParseExpression();
-
-        return new ConstantDeclaration(name, type, value);
     }
 
     /// <summary>
@@ -569,10 +570,6 @@ public class Parser
         return new ReturnStatement(value);
     }
 
-    #endregion
-
-    #region Expressions
-
     /// <summary>
     /// Разбирает выражение.
     /// </summary>
@@ -744,8 +741,9 @@ public class Parser
                 _tokens.Advance();
                 if (_tokens.Peek().Type == TokenType.OpenParenthesis)
                 {
-                    return ParseFunctionCall(name); // ← ИЗМЕНЕНО: поддержка встроенных функций
+                    return ParseFunctionCall(name);
                 }
+
                 return new VariableAccessExpression(name);
 
             case TokenType.OpenParenthesis:
@@ -778,10 +776,6 @@ public class Parser
         return value.Replace("\\\\", "\\").Replace("\\'", "'");
     }
 
-    #endregion
-
-    #region Helpers
-
     /// <summary>
     /// Читает ожидаемую лексему либо бросает исключение.
     /// </summary>
@@ -792,9 +786,8 @@ public class Parser
         {
             throw new UnexpectedLexemeException(token, expected);
         }
+
         _tokens.Advance();
         return token;
     }
-
-    #endregion
 }

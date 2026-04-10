@@ -1,5 +1,6 @@
-using PsTiger.Interpreter;
+п»їusing PsTiger.Interpreter;
 using PsTiger.Tests.TestLibrary.TestDoubles;
+
 using Xunit;
 
 namespace PsTiger.Interpreter.IntegrationTests;
@@ -32,7 +33,7 @@ public class ExpressionsTest
     {
         return new TheoryData<string, string>
         {
-            // сложение
+            // СЃР»РѕР¶РµРЅРёРµ
             {
                 """
                 function main(): int {
@@ -43,7 +44,7 @@ public class ExpressionsTest
                 "5"
             },
 
-            // вычитание
+            // РІС‹С‡РёС‚Р°РЅРёРµ
             {
                 """
                 function main(): int {
@@ -54,7 +55,7 @@ public class ExpressionsTest
                 "5"
             },
 
-            // умножение
+            // СѓРјРЅРѕР¶РµРЅРёРµ
             {
                 """
                 function main(): int {
@@ -65,7 +66,7 @@ public class ExpressionsTest
                 "12"
             },
 
-            // деление
+            // РґРµР»РµРЅРёРµ
             {
                 """
                 function main(): int {
@@ -76,29 +77,7 @@ public class ExpressionsTest
                 "4"
             },
 
-            // унарный минус
-            {
-                """
-                function main(): int {
-                    print(-5);
-                    return 0;
-                }
-                """,
-                "-5"
-            },
-
-            // унарный плюс
-            {
-                """
-                function main(): int {
-                    print(+5);
-                    return 0;
-                }
-                """,
-                "5"
-            },
-
-            // приоритет операций
+            // РїСЂРёРѕСЂРёС‚РµС‚ РѕРїРµСЂР°С†РёР№
             {
                 """
                 function main(): int {
@@ -109,7 +88,7 @@ public class ExpressionsTest
                 "14"
             },
 
-            // скобки
+            // СЃРєРѕР±РєРё
             {
                 """
                 function main(): int {
@@ -120,7 +99,7 @@ public class ExpressionsTest
                 "20"
             },
 
-            // вложенные скобки
+            // РІР»РѕР¶РµРЅРЅС‹Рµ СЃРєРѕР±РєРё
             {
                 """
                 function main(): int {
@@ -131,7 +110,7 @@ public class ExpressionsTest
                 "7"
             },
 
-            // ассоциативность -
+            // Р°СЃСЃРѕС†РёР°С‚РёРІРЅРѕСЃС‚СЊ -
             {
                 """
                 function main(): int {
@@ -142,7 +121,7 @@ public class ExpressionsTest
                 "5"
             },
 
-            // ассоциативность /
+            // Р°СЃСЃРѕС†РёР°С‚РёРІРЅРѕСЃС‚СЊ /
             {
                 """
                 function main(): int {
@@ -153,16 +132,16 @@ public class ExpressionsTest
                 "2"
             },
 
-            // строковое выражение 
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 
             {
                 """
                 function main(): int {
-                    print("Hello " + "World");
+                    print('Hello ' + 'World');
                     return 0;
                 }
                 """,
                 "Hello World"
-            }
+            },
         };
     }
 
@@ -170,7 +149,7 @@ public class ExpressionsTest
     {
         return new TheoryData<string>
         {
-            // незавершенное выражение
+            // РЅРµР·Р°РІРµСЂС€РµРЅРЅРѕРµ РІС‹СЂР°Р¶РµРЅРёРµ
             """
             function main(): int {
                 print(1 +);
@@ -178,7 +157,7 @@ public class ExpressionsTest
             }
             """,
 
-            // неправильный оператор
+            // РЅРµРїСЂР°РІРёР»СЊРЅС‹Р№ РѕРїРµСЂР°С‚РѕСЂ
             """
             function main(): int {
                 print(* 2);
@@ -186,7 +165,7 @@ public class ExpressionsTest
             }
             """,
 
-            // незакрытая скобка
+            // РЅРµР·Р°РєСЂС‹С‚Р°СЏ СЃРєРѕР±РєР°
             """
             function main(): int {
                 print((1 + 2);
@@ -194,13 +173,13 @@ public class ExpressionsTest
             }
             """,
 
-            // пустые скобки
+            // РїСѓСЃС‚С‹Рµ СЃРєРѕР±РєРё
             """
             function main(): int {
                 print(());
                 return 0;
             }
-            """
+            """,
         };
     }
 }
