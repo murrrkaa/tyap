@@ -8,26 +8,13 @@ public class Lexer
 {
     private static readonly Dictionary<string, TokenType> Keywords = new()
     {
-        { "if", TokenType.If },
-        { "else", TokenType.Else },
-        { "for", TokenType.For },
-        { "while", TokenType.While },
         { "function", TokenType.Function },
-        { "return", TokenType.Return },
-        { "break", TokenType.Break },
-        { "continue", TokenType.Continue },
-        { "var", TokenType.Var },
-        { "const", TokenType.Const },
-        { "and", TokenType.And },
-        { "or", TokenType.Or },
+        { "main", TokenType.Main },
         { "int", TokenType.Int },
         { "float", TokenType.Float },
         { "string", TokenType.String },
-        { "void", TokenType.Void },
-        { "bool", TokenType.Bool },
+        { "return", TokenType.Return },
         { "print", TokenType.Print },
-        { "true", TokenType.True },
-        { "false", TokenType.False },
     };
 
     private static readonly Dictionary<char, char> SimpleEscapes = new()
@@ -43,9 +30,6 @@ public class Lexer
         _scanner = new TextScanner(code);
     }
 
-    /// <summary>
-    /// Разбирает следующий токен из входного потока.
-    /// </summary>
     public Token ParseToken()
     {
         SkipWhiteSpacesAndComments();
@@ -74,69 +58,6 @@ public class Lexer
 
         switch (c)
         {
-            case '+':
-                _scanner.Advance();
-                return new Token(TokenType.Plus);
-
-            case '-':
-                _scanner.Advance();
-                return new Token(TokenType.Minus);
-
-            case '*':
-                _scanner.Advance();
-                return new Token(TokenType.Multiply);
-
-            case '/':
-                _scanner.Advance();
-
-                if (_scanner.Peek() == '*')
-                {
-                    SkipMultiLineComment();
-                    return ParseToken();
-                }
-
-                return new Token(TokenType.Divide);
-
-            case '=':
-                _scanner.Advance();
-                if (_scanner.Peek() == '=')
-                {
-                    _scanner.Advance();
-                    return new Token(TokenType.Equal);
-                }
-
-                return new Token(TokenType.Assign);
-
-            case '<':
-                _scanner.Advance();
-                if (_scanner.Peek() == '=')
-                {
-                    _scanner.Advance();
-                    return new Token(TokenType.LessThanOrEqual);
-                }
-
-                return new Token(TokenType.LessThan);
-
-            case '>':
-                _scanner.Advance();
-                if (_scanner.Peek() == '=')
-                {
-                    _scanner.Advance();
-                    return new Token(TokenType.GreaterThanOrEqual);
-                }
-
-                return new Token(TokenType.GreaterThan);
-
-            case '!':
-                _scanner.Advance();
-                if (_scanner.Peek() == '=')
-                {
-                    _scanner.Advance();
-                    return new Token(TokenType.NotEqual);
-                }
-
-                return new Token(TokenType.Not);
-
             case '{':
                 _scanner.Advance();
                 return new Token(TokenType.OpenBrace);
@@ -153,6 +74,10 @@ public class Lexer
                 _scanner.Advance();
                 return new Token(TokenType.CloseParenthesis);
 
+            case ':':
+                _scanner.Advance();
+                return new Token(TokenType.Colon);
+
             case ',':
                 _scanner.Advance();
                 return new Token(TokenType.Comma);
@@ -161,26 +86,18 @@ public class Lexer
                 _scanner.Advance();
                 return new Token(TokenType.Semicolon);
 
-            case ':':
-                _scanner.Advance();
-                return new Token(TokenType.Colon);
-
             case '#':
                 SkipHashComment();
                 return ParseToken();
         }
 
         _scanner.Advance();
-        return new Token(TokenType.Error, c.ToString());
+        return new Token(TokenType.Error, $"Unexpected character '{c}'");
     }
 
-    /// <summary>
-    /// Разбирает числовой литерал (целое или с плавающей точкой).
-    /// number_literal = digit, {digit}, [".", digit, {digit}]
-    /// </summary>
     private Token ParseNumberLiteral()
     {
-        StringBuilder sb = new();
+        StringBuilder sb = new StringBuilder();
 
         while (char.IsAsciiDigit(_scanner.Peek()))
         {
@@ -192,42 +109,36 @@ public class Lexer
         {
             sb.Append(_scanner.Peek());
             _scanner.Advance();
+
             while (char.IsAsciiDigit(_scanner.Peek()))
             {
                 sb.Append(_scanner.Peek());
                 _scanner.Advance();
             }
 
-            if (double.TryParse(sb.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, out double floatValue))
+            string text = sb.ToString();
+            if (double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out double value))
             {
-                return new Token(TokenType.FloatLiteral, floatValue);
+                return new Token(TokenType.FloatLiteral, value);
             }
 
-            return new Token(TokenType.Error, sb.ToString());
+            return new Token(TokenType.Error, $"Invalid float literal: '{text}'");
         }
 
-        if (long.TryParse(sb.ToString(), out long intValue))
+        string intText = sb.ToString();
+
+        if (int.TryParse(intText, out int intValue))
         {
-            if (intValue >= int.MinValue && intValue <= int.MaxValue)
-            {
-                return new Token(TokenType.IntLiteral, (int)intValue);
-            }
-
-            return new Token(TokenType.IntLiteral, (int)intValue);
+            return new Token(TokenType.IntLiteral, intValue);
         }
 
-        return new Token(TokenType.Error, sb.ToString());
+        return new Token(TokenType.Error, $"Invalid integer literal: '{intText}'");
     }
 
-    /// <summary>
-    /// Разбирает строковый литерал в одинарных кавычках.
-    /// Поддерживает только экранирование: \\ и \'
-    /// </summary>
     private Token ParseStringLiteral()
     {
         _scanner.Advance();
-
-        StringBuilder valueBuilder = new();
+        StringBuilder valueBuilder = new StringBuilder();
 
         while (!_scanner.IsEnd())
         {
@@ -239,38 +150,16 @@ public class Lexer
                 return new Token(TokenType.StringLiteral, valueBuilder.ToString());
             }
 
-            if (c == '\n')
+            if (c == '\n' || c == '\r')
             {
-                while (!_scanner.IsEnd() && _scanner.Peek() != '\'')
-                {
-                    _scanner.Advance();
-                }
-
-                if (!_scanner.IsEnd() && _scanner.Peek() == '\'')
-                {
-                    _scanner.Advance();
-                }
-
-                return new Token(TokenType.Error);
+                return new Token(TokenType.Error, "Unterminated string literal");
             }
 
             if (c == '\\')
             {
                 if (!DecodeEscapeSequence(valueBuilder))
                 {
-                    _scanner.Advance();
-
-                    while (!_scanner.IsEnd() && _scanner.Peek() != '\'' && _scanner.Peek() != '\n')
-                    {
-                        _scanner.Advance();
-                    }
-
-                    if (!_scanner.IsEnd() && _scanner.Peek() == '\'')
-                    {
-                        _scanner.Advance();
-                    }
-
-                    return new Token(TokenType.Error);
+                    return new Token(TokenType.Error, "Invalid escape sequence");
                 }
             }
             else
@@ -280,14 +169,10 @@ public class Lexer
             }
         }
 
-        return new Token(TokenType.Error);
+        return new Token(TokenType.Error, "Unterminated string literal");
     }
 
-    /// <summary>
-    /// Декодирует escape-последовательность после обратного слэша.
-    /// Возвращает true, если последовательность валидна (\\ или \').
-    /// </summary>
-    private bool DecodeEscapeSequence(StringBuilder valueBuilder)
+    private bool DecodeEscapeSequence(StringBuilder output)
     {
         _scanner.Advance();
 
@@ -298,24 +183,21 @@ public class Lexer
 
         char next = _scanner.Peek();
 
-        if (SimpleEscapes.TryGetValue(next, out char escaped))
+        if (SimpleEscapes.TryGetValue(next, out char decoded))
         {
             _scanner.Advance();
-            valueBuilder.Append(escaped);
+            output.Append(decoded);
             return true;
         }
 
         return false;
     }
 
-    /// <summary>
-    /// Распознаёт идентификаторы и проверяет на ключевые слова.
-    /// identifier = (letter | '_'), { letter | digit | '_' }
-    /// </summary>
     private Token ParseIdentifierOrKeyword()
     {
-        StringBuilder sb = new();
+        StringBuilder sb = new StringBuilder();
         char c = _scanner.Peek();
+
         sb.Append(c);
         _scanner.Advance();
 
@@ -337,20 +219,12 @@ public class Lexer
 
         if (Keywords.TryGetValue(text, out TokenType keywordType))
         {
-            if (text == "true" || text == "false")
-            {
-                return new Token(text == "true" ? TokenType.True : TokenType.False, text);
-            }
-
             return new Token(keywordType, text);
         }
 
         return new Token(TokenType.Identifier, text);
     }
 
-    /// <summary>
-    /// Пропускает пробелы и комментарии (# и /* */).
-    /// </summary>
     private void SkipWhiteSpacesAndComments()
     {
         while (true)
@@ -371,9 +245,6 @@ public class Lexer
         }
     }
 
-    /// <summary>
-    /// Пропускает пробельные символы.
-    /// </summary>
     private void SkipWhiteSpaces()
     {
         while (!_scanner.IsEnd() && char.IsWhiteSpace(_scanner.Peek()))
@@ -382,10 +253,22 @@ public class Lexer
         }
     }
 
-    /// <summary>
-    /// Пропускает многострочный комментарий /* ... */.
-    /// Поддерживает вложенные комментарии через счётчик вложенности.
-    /// </summary>
+    private bool SkipHashComment()
+    {
+        if (_scanner.Peek() == '#')
+        {
+            _scanner.Advance();
+            while (!_scanner.IsEnd() && _scanner.Peek() != '\n')
+            {
+                _scanner.Advance();
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
     private bool SkipMultiLineComment()
     {
         if (_scanner.Peek() == '/' && _scanner.Peek(1) == '*')
@@ -397,41 +280,11 @@ public class Lexer
             {
                 if (_scanner.Peek() == '*' && _scanner.Peek(1) == '/')
                 {
-                    break;
-                }
-
-                if (!SkipMultiLineComment())
-                {
                     _scanner.Advance();
+                    _scanner.Advance();
+                    return true;
                 }
-            }
 
-            if (!_scanner.IsEnd() && _scanner.Peek() == '*')
-            {
-                _scanner.Advance();
-            }
-
-            if (!_scanner.IsEnd() && _scanner.Peek() == '/')
-            {
-                _scanner.Advance();
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// Пропускает однострочный комментарий # ... до конца строки.
-    /// </summary>
-    private bool SkipHashComment()
-    {
-        if (_scanner.Peek() == '#')
-        {
-            _scanner.Advance();
-            while (!_scanner.IsEnd() && _scanner.Peek() != '\n')
-            {
                 _scanner.Advance();
             }
 
