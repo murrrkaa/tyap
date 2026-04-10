@@ -20,3 +20,7 @@ x86/
 
 # Sandbox directory
 sandbox/
+
+# Coverage
+tests/coverage/
+tests/coverage-report/
