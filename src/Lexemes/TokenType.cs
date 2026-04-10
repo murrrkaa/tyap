@@ -2,33 +2,34 @@
 
 /// <summary>
 /// Типы лексем языка PsTiger.
+/// Минимальный набор для Эпика №1 (пункты 1–3).
 /// </summary>
 public enum TokenType
 {
     /// <summary>
-    /// Ключевое слово if
-    /// </summary>
-    If,
-
-    /// <summary>
-    /// Ключевое слово else
-    /// </summary>
-    Else,
-
-    /// <summary>
-    /// Ключевое слово for
-    /// </summary>
-    For,
-
-    /// <summary>
-    /// Ключевое слово while
-    /// </summary>
-    While,
-
-    /// <summary>
     /// Ключевое слово function
     /// </summary>
     Function,
+
+    /// <summary>
+    /// Имя главной функции main
+    /// </summary>
+    Main,
+
+    /// <summary>
+    /// Тип целого числа: int
+    /// </summary>
+    Int,
+
+    /// <summary>
+    /// Тип числа с плавающей точкой: float
+    /// </summary>
+    Float,
+
+    /// <summary>
+    /// Строковый тип: string
+    /// </summary>
+    String,
 
     /// <summary>
     /// Ключевое слово return
@@ -36,154 +37,29 @@ public enum TokenType
     Return,
 
     /// <summary>
-    /// Ключевое слово  break
-    /// </summary>
-    Break,
-
-    /// <summary>
-    /// Ключевое слово  continue
-    /// </summary>
-    Continue,
-
-    /// <summary>
-    /// Ключевое слово  var
-    /// </summary>
-    Var,
-
-    /// <summary>
-    /// Ключевое слово  const
-    /// </summary>
-    Const,
-
-    /// <summary>
-    /// Ключевое слово  and
-    /// </summary>
-    And,
-
-    /// <summary>
-    /// Ключевое слово  or
-    /// </summary>
-    Or,
-
-    /// <summary>
-    /// Ключевое слово  int
-    /// </summary>
-    Int,
-
-    /// <summary>
-    /// Ключевое слово float
-    /// </summary>
-    Float,
-
-    /// <summary>
-    /// Ключевое слово string
-    /// </summary>
-    String,
-
-    /// <summary>
-    /// Ключевое слово void
-    /// </summary>
-    Void,
-
-    /// <summary>
-    /// Ключевое слово bool
-    /// </summary>
-    Bool,
-
-    /// <summary>
-    /// Ключевое слово print
+    /// Встроенная функция вывода: print.
     /// </summary>
     Print,
 
-    /// <summary
-    /// Логический литерал true
-    /// </summary>
-    True,
-
     /// <summary>
-    /// Логический литерал false
-    /// </summary>
-    False,
-
-    /// <summary>
-    /// Идентификатор
+    /// Идентификатор.
     /// </summary>
     Identifier,
 
     /// <summary>
-    /// Литерал целого числа
+    /// Литерал целого числа.
     /// </summary>
     IntLiteral,
 
     /// <summary>
-    /// Литерал числа с плавающей точкой
+    /// Литерал числа с плавающей точкой.
     /// </summary>
     FloatLiteral,
 
     /// <summary>
-    /// Строковый литерал
+    /// Строковый литерал.
     /// </summary>
     StringLiteral,
-
-    /// <summary>
-    /// Оператор сложения +
-    /// </summary>
-    Plus,
-
-    /// <summary>
-    /// Оператор вычитания -
-    /// </summary>
-    Minus,
-
-    /// <summary>
-    /// Оператор умножения *
-    /// </summary>
-    Multiply,
-
-    /// <summary>
-    /// Оператор деления /
-    /// </summary>
-    Divide,
-
-    /// <summary>
-    /// Оператор сравнения «равно» ==
-    /// </summary>
-    Equal,
-
-    /// <summary>
-    /// Оператор сравнения «не равно» !=
-    /// </summary>
-    NotEqual,
-
-    /// <summary>
-    /// Оператор сравнения «меньше»
-    /// </summary>
-    LessThan,
-
-    /// <summary>
-    /// Оператор сравнения «меньше или равно»
-    /// </summary>
-    LessThanOrEqual,
-
-    /// <summary>
-    /// Оператор сравнения «больше»
-    /// </summary>
-    GreaterThan,
-
-    /// <summary>
-    /// Оператор сравнения «больше или равно»
-    /// </summary>
-    GreaterThanOrEqual,
-
-    /// <summary>
-    /// Логический оператор «НЕ»
-    /// </summary>
-    Not,
-
-    /// <summary>
-    /// Оператор присваивания
-    /// </summary>
-    Assign,
 
     /// <summary>
     /// Открывающая фигурная скобка {
@@ -205,6 +81,9 @@ public enum TokenType
     /// </summary>
     CloseParenthesis,
 
+    /// <summary>
+    /// Двоеточие :
+    /// </summary>
     Colon,
 
     /// <summary>
@@ -218,12 +97,12 @@ public enum TokenType
     Semicolon,
 
     /// <summary>
-    /// Конец входного потока токенов.
+    /// Конец входного потока
     /// </summary>
     EndOfFile,
 
     /// <summary>
-    /// Ошибка лексического анализа.
+    /// Ошибка лексического анализа
     /// </summary>
     Error,
 }
