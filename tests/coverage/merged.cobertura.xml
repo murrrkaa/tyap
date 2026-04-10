@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<coverage line-rate="0.3872394188250158" branch-rate="0.41208791208791207" complexity="577" version="1.9" timestamp="1775840497" lines-covered="613" lines-valid="1583" branches-covered="225" branches-valid="546">
+<coverage line-rate="0.3872394188250158" branch-rate="0.41208791208791207" complexity="577" version="1.9" timestamp="1775843127" lines-covered="613" lines-valid="1583" branches-covered="225" branches-valid="546">
   <sources>
     <source>D:\tyap\</source>
     <source>D:\tyap\src\ExampleLib\</source>
