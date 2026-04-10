@@ -321,20 +321,6 @@ var assemblies = [
       { "name": "PsTiger.Ast.Statements.WhileStatement", "rp": "Ast_WhileStatement.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 21, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
-    "name": "ExampleLib",
-    "classes": [
-      { "name": "ExampleLib.FileUtil", "rp": "ExampleLib_FileUtil.html", "cl": 14, "ucl": 0, "cal": 14, "tl": 29, "cb": 4, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "ExampleLib.TextUtil", "rp": "ExampleLib_TextUtil.html", "cl": 64, "ucl": 0, "cal": 64, "tl": 130, "cb": 21, "tb": 21, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-    ]},
-  {
-    "name": "Lexer",
-    "classes": [
-      { "name": "PsTiger.Lexemes.Lexer", "rp": "Lexer_Lexer.html", "cl": 254, "ucl": 12, "cal": 266, "tl": 443, "cb": 135, "tb": 148, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "PsTiger.Lexemes.TextScanner", "rp": "Lexer_TextScanner.html", "cl": 14, "ucl": 0, "cal": 14, "tl": 48, "cb": 2, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "PsTiger.Lexemes.Token", "rp": "Lexer_Token.html", "cl": 23, "ucl": 6, "cal": 29, "tl": 61, "cb": 2, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "PsTiger.Lexemes.TokenValue", "rp": "Lexer_TokenValue.html", "cl": 20, "ucl": 30, "cal": 50, "tl": 77, "cb": 5, "tb": 30, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-    ]},
-  {
     "name": "PsTiger.Tests.TestLibrary",
     "classes": [
       { "name": "PsTiger.Tests.TestLibrary.TestDoubles.FakeEnvironment", "rp": "PsTiger.Tests.TestLibrary_FakeEnvironment.html", "cl": 8, "ucl": 19, "cal": 27, "tl": 78, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -389,12 +375,6 @@ var riskHotspots = [
       { "value": 24, "exceeded": true },
     ]},
   {
-    "assembly": "Lexer", "class": "PsTiger.Lexemes.TokenValue", "reportPath": "Lexer_TokenValue.html", "methodName": "Equals(System.Object)", "methodShortName": "Equals(...)", "fileIndex": 0, "line": 58,
-    "metrics": [
-      { "value": 210, "exceeded": true },
-      { "value": 14, "exceeded": false },
-    ]},
-  {
     "assembly": "VirtualMachineCodegen", "class": "PsTiger.VirtualMachineCodegen.TigerVmCodegen", "reportPath": "VirtualMachineCodegen_TigerVmCodegen.html", "methodName": "Visit(PsTiger.Ast.Expressions.BinaryOperationExpression)", "methodShortName": "Visit(...)", "fileIndex": 0, "line": 74,
     "metrics": [
       { "value": 182, "exceeded": true },
@@ -411,18 +391,6 @@ var riskHotspots = [
     "metrics": [
       { "value": 72, "exceeded": true },
       { "value": 8, "exceeded": false },
-    ]},
-  {
-    "assembly": "Lexer", "class": "PsTiger.Lexemes.Lexer", "reportPath": "Lexer_Lexer.html", "methodName": "ParseToken()", "methodShortName": "ParseToken()", "fileIndex": 0, "line": 50,
-    "metrics": [
-      { "value": 50, "exceeded": true },
-      { "value": 48, "exceeded": true },
-    ]},
-  {
-    "assembly": "Lexer", "class": "PsTiger.Lexemes.TokenValue", "reportPath": "Lexer_TokenValue.html", "methodName": "ToDouble()", "methodShortName": "ToDouble()", "fileIndex": 0, "line": 47,
-    "metrics": [
-      { "value": 42, "exceeded": true },
-      { "value": 6, "exceeded": false },
     ]},
   {
     "assembly": "Runtime", "class": "PsTiger.Runtime.ValueUtil", "reportPath": "Runtime_ValueUtil.html", "methodName": "EscapeStringValue(System.String)", "methodShortName": "EscapeStringValue(...)", "fileIndex": 0, "line": 8,
@@ -459,36 +427,6 @@ var riskHotspots = [
     "metrics": [
       { "value": 40, "exceeded": true },
       { "value": 10, "exceeded": false },
-    ]},
-  {
-    "assembly": "Lexer", "class": "PsTiger.Lexemes.Lexer", "reportPath": "Lexer_Lexer.html", "methodName": "ParseStringLiteral()", "methodShortName": "ParseStringLiteral()", "fileIndex": 0, "line": 227,
-    "metrics": [
-      { "value": 28, "exceeded": false },
-      { "value": 28, "exceeded": true },
-    ]},
-  {
-    "assembly": "Lexer", "class": "PsTiger.Lexemes.Lexer", "reportPath": "Lexer_Lexer.html", "methodName": "SkipMultiLineComment()", "methodShortName": "SkipMultiLineComment()", "fileIndex": 0, "line": 390,
-    "metrics": [
-      { "value": 20, "exceeded": false },
-      { "value": 20, "exceeded": true },
-    ]},
-  {
-    "assembly": "ExampleLib", "class": "ExampleLib.TextUtil", "reportPath": "ExampleLib_TextUtil.html", "methodName": "ExtractWords(System.String)", "methodShortName": "ExtractWords(...)", "fileIndex": 0, "line": 46,
-    "metrics": [
-      { "value": 19, "exceeded": false },
-      { "value": 19, "exceeded": true },
-    ]},
-  {
-    "assembly": "Lexer", "class": "PsTiger.Lexemes.Lexer", "reportPath": "Lexer_Lexer.html", "methodName": "ParseNumberLiteral()", "methodShortName": "ParseNumberLiteral()", "fileIndex": 0, "line": 182,
-    "metrics": [
-      { "value": 16, "exceeded": false },
-      { "value": 16, "exceeded": true },
-    ]},
-  {
-    "assembly": "Lexer", "class": "PsTiger.Lexemes.Lexer", "reportPath": "Lexer_Lexer.html", "methodName": "ParseIdentifierOrKeyword()", "methodShortName": "ParseIdentifierOrKeyword()", "fileIndex": 0, "line": 316,
-    "metrics": [
-      { "value": 16, "exceeded": false },
-      { "value": 16, "exceeded": true },
     ]},
   {
     "assembly": "Runtime", "class": "PsTiger.Runtime.Value", "reportPath": "Runtime_Value.html", "methodName": "ToString()", "methodShortName": "ToString()", "fileIndex": 0, "line": 144,
