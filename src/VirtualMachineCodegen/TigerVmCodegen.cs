@@ -30,6 +30,7 @@ public class TigerVmCodegen : IAstVisitor
     private readonly InstructionsBuilder _builder = new();
     private CodegenSymbolsTable? _symbolsTable;
     private readonly Stack<BasicBlock> _loopEndBlocks = new();
+
     public List<Instruction> GenerateCode(Program program)
     {
         _symbolsTable = new CodegenSymbolsTable(null);
@@ -50,17 +51,13 @@ public class TigerVmCodegen : IAstVisitor
         {
             decl.Accept(this);
         }
+
         program.MainFunction.Accept(this);
 
         _builder.InsertPoint = mainBlock;
         _builder.Append(new Instruction(InstructionCode.Halt));
 
         return _builder.Finish();
-    }
-
-    private bool IsJump(InstructionCode code)
-    {
-        return code is InstructionCode.Jump or InstructionCode.JumpIfTrue or InstructionCode.JumpIfFalse or InstructionCode.Call;
     }
 
     public void Visit(LiteralExpression e)
@@ -92,7 +89,7 @@ public class TigerVmCodegen : IAstVisitor
             BinaryOperation.LessThanOrEqual => InstructionCode.LessOrEqual,
             BinaryOperation.GreaterThan => InstructionCode.GreaterThan,
             BinaryOperation.GreaterThanOrEqual => InstructionCode.GreaterThanOrEqual,
-            _ => throw new NotImplementedException($"Unsupported binary operation: {e.Operation}")
+            _ => throw new NotImplementedException($"Unsupported binary operation: {e.Operation}"),
         };
         _builder.Append(new Instruction(code));
     }
@@ -150,6 +147,7 @@ public class TigerVmCodegen : IAstVisitor
         {
             e.ElseBranch.Accept(this);
         }
+
         _builder.AppendJump(InstructionCode.Jump, finalBlock);
 
         _builder.InsertPoint = finalBlock;
@@ -218,6 +216,7 @@ public class TigerVmCodegen : IAstVisitor
         {
             e.Expression.Accept(this);
         }
+
         _builder.Append(new Instruction(InstructionCode.Return));
     }
 
@@ -284,12 +283,26 @@ public class TigerVmCodegen : IAstVisitor
         }
     }
 
-    public void Visit(ParameterDeclaration d) { }
+    public void Visit(ParameterDeclaration d)
+    {
+    }
 
-    public void Visit(Program e) { }
+    public void Visit(Program e)
+    {
+    }
 
-    public void Visit(BuiltinFunction e) { }
-    public void Visit(BuiltinFunctionParameter e) { }
+    public void Visit(BuiltinFunction e)
+    {
+    }
+
+    public void Visit(BuiltinFunctionParameter e)
+    {
+    }
+
+    private bool IsJump(InstructionCode code)
+    {
+        return code is InstructionCode.Jump or InstructionCode.JumpIfTrue or InstructionCode.JumpIfFalse or InstructionCode.Call;
+    }
 
     private void PushLexicalScope()
     {

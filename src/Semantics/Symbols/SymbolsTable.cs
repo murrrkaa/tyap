@@ -75,6 +75,7 @@ public sealed class SymbolsTable
         {
             return declaration;
         }
+
         return _parent?.FindDeclaration(name);
     }
 }

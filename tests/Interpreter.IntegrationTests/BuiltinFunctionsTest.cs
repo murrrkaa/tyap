@@ -77,7 +77,6 @@ public class BuiltinFunctionsTest
                 """,
                 "false"
             },
-
             {
                 """
                 function main(): int {
@@ -97,7 +96,7 @@ public class BuiltinFunctionsTest
                 }
                 """,
                 "10"
-            }
+            },
         };
     }
 
@@ -131,7 +130,7 @@ public class BuiltinFunctionsTest
                 """,
                 "abc",
                 "abc"
-            }
+            },
         };
     }
 }

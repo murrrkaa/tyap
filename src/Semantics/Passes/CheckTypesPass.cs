@@ -5,13 +5,13 @@ using PsTiger.Ast.Statements;
 using PsTiger.Runtime;
 using PsTiger.Semantics.Exceptions;
 using PsTiger.Semantics.Helpers;
+
 using ValueType = PsTiger.Runtime.ValueType;
 
 namespace PsTiger.Semantics.Passes;
 
 public class CheckTypesPass : AbstractPass
 {
-
     private FunctionDeclaration? _currentFunction;
 
     public override void Visit(Program node)
@@ -78,13 +78,13 @@ public class CheckTypesPass : AbstractPass
     {
         base.Visit(d);
         if (d.InitialValue.ResultType == ValueType.Void)
-        { 
-            throw new TypeErrorException("Cannot initialize variable from void expression"); 
+        {
+            throw new TypeErrorException("Cannot initialize variable from void expression");
         }
 
         if (!ValueTypeUtil.AreCompatibleTypes(d.ResolvedType, d.InitialValue.ResultType))
-        { 
-            throw new TypeErrorException($"Type mismatch: expected {d.ResolvedType}, got {d.InitialValue.ResultType}"); 
+        {
+            throw new TypeErrorException($"Type mismatch: expected {d.ResolvedType}, got {d.InitialValue.ResultType}");
         }
     }
 
@@ -92,13 +92,13 @@ public class CheckTypesPass : AbstractPass
     {
         base.Visit(d);
         if (d.InitialValue.ResultType == ValueType.Void)
-        { 
-            throw new TypeErrorException("Cannot initialize constant from void expression"); 
+        {
+            throw new TypeErrorException("Cannot initialize constant from void expression");
         }
 
         if (!ValueTypeUtil.AreCompatibleTypes(d.ResolvedType, d.InitialValue.ResultType))
-        { 
-            throw new TypeErrorException($"Type mismatch: expected {d.ResolvedType}, got {d.InitialValue.ResultType}"); 
+        {
+            throw new TypeErrorException($"Type mismatch: expected {d.ResolvedType}, got {d.InitialValue.ResultType}");
         }
     }
 
@@ -123,8 +123,8 @@ public class CheckTypesPass : AbstractPass
     {
         base.Visit(node);
         if (node.Condition.ResultType != ValueType.Bool)
-        { 
-            throw new TypeErrorException("Condition must be of type bool"); 
+        {
+            throw new TypeErrorException("Condition must be of type bool");
         }
     }
 
@@ -132,8 +132,8 @@ public class CheckTypesPass : AbstractPass
     {
         base.Visit(node);
         if (node.Condition.ResultType != ValueType.Bool)
-        { 
-            throw new TypeErrorException("Condition must be of type bool"); 
+        {
+            throw new TypeErrorException("Condition must be of type bool");
         }
     }
 
@@ -141,8 +141,8 @@ public class CheckTypesPass : AbstractPass
     {
         base.Visit(node);
         if (node.Condition.ResultType != ValueType.Bool)
-        { 
-                throw new TypeErrorException("Condition must be of type bool"); 
+        {
+                throw new TypeErrorException("Condition must be of type bool");
         }
     }
 
@@ -154,6 +154,7 @@ public class CheckTypesPass : AbstractPass
             {
                 return true;
             }
+
             if (node is BlockStatement innerBlock && HasReturnInBlock(innerBlock))
             {
                 return true;
@@ -174,7 +175,7 @@ public class CheckTypesPass : AbstractPass
             {
                 BuiltinFunctionParameter builtin => builtin.Type,
                 ParameterDeclaration user => user.ResolvedType,
-                _ => ValueType.Void
+                _ => ValueType.Void,
             };
 
             if (!ValueTypeUtil.AreCompatibleTypes(argument.ResultType, paramType))

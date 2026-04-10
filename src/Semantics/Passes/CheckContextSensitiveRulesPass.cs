@@ -4,6 +4,7 @@ using PsTiger.Ast.Expressions;
 using PsTiger.Ast.Statements;
 using PsTiger.Runtime;
 using PsTiger.Semantics.Exceptions;
+
 using ValueType = PsTiger.Runtime.ValueType;
 
 namespace PsTiger.Semantics.Passes;
@@ -111,7 +112,13 @@ public sealed class CheckContextSensitiveRulesPass : AbstractPass
     public override void Visit(FunctionDeclaration d)
     {
         _contextStack.Push(ExpressionContext.Default);
-        try { base.Visit(d); }
-        finally { _contextStack.Pop(); }
+        try
+        {
+            base.Visit(d);
+        }
+        finally
+        {
+            _contextStack.Pop();
+        }
     }
 }

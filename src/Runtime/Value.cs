@@ -11,8 +11,7 @@ public class Value : IEquatable<Value>
 
     private readonly object _value;
 
-    #region Конструкторы
-
+    // Конструкторы
     public Value(string value)
     {
         _value = value;
@@ -38,10 +37,7 @@ public class Value : IEquatable<Value>
         _value = value;
     }
 
-    #endregion
-
-    #region Проверка типов
-
+    // Проверка типов
     public bool IsVoid() => _value is VoidValue;
 
     public bool IsString() => _value is string;
@@ -52,16 +48,13 @@ public class Value : IEquatable<Value>
 
     public bool IsBool() => _value is bool;
 
-    #endregion
-
-    #region Получение значения
-
+    // Получение значения
     public string AsString()
     {
         return _value switch
         {
             string s => s,
-            _ => throw new InvalidOperationException($"Value is not a string: {_value}")
+            _ => throw new InvalidOperationException($"Value is not a string: {_value}"),
         };
     }
 
@@ -70,7 +63,7 @@ public class Value : IEquatable<Value>
         return _value switch
         {
             int i => i,
-            _ => throw new InvalidOperationException($"Value is not an integer: {_value}")
+            _ => throw new InvalidOperationException($"Value is not an integer: {_value}"),
         };
     }
 
@@ -79,7 +72,7 @@ public class Value : IEquatable<Value>
         return _value switch
         {
             double f => f,
-            _ => throw new InvalidOperationException($"Value is not a float: {_value}")
+            _ => throw new InvalidOperationException($"Value is not a float: {_value}"),
         };
     }
 
@@ -88,14 +81,11 @@ public class Value : IEquatable<Value>
         return _value switch
         {
             bool b => b,
-            _ => throw new InvalidOperationException($"Value is not a boolean: {_value}")
+            _ => throw new InvalidOperationException($"Value is not a boolean: {_value}"),
         };
     }
 
-    #endregion
-
-    #region Сравнение
-
+    // Сравнение
     public bool LessThan(Value other)
     {
         return _value switch
@@ -103,7 +93,7 @@ public class Value : IEquatable<Value>
             int i when other.IsInt() => i < other.AsInt(),
             double f when other.IsFloat() => f < other.AsFloat(),
             string s when other.IsString() => string.CompareOrdinal(s, other.AsString()) < 0,
-            _ => throw new InvalidOperationException($"Cannot compare {_value} with {other._value}")
+            _ => throw new InvalidOperationException($"Cannot compare {_value} with {other._value}"),
         };
     }
 
@@ -114,7 +104,7 @@ public class Value : IEquatable<Value>
             int i when other.IsInt() => i <= other.AsInt(),
             double f when other.IsFloat() => f <= other.AsFloat(),
             string s when other.IsString() => string.CompareOrdinal(s, other.AsString()) <= 0,
-            _ => throw new InvalidOperationException($"Cannot compare {_value} with {other._value}")
+            _ => throw new InvalidOperationException($"Cannot compare {_value} with {other._value}"),
         };
     }
 
@@ -122,14 +112,18 @@ public class Value : IEquatable<Value>
 
     public bool GreaterThanOrEqual(Value other) => !LessThan(other);
 
-    #endregion
-
-    #region Равенство
-
+    // Равенство
     public bool Equals(Value? other)
     {
-        if (other is null) return false;
-        if (IsVoid() && other.IsVoid()) return true;
+        if (other is null)
+        {
+            return false;
+        }
+
+        if (IsVoid() && other.IsVoid())
+        {
+            return true;
+        }
 
         return _value switch
         {
@@ -138,17 +132,13 @@ public class Value : IEquatable<Value>
             double f => other.IsFloat() && other.AsFloat() == f,
             bool b => other.IsBool() && other.AsBool() == b,
             VoidValue => other.IsVoid(),
-            _ => false
+            _ => false,
         };
     }
 
     public override bool Equals(object? obj) => Equals(obj as Value);
 
     public override int GetHashCode() => _value?.GetHashCode() ?? 0;
-
-    #endregion
-
-    #region Вспомогательные
 
     public override string ToString()
     {
@@ -159,9 +149,7 @@ public class Value : IEquatable<Value>
             double f => f.ToString(CultureInfo.InvariantCulture),
             bool b => b ? "true" : "false",
             VoidValue => "void",
-            _ => _value?.ToString() ?? "null"
+            _ => _value?.ToString() ?? "null",
         };
     }
-
-    #endregion
 }

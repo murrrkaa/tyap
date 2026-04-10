@@ -1,5 +1,6 @@
-﻿using PsTiger.Ast.Declarations;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+
+using PsTiger.Ast.Declarations;
 
 namespace PsTiger.Ast;
 

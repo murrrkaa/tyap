@@ -7,10 +7,11 @@ namespace PsTiger.Ast.Declarations;
 /// </summary>
 public class ParameterDeclaration : AbstractParameterDeclaration
 {
-    public ParameterDeclaration(string name, string typeName)
+    public ParameterDeclaration(string name, string typeName, ValueType resolvedType)
         : base(name)
     {
         TypeName = typeName;
+        ResolvedType = resolvedType;
     }
 
     public string TypeName { get; }

@@ -14,6 +14,7 @@ public sealed class WhileStatement : Statement
     }
 
     public Expression Condition { get; }
+
     public Statement Body { get; }
 
     public override void Accept(IAstVisitor visitor) => visitor.Visit(this);

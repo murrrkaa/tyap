@@ -1,5 +1,6 @@
-﻿using PsTiger.VirtualMachine.Instructions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+
+using PsTiger.VirtualMachine.Instructions;
 
 namespace PsTiger.VirtualMachineCodegen;
 

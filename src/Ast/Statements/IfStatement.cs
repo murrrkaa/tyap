@@ -15,7 +15,9 @@ public sealed class IfStatement : Statement
     }
 
     public Expression Condition { get; }
+
     public Statement ThenBranch { get; }
+
     public Statement? ElseBranch { get; }
 
     public override void Accept(IAstVisitor visitor) => visitor.Visit(this);

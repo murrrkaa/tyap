@@ -20,8 +20,11 @@ public sealed class ForStatement : Statement
     }
 
     public AssignmentStatement Init { get; }
+
     public Expression Condition { get; }
+
     public AssignmentStatement Step { get; }
+
     public Statement Body { get; }
 
     public override void Accept(IAstVisitor visitor) => visitor.Visit(this);

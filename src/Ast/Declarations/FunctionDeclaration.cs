@@ -1,5 +1,7 @@
 ﻿using PsTiger.Ast.Statements;
+
 using PsTiger.Runtime;
+
 using ValueType = PsTiger.Runtime.ValueType;
 
 namespace PsTiger.Ast.Declarations;
@@ -10,10 +12,13 @@ public sealed class FunctionDeclaration : AbstractFunctionDeclaration
         string name,
         IReadOnlyList<ParameterDeclaration> parameters,
         string? declaredReturnType,
+        ValueType resolvedType,
         BlockStatement body
-    ) : base(name, parameters.Cast<AbstractParameterDeclaration>().ToList())
+    )
+        : base(name, parameters.Cast<AbstractParameterDeclaration>().ToList())
     {
         DeclaredReturnTypeName = declaredReturnType;
+        ResolvedReturnType = resolvedType;
         Body = body;
     }
 

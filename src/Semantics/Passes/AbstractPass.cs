@@ -13,11 +13,17 @@ public abstract class AbstractPass : IAstVisitor
         {
             declaration.Accept(this);
         }
+
         node.MainFunction.Accept(this);
     }
 
-    public virtual void Visit(LiteralExpression e) { }
-    public virtual void Visit(VariableAccessExpression e) { }
+    public virtual void Visit(LiteralExpression e)
+    {
+    }
+
+    public virtual void Visit(VariableAccessExpression e)
+    {
+    }
 
     public virtual void Visit(FunctionCallExpression e)
     {
@@ -79,8 +85,13 @@ public abstract class AbstractPass : IAstVisitor
         node.Body.Accept(this);
     }
 
-    public virtual void Visit(BreakStatement node) { }
-    public virtual void Visit(ContinueStatement node) { }
+    public virtual void Visit(BreakStatement node)
+    {
+    }
+
+    public virtual void Visit(ContinueStatement node)
+    {
+    }
 
     public virtual void Visit(ReturnStatement node)
     {
@@ -110,7 +121,9 @@ public abstract class AbstractPass : IAstVisitor
         d.InitialValue.Accept(this);
     }
 
-    public virtual void Visit(ParameterDeclaration d) { }
+    public virtual void Visit(ParameterDeclaration d)
+    {
+    }
 
     public virtual void Visit(FunctionDeclaration d)
     {
@@ -118,9 +131,15 @@ public abstract class AbstractPass : IAstVisitor
         {
             parameter.Accept(this);
         }
+
         d.Body.Accept(this);
     }
 
-    public virtual void Visit(BuiltinFunction d) { }
-    public virtual void Visit(BuiltinFunctionParameter d) { }
+    public virtual void Visit(BuiltinFunction d)
+    {
+    }
+
+    public virtual void Visit(BuiltinFunctionParameter d)
+    {
+    }
 }

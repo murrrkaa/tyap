@@ -81,7 +81,7 @@ public class EntryPointTest
                 """,
                 "3",
                 0
-            }
+            },
         };
     }
 
@@ -126,7 +126,7 @@ public class EntryPointTest
             function main(): string {
                 return 'hello';
             }
-            """
+            """,
         };
     }
 }

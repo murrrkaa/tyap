@@ -141,7 +141,7 @@ public class ExpressionsTest
                 }
                 """,
                 "Hello World"
-            }
+            },
         };
     }
 
@@ -179,7 +179,7 @@ public class ExpressionsTest
                 print(());
                 return 0;
             }
-            """
+            """,
         };
     }
 }

@@ -1,5 +1,6 @@
-﻿using PsTiger.Lexemes;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+
+using PsTiger.Lexemes;
 
 namespace PsTiger.Parsing;
 

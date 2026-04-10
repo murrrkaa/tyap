@@ -82,7 +82,7 @@ public enum InstructionCode
     /// </summary>
     LessOrEqual,
 
-    GreaterThan, 
+    GreaterThan,
 
     GreaterThanOrEqual,
 

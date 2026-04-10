@@ -28,7 +28,10 @@ public sealed class ResolveTypesPass : AbstractPass
         base.Visit(e);
         ValueType? resultType = GetBinaryOperationResultType(e.Operation, e.Left.ResultType, e.Right.ResultType);
         if (resultType is null)
+        {
             throw new TypeErrorException($"Operator '{e.Operation}' cannot be applied to types {e.Left.ResultType} and {e.Right.ResultType}");
+        }
+
         e.ResultType = resultType;
     }
 
@@ -36,7 +39,10 @@ public sealed class ResolveTypesPass : AbstractPass
     {
         base.Visit(e);
         if (e.Operand.ResultType != ValueType.Bool)
+        {
             throw new TypeErrorException($"Operator '!' requires bool, got {e.Operand.ResultType}");
+        }
+
         e.ResultType = ValueType.Bool;
     }
 
@@ -44,22 +50,34 @@ public sealed class ResolveTypesPass : AbstractPass
     {
         base.Visit(e);
         if (e.Function is FunctionDeclaration userFunc)
+        {
             e.ResultType = userFunc.ResolvedReturnType;
+        }
         else if (e.Function is BuiltinFunction builtinFunc)
+        {
             e.ResultType = builtinFunc.ResultType;
+        }
         else
+        {
             e.ResultType = ValueType.Void;
+        }
     }
 
     public override void Visit(VariableAccessExpression e)
     {
         base.Visit(e);
         if (e.Variable is VariableDeclaration varDecl)
+        {
             e.ResultType = varDecl.ResolvedType;
+        }
         else if (e.Variable is ParameterDeclaration paramDecl)
+        {
             e.ResultType = paramDecl.ResolvedType;
+        }
         else
+        {
             e.ResultType = ValueType.Void;
+        }
     }
 
     public override void Visit(VariableDeclaration d)
@@ -100,7 +118,7 @@ public sealed class ResolveTypesPass : AbstractPass
             "string" => ValueType.String,
             "bool" => ValueType.Bool,
             "void" => ValueType.Void,
-            _ => throw new TypeErrorException($"Unknown type name: {typeName}")
+            _ => throw new TypeErrorException($"Unknown type name: {typeName}"),
         };
     }
 
@@ -109,27 +127,51 @@ public sealed class ResolveTypesPass : AbstractPass
         switch (operation)
         {
             case BinaryOperation.Add:
-                if (left == ValueType.String && right == ValueType.String) return ValueType.String;
-                if (left == right && (left == ValueType.Int || left == ValueType.Float)) return left;
+                if (left == ValueType.String && right == ValueType.String)
+                {
+                    return ValueType.String;
+                }
+
+                if (left == right && (left == ValueType.Int || left == ValueType.Float))
+                {
+                    return left;
+                }
+
                 return null;
             case BinaryOperation.Subtract:
             case BinaryOperation.Multiply:
             case BinaryOperation.Divide:
-                if (left == right && (left == ValueType.Int || left == ValueType.Float)) return left;
+                if (left == right && (left == ValueType.Int || left == ValueType.Float))
+                {
+                    return left;
+                }
+
                 return null;
             case BinaryOperation.Equal:
             case BinaryOperation.NotEqual:
-                if (left == right && left != ValueType.Void) return ValueType.Bool;
+                if (left == right && left != ValueType.Void)
+                {
+                    return ValueType.Bool;
+                }
+
                 return null;
             case BinaryOperation.LessThan:
             case BinaryOperation.GreaterThan:
             case BinaryOperation.LessThanOrEqual:
             case BinaryOperation.GreaterThanOrEqual:
-                if (left == right && left != ValueType.Void && left != ValueType.Bool) return ValueType.Bool;
+                if (left == right && left != ValueType.Void && left != ValueType.Bool)
+                {
+                    return ValueType.Bool;
+                }
+
                 return null;
             case BinaryOperation.And:
             case BinaryOperation.Or:
-                if (left == ValueType.Bool && right == ValueType.Bool) return ValueType.Bool;
+                if (left == ValueType.Bool && right == ValueType.Bool)
+                {
+                    return ValueType.Bool;
+                }
+
                 return null;
             default:
                 return null;

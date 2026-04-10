@@ -70,6 +70,7 @@ public sealed class ResolveNamesPass : AbstractPass
             {
                 _symbols.DeclareParameter(parameter);
             }
+
             base.Visit(d);
         }
         finally
