@@ -20,9 +20,6 @@ public class SemanticsChecker
 
         _passes =
         [
-            new ResolveNamesPass(globalSymbols),
-            new CheckContextSensitiveRulesPass(),
-            new ResolveTypesPass(),
             new CheckTypesPass(),
         ];
     }

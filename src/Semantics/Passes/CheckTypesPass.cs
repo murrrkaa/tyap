@@ -31,17 +31,9 @@ public class CheckTypesPass : AbstractPass
 
     public override void Visit(FunctionDeclaration d)
     {
-        FunctionDeclaration? previous = _currentFunction;
         _currentFunction = d;
-
         base.Visit(d);
-
-        if (d.ResolvedReturnType != ValueType.Void && !HasReturnInBlock(d.Body))
-        {
-            throw new TypeErrorException($"Function {d.Name} must contain a return statement");
-        }
-
-        _currentFunction = previous;
+        _currentFunction = null;
     }
 
     public override void Visit(ReturnStatement e)
@@ -68,45 +60,6 @@ public class CheckTypesPass : AbstractPass
         }
     }
 
-    public override void Visit(FunctionCallExpression e)
-    {
-        base.Visit(e);
-        CheckFunctionArgumentTypes(e, e.Function);
-    }
-
-    public override void Visit(VariableDeclaration d)
-    {
-        base.Visit(d);
-        if (d.InitialValue.ResultType == ValueType.Void)
-        {
-            throw new TypeErrorException("Cannot initialize variable from void expression");
-        }
-
-        if (!ValueTypeUtil.AreCompatibleTypes(d.ResolvedType, d.InitialValue.ResultType))
-        {
-            throw new TypeErrorException($"Type mismatch: expected {d.ResolvedType}, got {d.InitialValue.ResultType}");
-        }
-    }
-
-    public override void Visit(ConstantDeclaration d)
-    {
-        base.Visit(d);
-        if (d.InitialValue.ResultType == ValueType.Void)
-        {
-            throw new TypeErrorException("Cannot initialize constant from void expression");
-        }
-
-        if (!ValueTypeUtil.AreCompatibleTypes(d.ResolvedType, d.InitialValue.ResultType))
-        {
-            throw new TypeErrorException($"Type mismatch: expected {d.ResolvedType}, got {d.InitialValue.ResultType}");
-        }
-    }
-
-    public override void Visit(AssignmentStatement node)
-    {
-        base.Visit(node);
-    }
-
     public override void Visit(PrintStatement node)
     {
         base.Visit(node);
@@ -116,33 +69,6 @@ public class CheckTypesPass : AbstractPass
             {
                 throw new TypeErrorException("Cannot print void expression");
             }
-        }
-    }
-
-    public override void Visit(IfStatement node)
-    {
-        base.Visit(node);
-        if (node.Condition.ResultType != ValueType.Bool)
-        {
-            throw new TypeErrorException("Condition must be of type bool");
-        }
-    }
-
-    public override void Visit(WhileStatement node)
-    {
-        base.Visit(node);
-        if (node.Condition.ResultType != ValueType.Bool)
-        {
-            throw new TypeErrorException("Condition must be of type bool");
-        }
-    }
-
-    public override void Visit(ForStatement node)
-    {
-        base.Visit(node);
-        if (node.Condition.ResultType != ValueType.Bool)
-        {
-                throw new TypeErrorException("Condition must be of type bool");
         }
     }
 
@@ -162,28 +88,5 @@ public class CheckTypesPass : AbstractPass
         }
 
         return false;
-    }
-
-    private static void CheckFunctionArgumentTypes(FunctionCallExpression e, AbstractFunctionDeclaration function)
-    {
-        for (int i = 0, iMax = e.Arguments.Count; i < iMax; ++i)
-        {
-            Expression argument = e.Arguments[i];
-            AbstractParameterDeclaration parameter = function.Parameters[i];
-
-            ValueType paramType = parameter switch
-            {
-                BuiltinFunctionParameter builtin => builtin.Type,
-                ParameterDeclaration user => user.ResolvedType,
-                _ => ValueType.Void,
-            };
-
-            if (!ValueTypeUtil.AreCompatibleTypes(argument.ResultType, paramType))
-            {
-                throw new TypeErrorException(
-                    $"Argument #{i} type {argument.ResultType} does not match parameter {parameter.Name} type {paramType}"
-                );
-            }
-        }
     }
 }
