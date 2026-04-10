@@ -153,7 +153,7 @@ public class ExpressionsTest
                 "2"
             },
 
-            // строковое выражение (если разрешено)
+            // строковое выражение 
             {
                 """
                 function main(): int {

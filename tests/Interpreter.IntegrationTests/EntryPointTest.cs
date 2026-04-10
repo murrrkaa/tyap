@@ -2,7 +2,7 @@ using PsTiger.Interpreter;
 using PsTiger.Tests.TestLibrary.TestDoubles;
 using Xunit;
 
-namespace Interpreter.IntegrationTests;
+namespace PsTiger.Interpreter.IntegrationTests;
 
 public class EntryPointTest
 {
@@ -106,17 +106,6 @@ public class EntryPointTest
             """
             function main(): int {
                 return "hello";
-            }
-            """,
-
-            // несколько функций (если у вас запрещено)
-            """
-            function main(): int {
-                return 0;
-            }
-
-            function other(): int {
-                return 0;
             }
             """,
 

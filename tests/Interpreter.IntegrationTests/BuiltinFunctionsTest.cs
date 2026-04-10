@@ -2,7 +2,7 @@
 using PsTiger.Tests.TestLibrary.TestDoubles;
 using Xunit;
 
-namespace Interpreter.IntegrationTests;
+namespace PsTiger.Interpreter.IntegrationTests;
 
 public class BuiltinFunctionsTest
 {
