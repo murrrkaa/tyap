@@ -1,5 +1,5 @@
 ﻿using PsTiger.Ast;
-using PsTiger.Ast.Declarations; // ⚠️ Проверьте, здесь ли лежит BuiltinFunction
+using PsTiger.Ast.Declarations;
 using PsTiger.Semantics.Passes;
 using PsTiger.Semantics.Symbols;
 
