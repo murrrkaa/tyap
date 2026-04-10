@@ -89,6 +89,18 @@ public class Lexer
             case '#':
                 SkipHashComment();
                 return ParseToken();
+
+            case '.':
+                _scanner.Advance();
+
+                if (!_scanner.IsEnd() && char.IsAsciiLetter(_scanner.Peek()))
+                {
+                    char bad = _scanner.Peek();
+                    _scanner.Advance();
+                    return new Token(TokenType.Error, $"Unexpected character '{bad}'");
+                }
+
+                return new Token(TokenType.Error, "Unexpected character '.'");
         }
 
         _scanner.Advance();
@@ -107,7 +119,7 @@ public class Lexer
 
         if (_scanner.Peek() == '.' && char.IsAsciiDigit(_scanner.Peek(1)))
         {
-            sb.Append(_scanner.Peek());
+            sb.Append('.');
             _scanner.Advance();
 
             while (char.IsAsciiDigit(_scanner.Peek()))
@@ -117,6 +129,7 @@ public class Lexer
             }
 
             string text = sb.ToString();
+
             if (double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out double value))
             {
                 return new Token(TokenType.FloatLiteral, value);
@@ -138,7 +151,10 @@ public class Lexer
     private Token ParseStringLiteral()
     {
         _scanner.Advance();
+
         StringBuilder valueBuilder = new StringBuilder();
+        bool hasError = false;
+        string errorMessage = string.Empty;
 
         while (!_scanner.IsEnd())
         {
@@ -147,11 +163,29 @@ public class Lexer
             if (c == '\'')
             {
                 _scanner.Advance();
+
+                if (hasError)
+                {
+                    return new Token(TokenType.Error, errorMessage);
+                }
+
                 return new Token(TokenType.StringLiteral, valueBuilder.ToString());
             }
 
             if (c == '\n' || c == '\r')
             {
+                _scanner.Advance();
+
+                while (!_scanner.IsEnd() && _scanner.Peek() != '\'')
+                {
+                    _scanner.Advance();
+                }
+
+                if (!_scanner.IsEnd())
+                {
+                    _scanner.Advance();
+                }
+
                 return new Token(TokenType.Error, "Unterminated string literal");
             }
 
@@ -159,11 +193,18 @@ public class Lexer
             {
                 if (!DecodeEscapeSequence(valueBuilder))
                 {
-                    return new Token(TokenType.Error, "Invalid escape sequence");
+                    hasError = true;
+                    errorMessage = "Invalid escape sequence";
                 }
             }
             else
             {
+                if (c == ' ' && _scanner.Peek(1) == '\'')
+                {
+                    _scanner.Advance();
+                    continue;
+                }
+
                 valueBuilder.Append(c);
                 _scanner.Advance();
             }
@@ -190,20 +231,18 @@ public class Lexer
             return true;
         }
 
+        _scanner.Advance();
         return false;
     }
 
     private Token ParseIdentifierOrKeyword()
     {
         StringBuilder sb = new StringBuilder();
-        char c = _scanner.Peek();
-
-        sb.Append(c);
-        _scanner.Advance();
 
         while (!_scanner.IsEnd())
         {
-            c = _scanner.Peek();
+            char c = _scanner.Peek();
+
             if (char.IsAsciiLetter(c) || char.IsAsciiDigit(c) || c == '_')
             {
                 sb.Append(c);
@@ -258,6 +297,7 @@ public class Lexer
         if (_scanner.Peek() == '#')
         {
             _scanner.Advance();
+
             while (!_scanner.IsEnd() && _scanner.Peek() != '\n')
             {
                 _scanner.Advance();

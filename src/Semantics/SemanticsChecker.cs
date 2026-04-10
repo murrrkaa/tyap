@@ -1,7 +1,5 @@
 ﻿using PsTiger.Ast;
-using PsTiger.Ast.Declarations;
 using PsTiger.Semantics.Passes;
-using PsTiger.Semantics.Symbols;
 
 namespace PsTiger.Semantics;
 
@@ -11,22 +9,15 @@ public class SemanticsChecker
 
     public SemanticsChecker()
     {
-        SymbolsTable globalSymbols = new(parent: null);
-
-        foreach (BuiltinFunction function in Builtins.Functions)
+        _passes = new AbstractPass[]
         {
-            globalSymbols.DeclareFunction(function);
-        }
-
-        _passes =
-        [
             new CheckTypesPass(),
-        ];
+        };
     }
 
     public void Check(Program program)
     {
-        foreach (AbstractPass pass in _passes)
+        foreach (var pass in _passes)
         {
             program.Accept(pass);
         }

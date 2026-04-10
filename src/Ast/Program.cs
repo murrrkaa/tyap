@@ -4,12 +4,12 @@ namespace PsTiger.Ast;
 
 public class Program : AstNode
 {
-    public Program(FunctionDeclaration mainFunction)
+    public Program(MainFunctionDeclaration mainFunction)
     {
         MainFunction = mainFunction;
     }
 
-    public FunctionDeclaration MainFunction { get; }
+    public MainFunctionDeclaration MainFunction { get; }
 
     public override void Accept(IAstVisitor visitor) => visitor.Visit(this);
 }

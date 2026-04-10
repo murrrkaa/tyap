@@ -12,13 +12,13 @@ namespace PsTiger.Semantics.Passes;
 
 public class CheckTypesPass : AbstractPass
 {
-    private FunctionDeclaration? _currentFunction;
+    private MainFunctionDeclaration? _currentFunction;
 
     public override void Visit(Program node)
     {
         base.Visit(node);
 
-        if (node.MainFunction.ResolvedReturnType != ValueType.Int)
+        if (node.MainFunction.ResultType != ValueType.Int)
         {
             throw new TypeErrorException("Function main must return type int");
         }
@@ -44,14 +44,14 @@ public class CheckTypesPass : AbstractPass
         {
             if (e.Expression != null)
             {
-                if (!ValueTypeUtil.AreCompatibleTypes(e.Expression.ResultType, _currentFunction.ResolvedReturnType))
+                if (!ValueTypeUtil.AreCompatibleTypes(e.Expression.ResultType, _currentFunction.ResultType))
                 {
                     throw new TypeErrorException(
-                        $"Return type {e.Expression.ResultType} does not match function {_currentFunction.Name} return type {_currentFunction.ResolvedReturnType}"
+                        $"Return type {e.Expression.ResultType} does not match function {_currentFunction.Name} return type {_currentFunction.ResultType}"
                     );
                 }
             }
-            else if (_currentFunction.ResolvedReturnType != ValueType.Void)
+            else if (_currentFunction.ResultType != ValueType.Void)
             {
                 throw new TypeErrorException(
                     $"Function {_currentFunction.Name} expects return value of type {_currentFunction.ResolvedReturnType}"

@@ -12,7 +12,7 @@ public abstract class AbstractPass : IAstVisitor
         node.MainFunction.Accept(this);
     }
 
-    public virtual void Visit(FunctionDeclaration d)
+    public virtual void Visit(MainFunctionDeclaration d)
     {
         d.Body.Accept(this);
     }

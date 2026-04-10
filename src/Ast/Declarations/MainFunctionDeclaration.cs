@@ -4,21 +4,12 @@ using ValueType = PsTiger.Runtime.ValueType;
 
 namespace PsTiger.Ast.Declarations;
 
-public sealed class FunctionDeclaration : Declaration
+public sealed class MainFunctionDeclaration : Declaration
 {
-    public FunctionDeclaration(
-        string name,
-        BlockStatement body
-    )
-        : base(name) 
+    public MainFunctionDeclaration(BlockStatement body)
+        : base("main")
     {
-        if (name != "main")
-        {
-            throw new System.ArgumentException("For Epic 1, only 'main' function is supported.");
-        }
-
         Body = body;
-
         ResultType = ValueType.Int;
     }
 

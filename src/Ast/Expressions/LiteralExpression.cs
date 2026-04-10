@@ -15,14 +15,9 @@ public sealed class LiteralExpression : Expression
         Value = value;
     }
 
-    /// <summary>
-    /// Тип литерала (int, float, string, bool).
-    /// </summary>
+
     public ValueType Type { get; }
 
-    /// <summary>
-    /// Значение литерала.
-    /// </summary>
     public Value Value { get; }
 
     public override void Accept(IAstVisitor visitor)

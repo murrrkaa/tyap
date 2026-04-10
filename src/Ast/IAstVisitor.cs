@@ -17,7 +17,7 @@ public interface IAstVisitor
 
     void Visit(PrintStatement node);
 
-    void Visit(FunctionDeclaration d);
+    void Visit(MainFunctionDeclaration d);
 
     void Visit(Program node);
 }
