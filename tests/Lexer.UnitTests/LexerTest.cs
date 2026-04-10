@@ -1,393 +1,207 @@
-﻿using System.Collections.Generic;
-
+﻿using Xunit;
+using System.Collections.Generic;
 using PsTiger.Lexemes;
 
-using Xunit;
-
-namespace PsTiger.Lexemes.UnitTests;
-
-public class LexerTest
+public class LexerTests
 {
     [Theory]
-    [MemberData(nameof(GetTokenizeIdentifiersAndKeywordsData))]
-    [MemberData(nameof(GetTokenizeLiteralsData))]
-    [MemberData(nameof(GetSkipWhitespacesAndCommentsData))]
-    [MemberData(nameof(GetTokenizeOperatorsAndPunctuationData))]
-    public void Can_tokenize_lexemes(string code, List<Token> expected)
+    [MemberData(nameof(GetIdentifiersAndKeywordsData))]
+    [MemberData(nameof(GetNumberLiteralsData))]
+    [MemberData(nameof(GetStringLiteralsData))]
+    [MemberData(nameof(GetPunctuationData))]
+    [MemberData(nameof(GetCommentsAndWhitespaceData))]
+    [MemberData(nameof(GetErrorCasesData))]
+    public void Tokenize_ReturnsExpectedTokens(string code, List<Token> expected)
     {
-        List<Token> actual = Tokenize(code);
+        // Выполняем лексический разбор входа
+        List<Token> actual = new List<Token>();
+        Lexer lexer = new Lexer(code);
+        for (Token token = lexer.ParseToken(); token.Type != TokenType.EndOfFile; token = lexer.ParseToken())
+            actual.Add(token);
+
+        // Сравниваем количество и сами токены
         Assert.Equal(expected.Count, actual.Count);
-        for (int i = 0, iEnd = actual.Count; i < iEnd; ++i)
-        {
-            Assert.Equivalent(expected[i], actual[i]);
-        }
+        for (int i = 0; i < actual.Count; i++)
+            Assert.Equal(expected[i], actual[i]);
     }
 
-    public static TheoryData<string, List<Token>> GetTokenizeIdentifiersAndKeywordsData()
+    public static TheoryData<string, List<Token>> GetIdentifiersAndKeywordsData() => new TheoryData<string, List<Token>>
     {
-        return new TheoryData<string, List<Token>>
-    {
-        // Простые идентификаторы
-        {
-            "x foo Bar_123 _private",
-            [
-                new Token(TokenType.Identifier, "x"),
+        // Идентификаторы: буквы, цифры, _
+        { "foo _bar A123 xyz",
+            new List<Token> {
                 new Token(TokenType.Identifier, "foo"),
-                new Token(TokenType.Identifier, "Bar_123"),
-                new Token(TokenType.Identifier, "_private"),
-            ]
+                new Token(TokenType.Identifier, "_bar"),
+                new Token(TokenType.Identifier, "A123"),
+                new Token(TokenType.Identifier, "xyz")
+            }
         },
-
-        // Идентификаторы: регистр имеет значение
-        {
-            "Var VAR var",
-            [
-                new Token(TokenType.Identifier, "Var"),
-                new Token(TokenType.Identifier, "VAR"),
-                new Token(TokenType.Var, "var"),
-            ]
-        },
-
-        // Ключевые слова: управляющие конструкции
-        {
-            "if else for while break continue",
-            [
-                new Token(TokenType.If, "if"),
-                new Token(TokenType.Else, "else"),
-                new Token(TokenType.For, "for"),
-                new Token(TokenType.While, "while"),
-                new Token(TokenType.Break, "break"),
-                new Token(TokenType.Continue, "continue"),
-            ]
-        },
-
-        // Ключевые слова: объявления
-        {
-            "function return var const",
-            [
+        // Ключевые слова vs похожие имена
+        { "function foo main int float string return print Func Int str",
+            new List<Token> {
                 new Token(TokenType.Function, "function"),
-                new Token(TokenType.Return, "return"),
-                new Token(TokenType.Var, "var"),
-                new Token(TokenType.Const, "const"),
-            ]
-        },
-
-        // Ключевые слова: типы
-        {
-            "int float string void bool",
-            [
+                new Token(TokenType.Identifier, "foo"),
+                new Token(TokenType.Main, "main"),
                 new Token(TokenType.Int, "int"),
                 new Token(TokenType.Float, "float"),
                 new Token(TokenType.String, "string"),
-                new Token(TokenType.Void, "void"),
-                new Token(TokenType.Bool, "bool"),
-            ]
-        },
-
-        // Ключевые слова: логические
-        {
-            "and or true false",
-            [
-                new Token(TokenType.And, "and"),
-                new Token(TokenType.Or, "or"),
-                new Token(TokenType.True, "true"),
-                new Token(TokenType.False, "false"),
-            ]
-        },
-
-        // Встроенная функция print
-        {
-            "print(x)",
-            [
+                new Token(TokenType.Return, "return"),
                 new Token(TokenType.Print, "print"),
-                new Token(TokenType.OpenParenthesis),
-                new Token(TokenType.Identifier, "x"),
-                new Token(TokenType.CloseParenthesis),
-            ]
+                new Token(TokenType.Identifier, "Func"),  // чувствительность к регистру
+                new Token(TokenType.Identifier, "Int"),
+                new Token(TokenType.Identifier, "str")
+            }
         },
     };
-    }
 
-    public static TheoryData<string, List<Token>> GetTokenizeLiteralsData()
+    public static TheoryData<string, List<Token>> GetNumberLiteralsData() => new TheoryData<string, List<Token>>
     {
-        return new TheoryData<string, List<Token>>
-        {
-            // Числа
-            {
-                "0 42 999999",
-                [
-                    new Token(TokenType.IntLiteral, 0),
-                    new Token(TokenType.IntLiteral, 42),
-                    new Token(TokenType.IntLiteral, 999999),
-                ]
-            },
-            {
-                "3.14 0.5 100.0",
-                [
-                    new Token(TokenType.FloatLiteral, 3.14),
-                    new Token(TokenType.FloatLiteral, 0.5),
-                    new Token(TokenType.FloatLiteral, 100.0),
-                ]
-            },
+        // Целые и ведущие нули
+        { "0 1234 0017",
+            new List<Token> {
+                new Token(TokenType.IntLiteral, 0),
+                new Token(TokenType.IntLiteral, 1234),
+                new Token(TokenType.IntLiteral, 17)
+            }
+        },
+        // Дробные числа
+        { "0.5 10.0 123.456",
+            new List<Token> {
+                new Token(TokenType.FloatLiteral, 0.5),
+                new Token(TokenType.FloatLiteral, 10.0),
+                new Token(TokenType.FloatLiteral, 123.456)
+            }
+        },
+        // Число с точкой, но без цифр после (точка становится отдельным символом-ошибкой)
+        { "123.",
+            new List<Token> {
+                new Token(TokenType.IntLiteral, 123),
+                new Token(TokenType.Error, "Unexpected character '.'")
+            }
+        },
+        // Неправильный формат (не цифра после точки)
+        { "45.a 678",
+            new List<Token> {
+                new Token(TokenType.IntLiteral, 45),
+                new Token(TokenType.Error, "Unexpected character 'a'"),
+                new Token(TokenType.IntLiteral, 678)
+            }
+        },
+        // Слишком большое целое → ошибка парсинга
+        { "999999999999999999999999",
+            new List<Token> {
+                new Token(TokenType.Error, "Invalid integer literal: '999999999999999999999999'")
+            }
+        },
+    };
 
-            // Строки
-            {
-                "'' 'hello' '123'",
-                [
-                    new Token(TokenType.StringLiteral, ""),
-                    new Token(TokenType.StringLiteral, "hello"),
-                    new Token(TokenType.StringLiteral, "123"),
-                ]
-            },
-            {
-                "'path\\\\to' 'it\\'s ok'",
-                [
-                    new Token(TokenType.StringLiteral, "path\\to"),
-                    new Token(TokenType.StringLiteral, "it's ok"),
-                ]
-            },
-            {
-                "'line1\\nline2'",
-                [
-                    new Token(TokenType.Error),
-                ]
-            },
-            {
-                "'col1\\tcol2'",
-                [
-                    new Token(TokenType.Error),
-                ]
-            },
-            {
-                "'hello\nworld'",
-                [
-                    new Token(TokenType.Error),
-                ]
-            },
-            {
-                "'hello",
-                [
-                    new Token(TokenType.Error),
-                ]
-            },
-        };
-    }
-
-    public static TheoryData<string, List<Token>> GetSkipWhitespacesAndCommentsData()
+    public static TheoryData<string, List<Token>> GetStringLiteralsData() => new TheoryData<string, List<Token>>
     {
-        return new TheoryData<string, List<Token>>
-        {
-            // Пропуск пробельных символов
-            {
-                "x \t\r\n  y",
-                [
-                    new Token(TokenType.Identifier, "x"),
-                    new Token(TokenType.Identifier, "y"),
-                ]
-            },
+        // Пустая и простая строки
+        { "'' '0' 'Hello, world!'",
+            new List<Token> {
+                new Token(TokenType.StringLiteral, ""),
+                new Token(TokenType.StringLiteral, "0"),
+                new Token(TokenType.StringLiteral, "Hello, world!")
+            }
+        },
+        // Простые экранирования
+        { "'\\\\' '\\' '",
+            new List<Token> {
+                new Token(TokenType.StringLiteral, "\\"),
+                new Token(TokenType.StringLiteral, "'")
+            }
+        },
+        // Нераспознанное экранирование
+        { "'\\a'",
+            new List<Token> {
+                new Token(TokenType.Error, "Invalid escape sequence")
+            }
+        },
+        // Unterminated string (нет закрывающей кавычки)
+        { "'abc",
+            new List<Token> {
+                new Token(TokenType.Error, "Unterminated string literal")
+            }
+        },
+        // Перевод строки внутри строки
+        { "'line\nbreak'",
+            new List<Token> {
+                new Token(TokenType.Error, "Unterminated string literal")
+            }
+        },
+    };
 
-            // Однострочный комментарий #
-            {
-                "x = 1; # this is a comment",
-                [
-                    new Token(TokenType.Identifier, "x"),
-                    new Token(TokenType.Assign),
-                    new Token(TokenType.IntLiteral, 1),
-                    new Token(TokenType.Semicolon),
-                ]
-            },
-
-            // Комментарий # в начале строки
-            {
-                "# just a comment",
-                []
-            },
-
-            // Многострочный комментарий /* */
-            {
-                "/* comment */ a",
-                [
-                    new Token(TokenType.Identifier, "a"),
-                ]
-            },
-
-            // Многострочный комментарий с кодом внутри
-            {
-                "a /* start /* nested */ end */ b",
-                [
-                    new Token(TokenType.Identifier, "a"),
-                    new Token(TokenType.Identifier, "b"),
-                ]
-            },
-
-            // Смешанные комментарии
-            {
-                "var x = 1; # single\n/* multi\nline */ var y = 2;",
-                [
-                    new Token(TokenType.Var, "var"),
-                    new Token(TokenType.Identifier, "x"),
-                    new Token(TokenType.Assign),
-                    new Token(TokenType.IntLiteral, 1),
-                    new Token(TokenType.Semicolon),
-                    new Token(TokenType.Var, "var"),
-                    new Token(TokenType.Identifier, "y"),
-                    new Token(TokenType.Assign),
-                    new Token(TokenType.IntLiteral, 2),
-                    new Token(TokenType.Semicolon),
-                ]
-            },
-
-            // Вложенные комментарии
-            {
-                "/* outer /* inner */ still outer */ code",
-                [
-                    new Token(TokenType.Identifier, "code"),
-                ]
-            },
-        };
-    }
-
-    public static TheoryData<string, List<Token>> GetTokenizeOperatorsAndPunctuationData()
+    public static TheoryData<string, List<Token>> GetPunctuationData() => new TheoryData<string, List<Token>>
     {
-        return new TheoryData<string, List<Token>>
-        {
-            // Арифметические операторы
-            {
-                "a + b - c * d / e",
-                [
-                    new Token(TokenType.Identifier, "a"),
-                    new Token(TokenType.Plus),
-                    new Token(TokenType.Identifier, "b"),
-                    new Token(TokenType.Minus),
-                    new Token(TokenType.Identifier, "c"),
-                    new Token(TokenType.Multiply),
-                    new Token(TokenType.Identifier, "d"),
-                    new Token(TokenType.Divide),
-                    new Token(TokenType.Identifier, "e"),
-                ]
-            },
+        { "{ } ( ) : , ;",
+            new List<Token> {
+                new Token(TokenType.OpenBrace),
+                new Token(TokenType.CloseBrace),
+                new Token(TokenType.OpenParenthesis),
+                new Token(TokenType.CloseParenthesis),
+                new Token(TokenType.Colon),
+                new Token(TokenType.Comma),
+                new Token(TokenType.Semicolon)
+            }
+        },
+        // Пример кода с пунктуацией и числами
+        { "{ main() : return 0; }",
+            new List<Token> {
+                new Token(TokenType.OpenBrace),
+                new Token(TokenType.Main, "main"),
+                new Token(TokenType.OpenParenthesis),
+                new Token(TokenType.CloseParenthesis),
+                new Token(TokenType.Colon),
+                new Token(TokenType.Return, "return"),
+                new Token(TokenType.IntLiteral, 0),
+                new Token(TokenType.Semicolon),
+                new Token(TokenType.CloseBrace)
+            }
+        },
+    };
 
-            // Операторы сравнения
-            {
-                "x == y != z < a <= b > c >= d",
-                [
-                    new Token(TokenType.Identifier, "x"),
-                    new Token(TokenType.Equal),
-                    new Token(TokenType.Identifier, "y"),
-                    new Token(TokenType.NotEqual),
-                    new Token(TokenType.Identifier, "z"),
-                    new Token(TokenType.LessThan),
-                    new Token(TokenType.Identifier, "a"),
-                    new Token(TokenType.LessThanOrEqual),
-                    new Token(TokenType.Identifier, "b"),
-                    new Token(TokenType.GreaterThan),
-                    new Token(TokenType.Identifier, "c"),
-                    new Token(TokenType.GreaterThanOrEqual),
-                    new Token(TokenType.Identifier, "d"),
-                ]
-            },
-
-            // Логические операторы
-            {
-                "!a and b or c",
-                [
-                    new Token(TokenType.Not),
-                    new Token(TokenType.Identifier, "a"),
-                    new Token(TokenType.And, "and"),
-                    new Token(TokenType.Identifier, "b"),
-                    new Token(TokenType.Or, "or"),
-                    new Token(TokenType.Identifier, "c"),
-                ]
-            },
-
-            // Присваивание =
-            {
-                "x = 42",
-                [
-                    new Token(TokenType.Identifier, "x"),
-                    new Token(TokenType.Assign),
-                    new Token(TokenType.IntLiteral, 42),
-                ]
-            },
-
-            // Разделители: скобки, запятая, точка с запятой
-            {
-                "f(a, b); { x; }",
-                [
-                    new Token(TokenType.Identifier, "f"),
-                    new Token(TokenType.OpenParenthesis),
-                    new Token(TokenType.Identifier, "a"),
-                    new Token(TokenType.Comma),
-                    new Token(TokenType.Identifier, "b"),
-                    new Token(TokenType.CloseParenthesis),
-                    new Token(TokenType.Semicolon),
-                    new Token(TokenType.OpenBrace),
-                    new Token(TokenType.Identifier, "x"),
-                    new Token(TokenType.Semicolon),
-                    new Token(TokenType.CloseBrace),
-                ]
-            },
-
-            // Сложное выражение с приоритетами
-            {
-                "a + b * c - d / e",
-                [
-                    new Token(TokenType.Identifier, "a"),
-                    new Token(TokenType.Plus),
-                    new Token(TokenType.Identifier, "b"),
-                    new Token(TokenType.Multiply),
-                    new Token(TokenType.Identifier, "c"),
-                    new Token(TokenType.Minus),
-                    new Token(TokenType.Identifier, "d"),
-                    new Token(TokenType.Divide),
-                    new Token(TokenType.Identifier, "e"),
-                ]
-            },
-
-            // Логическое выражение
-            {
-                "x > 0 and y < 10 or !z",
-                [
-                    new Token(TokenType.Identifier, "x"),
-                    new Token(TokenType.GreaterThan),
-                    new Token(TokenType.IntLiteral, 0),
-                    new Token(TokenType.And, "and"),
-                    new Token(TokenType.Identifier, "y"),
-                    new Token(TokenType.LessThan),
-                    new Token(TokenType.IntLiteral, 10),
-                    new Token(TokenType.Or, "or"),
-                    new Token(TokenType.Not),
-                    new Token(TokenType.Identifier, "z"),
-                ]
-            },
-
-            // Ошибка: неизвестный символ
-            {
-                "x @ y",
-                [
-                    new Token(TokenType.Identifier, "x"),
-                    new Token(TokenType.Error, "@"),
-                    new Token(TokenType.Identifier, "y"),
-                ]
-            },
-
-            // EndOfFile токен
-            {
-                "",
-                []
-            },
-        };
-    }
-
-    private static List<Token> Tokenize(string code)
+    public static TheoryData<string, List<Token>> GetCommentsAndWhitespaceData() => new TheoryData<string, List<Token>>
     {
-        List<Token> results = [];
-        Lexer lexer = new(code);
-        for (Token t = lexer.ParseToken(); t.Type != TokenType.EndOfFile; t = lexer.ParseToken())
-        {
-            results.Add(t);
-        }
+        // Пропуск пробелов и табуляций
+        { " x\t\ty\n",
+            new List<Token> {
+                new Token(TokenType.Identifier, "x"),
+                new Token(TokenType.Identifier, "y")
+            }
+        },
+        // Однострочный комментарий
+        { "foo # comment\n bar",
+            new List<Token> {
+                new Token(TokenType.Identifier, "foo"),
+                new Token(TokenType.Identifier, "bar")
+            }
+        },
+        // Многострочный комментарий
+        { "a /* mid-comment */ b",
+            new List<Token> {
+                new Token(TokenType.Identifier, "a"),
+                new Token(TokenType.Identifier, "b")
+            }
+        },
+        // Не закрытый многострочный комментарий до конца входа
+        { "x /* open comment",
+            new List<Token> {
+                new Token(TokenType.Identifier, "x")
+                // После комментария — конец файла
+            }
+        },
+    };
 
-        return results;
-    }
+    public static TheoryData<string, List<Token>> GetErrorCasesData() => new TheoryData<string, List<Token>>
+    {
+        // Неожиданный символ
+        { "@", new List<Token> { new Token(TokenType.Error, "Unexpected character '@'") } },
+        // Неправильный символ для литерала (например '$' не обрабатывается)
+        { "$100", new List<Token> { new Token(TokenType.Error, "Unexpected character '$'"), new Token(TokenType.IntLiteral, 100) } },
+        // Неподдерживаемый символ внутри строки
+        { "'abc\\z'", new List<Token> { new Token(TokenType.Error, "Invalid escape sequence") } },
+        // Заглавные буквы в ключевом слове (в данном лексере считается идентификатором)
+        { "Return", new List<Token> { new Token(TokenType.Identifier, "Return") } },
+    };
 }
