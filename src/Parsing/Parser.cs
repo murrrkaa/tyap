@@ -184,7 +184,7 @@ public class Parser
         _tokens.Advance();
         return type;
     }
->
+
     private static string UnescapeString(string value)
     {
         return value.Replace("\\\\", "\\").Replace("\\'", "'");

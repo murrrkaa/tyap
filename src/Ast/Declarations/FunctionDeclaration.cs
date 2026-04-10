@@ -6,18 +6,15 @@ using ValueType = PsTiger.Runtime.ValueType;
 
 namespace PsTiger.Ast.Declarations;
 
-public sealed class FunctionDeclaration : AbstractFunctionDeclaration
+public sealed class FunctionDeclaration : Declaration
 {
     public FunctionDeclaration(
         string name,
-        IReadOnlyList<ParameterDeclaration> parameters,
-        string? declaredReturnType,
-        ValueType resolvedType,
-        BlockStatement body
+        BlockStatement body,
+        ValueType resolvedType = ValueType.Void
     )
-        : base(name, parameters.Cast<AbstractParameterDeclaration>().ToList())
+        : base(name)
     {
-        DeclaredReturnTypeName = declaredReturnType;
         ResolvedReturnType = resolvedType;
         Body = body;
     }
