@@ -8,11 +8,6 @@ namespace PsTiger.Runtime;
 public class ValueType
 {
     /// <summary>
-    /// Тип для функций, не возвращающих значение.
-    /// </summary>
-    public static readonly ValueType Void = new("void");
-
-    /// <summary>
     /// 64-битное целое число со знаком.
     /// </summary>
     public static readonly ValueType Int = new("int");
@@ -26,11 +21,6 @@ public class ValueType
     /// Строка (ASCII).
     /// </summary>
     public static readonly ValueType String = new("string");
-
-    /// <summary>
-    /// Булево значение (true / false).
-    /// </summary>
-    public static readonly ValueType Bool = new("bool");
 
     private readonly string _name;
 

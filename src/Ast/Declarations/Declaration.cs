@@ -1,21 +1,25 @@
 ﻿using PsTiger.Ast.Attributes;
 using PsTiger.Ast.Statements;
-
 using ValueType = PsTiger.Runtime.ValueType;
 
 namespace PsTiger.Ast.Declarations;
 
 public abstract class Declaration : Statement
 {
-    private AstAttribute<ValueType> _resultType;
+    private readonly AstAttribute<ValueType> _resultType;
+    private readonly string _name;
 
-    /// <summary>
-    /// Тип результата объявления.
-    /// </summary>
+    protected Declaration(string name)
+    {
+        _name = name;
+        _resultType = new AstAttribute<ValueType>();
+    }
+
+    public string Name => _name;
+
     public ValueType ResultType
     {
         get => _resultType.Get();
-
         set => _resultType.Set(value);
     }
 }
