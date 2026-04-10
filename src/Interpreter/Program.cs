@@ -6,7 +6,6 @@ public static class Program
 {
     public static int Main(string[] args)
     {
-        // Проверяем, что передан путь к файлу с исходным кодом.
         if (args.Length != 1)
         {
             Console.Error.WriteLine("Usage: PsTiger.Interpreter <file-path>");
@@ -24,7 +23,6 @@ public static class Program
         {
             string sourceCode = File.ReadAllText(sourcePath);
 
-            // Выполняем программу
             ConsoleEnvironment environment = new();
             TigerInterpreter interpreter = new(environment);
             interpreter.Execute(sourceCode);
