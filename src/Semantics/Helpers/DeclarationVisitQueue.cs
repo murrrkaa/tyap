@@ -6,7 +6,7 @@ namespace PsTiger.Semantics.Helpers;
 public class DeclarationVisitQueue
 {
     private readonly IAstVisitor _visitor;
-    private readonly Queue<FunctionDeclaration> _visitQueue;
+    private readonly Queue<MainFunctionDeclaration> _visitQueue;
     private bool _isQueueing;
 
     public DeclarationVisitQueue(IAstVisitor visitor)
@@ -34,7 +34,7 @@ public class DeclarationVisitQueue
         }
     }
 
-    public void Enqueue(FunctionDeclaration declaration)
+    public void Enqueue(MainFunctionDeclaration declaration)
     {
         if (_isQueueing)
         {
@@ -48,7 +48,7 @@ public class DeclarationVisitQueue
 
     private void Flush()
     {
-        while (_visitQueue.TryDequeue(out FunctionDeclaration? declaration))
+        while (_visitQueue.TryDequeue(out MainFunctionDeclaration? declaration))
         {
             declaration.Accept(_visitor);
         }

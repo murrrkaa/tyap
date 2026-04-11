@@ -6,52 +6,29 @@ using PsTiger.Runtime;
 using PsTiger.VirtualMachine.Builtins;
 using PsTiger.VirtualMachine.Instructions;
 
-using ValueType = PsTiger.Runtime.ValueType;
-
 namespace PsTiger.VirtualMachineCodegen;
 
 public class TigerVmCodegen : IAstVisitor
 {
-    private readonly InstructionsBuilder _builder = new();
-    private CodegenSymbolsTable? _symbolsTable;
+    private readonly List<Instruction> _instructions = new();
 
     public List<Instruction> GenerateCode(Program program)
     {
-        _symbolsTable = new CodegenSymbolsTable(null);
+        program.Accept(this);
 
-        BasicBlock mainBlock = _builder.CreateBasicBlock();
-        _symbolsTable.AddFunctionEntry(program.MainFunction.Name, mainBlock);
+        _instructions.Add(new Instruction(InstructionCode.Halt));
 
-        program.MainFunction.Accept(this);
-
-        _builder.InsertPoint = mainBlock;
-        _builder.Append(new Instruction(InstructionCode.Halt));
-
-        return _builder.Finish();
+        return _instructions;
     }
 
-    public void Visit(LiteralExpression e)
+    public void Visit(Program e)
     {
-        _builder.Append(new Instruction(InstructionCode.Push, e.Value));
+        e.MainFunction.Accept(this);
     }
 
-    public void Visit(ReturnStatement e)
+    public void Visit(MainFunctionDeclaration d)
     {
-        if (e.Expression != null)
-        {
-            e.Expression.Accept(this);
-        }
-
-        _builder.Append(new Instruction(InstructionCode.Return));
-    }
-
-    public void Visit(PrintStatement e)
-    {
-        foreach (Expression arg in e.Arguments)
-        {
-            arg.Accept(this);
-            _builder.Append(new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print));
-        }
+        d.Body.Accept(this);
     }
 
     public void Visit(BlockStatement e)
@@ -65,23 +42,28 @@ public class TigerVmCodegen : IAstVisitor
         }
     }
 
-    public void Visit(FunctionDeclaration d)
+    public void Visit(LiteralExpression e)
     {
-        BasicBlock functionBlock = _symbolsTable!.GetFunctionEntry(d.Name);
-        BasicBlock previousBlock = _builder.InsertPoint;
-        _builder.InsertPoint = functionBlock;
+        _instructions.Add(new Instruction(InstructionCode.Push, e.Value));
+    }
 
-        try
+    public void Visit(PrintStatement e)
+    {
+        foreach (Expression arg in e.Arguments)
         {
-            d.Body.Accept(this);
-        }
-        finally
-        {
-            _builder.InsertPoint = previousBlock;
+            arg.Accept(this);
+
+            _instructions.Add(
+                new Instruction(
+                    InstructionCode.CallBuiltin,
+                    (int)BuiltinFunctionCode.Print
+                )
+            );
         }
     }
 
-    public void Visit(Program e)
+    public void Visit(ReturnStatement e)
     {
+        e.Expression.Accept(this);
     }
 }

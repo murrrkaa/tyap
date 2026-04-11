@@ -15,16 +15,13 @@ internal static class ValueUtil
             {
                 sb.Append(@"\\");
             }
+            else if (c == '\'')
+            {
+                sb.Append(@"\'");
+            }
             else
             {
-                if (c == '\'')
-                {
-                    sb.Append(@"\'");
-                }
-                else
-                {
-                    sb.Append(c);
-                }
+                sb.Append(c);
             }
         }
 

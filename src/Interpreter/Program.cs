@@ -1,4 +1,7 @@
 ﻿using System;
+using System.IO;
+
+using PsTiger.Interpreter;
 
 namespace PsTiger.Interpreter;
 
@@ -25,13 +28,12 @@ public static class Program
 
             ConsoleEnvironment environment = new();
             TigerInterpreter interpreter = new(environment);
-            interpreter.Execute(sourceCode);
 
-            return 0;
+            return interpreter.Execute(sourceCode);
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Interpreter threw an {ex.GetType().Name}: {ex.Message}");
+            Console.Error.WriteLine($"Interpreter error: {ex.Message}");
             return 1;
         }
     }

@@ -19,7 +19,7 @@ public abstract class AbstractPass : IAstVisitor
 
     public virtual void Visit(BlockStatement node)
     {
-        foreach (Statement statement in node.Statements)
+        foreach (Statement statement in node.Nodes)
         {
             statement.Accept(this);
         }
@@ -35,7 +35,7 @@ public abstract class AbstractPass : IAstVisitor
 
     public virtual void Visit(ReturnStatement node)
     {
-        node.Value?.Accept(this);
+        node.Expression?.Accept(this);
     }
 
     public virtual void Visit(LiteralExpression e)

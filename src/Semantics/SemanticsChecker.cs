@@ -5,21 +5,15 @@ namespace PsTiger.Semantics;
 
 public class SemanticsChecker
 {
-    private readonly AbstractPass[] _passes;
+    private readonly AbstractPass _pass;
 
     public SemanticsChecker()
     {
-        _passes = new AbstractPass[]
-        {
-            new CheckTypesPass(),
-        };
+        _pass = new CheckTypesPass();
     }
 
     public void Check(Program program)
     {
-        foreach (var pass in _passes)
-        {
-            program.Accept(pass);
-        }
+        program.Accept(_pass);
     }
 }

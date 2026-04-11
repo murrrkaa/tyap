@@ -1,6 +1,7 @@
 ﻿using PsTiger.Runtime;
 using PsTiger.VirtualMachine.Builtins;
 using PsTiger.VirtualMachine.Instructions;
+
 using System;
 using System.Collections.Generic;
 
@@ -13,7 +14,6 @@ public class TigerVm
     private int _instructionPointer;
     private int _exitCode;
     private readonly Stack<Value> _evaluationStack;
-    private readonly Stack<ReturnContext> _returnStack;
     private Value _result;
 
     public TigerVm(IEnvironment environment, IReadOnlyList<Instruction> instructions)
@@ -25,8 +25,7 @@ public class TigerVm
         _instructionPointer = 0;
         _exitCode = 0;
         _evaluationStack = new Stack<Value>();
-        _returnStack = new Stack<ReturnContext>();
-        _result = Value.Void;
+        _result = default(Value);
     }
 
     public int ExitCode => _exitCode;
@@ -36,80 +35,63 @@ public class TigerVm
         while (true)
         {
             Instruction instruction = _instructions[_instructionPointer++];
+
             switch (instruction.Code)
             {
                 case InstructionCode.Push:
                     _evaluationStack.Push(instruction.Operand);
                     break;
 
-                case InstructionCode.Pop:
-                    if (_evaluationStack.Count > 0) _evaluationStack.Pop();
-                    break;
-
                 case InstructionCode.CallBuiltin:
-                    CallBuiltin((BuiltinFunctionCode)instruction.Operand.AsInt());
-                    break;
-
-                case InstructionCode.Return:
-                    {
-                        Value returnValue = Value.Void;
-                        if (_evaluationStack.Count > 0)
-                        {
-                            returnValue = _evaluationStack.Pop();
-                        }
-
-                        if (_returnStack.Count == 0)
-                        {
-                            _result = returnValue;
-                            if (returnValue.IsInt()) _exitCode = returnValue.AsInt();
-                            return _result;
-                        }
-                        else
-                        {
-                            if (returnValue != Value.Void) _evaluationStack.Push(returnValue);
-                            ReturnContext context = _returnStack.Pop();
-                            _instructionPointer = context.InstructionPointer;
-                        }
-                    }
+                    CallBuiltin(instruction.Operand);
                     break;
 
                 case InstructionCode.Halt:
                     if (_evaluationStack.Count > 0)
                     {
-                        var finalVal = _evaluationStack.Pop();
-                        if (finalVal.IsInt()) _exitCode = finalVal.AsInt();
+                        Value finalVal = _evaluationStack.Pop();
+
+                        if (finalVal.IsInt())
+                        {
+                            _exitCode = finalVal.AsInt();
+                        }
                     }
+
                     return _result;
 
                 default:
-                    throw new NotImplementedException($"Instruction {instruction.Code} is disabled for Epic 1 (Points 1-3)");
+                    throw new NotImplementedException(
+                        $"Instruction {instruction.Code} is not supported in Epic 1 (1–3)"
+                    );
             }
         }
     }
 
-    private void CallBuiltin(BuiltinFunctionCode code)
+    private void CallBuiltin(Value operand)
     {
-        if (code == BuiltinFunctionCode.Print)
+        BuiltinFunctionCode code = (BuiltinFunctionCode)operand.AsInt();
+
+        switch (code)
         {
-            _builtinFunctions.Print(_evaluationStack.Pop());
-        }
-        else
-        {
-            throw new ArgumentException($"Builtin function {code} is not implemented in this iteration.");
+            case BuiltinFunctionCode.Print:
+                _builtinFunctions.Print(_evaluationStack.Pop());
+                break;
+
+            default:
+                throw new NotImplementedException($"Builtin {code} is not allowed in Epic 1");
         }
     }
 
     private static void ValidateInstructions(IReadOnlyList<Instruction> instructions)
     {
         if (instructions.Count == 0)
-            throw new InvalidOperationException("Invalid empty VM program");
-
-        InstructionCode last = instructions[^1].Code;
-        if (last != InstructionCode.Halt && last != InstructionCode.Return)
         {
-            throw new InvalidOperationException("Program must end with Halt or Return");
+            throw new InvalidOperationException("Empty program is not allowed");
+        }
+
+        if (instructions[instructions.Count - 1].Code != InstructionCode.Halt)
+        {
+            throw new InvalidOperationException("Program must end with Halt");
         }
     }
-
-    private record struct ReturnContext(int InstructionPointer);
 }

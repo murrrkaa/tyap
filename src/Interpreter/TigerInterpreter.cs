@@ -1,8 +1,7 @@
-﻿using PsTiger.Ast;
-using PsTiger.Ast.Expressions;
+﻿using System;
+using System.Collections.Generic;
+
 using PsTiger.Parsing;
-using PsTiger.Runtime;
-using PsTiger.Semantics;
 using PsTiger.VirtualMachine;
 using PsTiger.VirtualMachine.Instructions;
 using PsTiger.VirtualMachineCodegen;
@@ -23,25 +22,20 @@ public class TigerInterpreter
 
     public int ExitCode => _exitCode;
 
-    public Value Execute(string code)
+    public int Execute(string code)
     {
-        // 1. Разбор программы.
         Parser parser = new(code);
-        AstProgram program = parser.ParseProgram();  // ← Используем алиас
+        AstProgram program = parser.ParseProgram();
 
-        // 2. Проверка соответствия типов в программе.
-        SemanticsChecker checker = new();
-        checker.Check(program);
-
-        // 3. Генерация кода для виртуальной машины.
         TigerVmCodegen codegen = new();
-        List<Instruction> instructions = codegen.GenerateCode(program);
+        List<Instruction> instructionsList = codegen.GenerateCode(program);
 
-        // 4. Исполнение программы на виртуальной машине.
+        IReadOnlyList<Instruction> instructions = instructionsList;
+
         TigerVm vm = new(_environment, instructions);
-        Value result = vm.RunProgram();
-        _exitCode = vm.ExitCode;
+        vm.RunProgram();
 
-        return result;
+        _exitCode = vm.ExitCode;
+        return _exitCode;
     }
 }

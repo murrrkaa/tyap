@@ -17,14 +17,14 @@ public class Value : IEquatable<Value>
         _value = value;
     }
 
-    public Value(double value)
+    public Value(decimal value)
     {
         _value = value;
     }
 
     public bool IsString() => _value is string;
     public bool IsInt() => _value is int;
-    public bool IsFloat() => _value is double;
+    public bool IsFloat() => _value is decimal;
 
     public string AsString()
     {
@@ -44,11 +44,11 @@ public class Value : IEquatable<Value>
         };
     }
 
-    public double AsFloat()
+    public decimal AsFloat()
     {
         return _value switch
         {
-            double f => f,
+            decimal f => f,
             _ => throw new InvalidOperationException($"Value is not a float: {_value}"),
         };
     }
@@ -62,7 +62,7 @@ public class Value : IEquatable<Value>
         {
             string s => other.IsString() && other.AsString() == s,
             int i => other.IsInt() && other.AsInt() == i,
-            double f => other.IsFloat() && other.AsFloat() == f,
+            decimal f => other.IsFloat() && other.AsFloat() == f,
             _ => false,
         };
     }
@@ -76,7 +76,7 @@ public class Value : IEquatable<Value>
         {
             string s => s,
             int i => i.ToString(CultureInfo.InvariantCulture),
-            double f => f.ToString(CultureInfo.InvariantCulture),
+            decimal f => f.ToString(CultureInfo.InvariantCulture),
             _ => _value?.ToString() ?? "null",
         };
     }

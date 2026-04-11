@@ -1,13 +1,16 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+
 using PsTiger.Ast;
 using PsTiger.Ast.Declarations;
 using PsTiger.Ast.Expressions;
 using PsTiger.Ast.Statements;
 using PsTiger.Lexemes;
-using PsTiger.Parsing;
 using PsTiger.Runtime;
+
 using Expression = PsTiger.Ast.Expressions.Expression;
-using ValueType = PsTiger.Runtime.ValueType;
+using VmValueType = PsTiger.Runtime.ValueType;
 
 namespace PsTiger.Parsing;
 
@@ -22,108 +25,102 @@ public class Parser
 
     public Program ParseProgram()
     {
-        FunctionDeclaration mainFunction = ParseMainFunction();
+        MainFunctionDeclaration mainFunction = ParseMainFunction();
         Match(TokenType.EndOfFile);
-        return new Program(new List<Declaration>().AsReadOnly(), mainFunction);
+        return new Program(mainFunction);
     }
 
-    private FunctionDeclaration ParseMainFunction()
+    private MainFunctionDeclaration ParseMainFunction()
     {
         Match(TokenType.Function);
-
-        string name = Match(TokenType.Identifier).Value!.ToString();
-        if (name != "main")
-        {
-            throw new UnexpectedLexemeException(
-                _tokens.Peek(),
-                "Expected identifier 'main' as entry point"
-            );
-        }
-
+        Match(TokenType.Main);
         Match(TokenType.OpenParenthesis);
         Match(TokenType.CloseParenthesis);
-
         Match(TokenType.Colon);
-        ValueType returnType = ParseType();
-        if (returnType != ValueType.Int)
-        {
-            throw new UnexpectedLexemeException(
-                _tokens.Peek(),
-                "Main function must return type 'int'"
-            );
-        }
+        Match(TokenType.Int);
 
         Match(TokenType.OpenBrace);
-        BlockStatement body = ParseMainBlock();
+        BlockStatement body = ParseBlock();
         Match(TokenType.CloseBrace);
 
-        return new FunctionDeclaration(
-            name,
-            new List<ParameterDeclaration>().AsReadOnly(),
-            "int",
-            ValueType.Int,
-            body);
+        return new MainFunctionDeclaration(body);
     }
 
-    private BlockStatement ParseMainBlock()
+    private BlockStatement ParseBlock()
     {
-        List<Statement> statements = [];
+        List<Statement> statements = new List<Statement>();
 
         while (_tokens.Peek().Type != TokenType.CloseBrace)
         {
-            statements.Add(ParseSimpleStatement());
+            if (_tokens.Peek().Type == TokenType.EndOfFile)
+            {
+                throw new UnexpectedLexemeException(
+                    _tokens.Peek(),
+                    TokenType.CloseBrace);
+            }
+
+            statements.Add(ParseStatement());
             Match(TokenType.Semicolon);
         }
 
         return new BlockStatement(statements.AsReadOnly());
     }
 
-    private Statement ParseSimpleStatement()
+    private Statement ParseStatement()
     {
-        switch (_tokens.Peek().Type)
+        TokenType currentType = _tokens.Peek().Type;
+
+        if (currentType == TokenType.Print)
         {
-            case TokenType.Print:
-                return ParsePrintStatement();
-
-            case TokenType.Return:
-                return ParseReturnStatement();
-
-            default:
-                throw new UnexpectedLexemeException(
-                    _tokens.Peek(),
-                    [TokenType.Print, TokenType.Return]
-                );
+            return ParsePrint();
         }
+
+        if (currentType == TokenType.Return)
+        {
+            return ParseReturn();
+        }
+
+        throw new UnexpectedLexemeException(
+            _tokens.Peek(),
+            new List<TokenType> { TokenType.Print, TokenType.Return });
     }
 
-    private PrintStatement ParsePrintStatement()
+    private PrintStatement ParsePrint()
     {
         Match(TokenType.Print);
         Match(TokenType.OpenParenthesis);
 
-        List<Expression> arguments = [];
+        List<Expression> args = new List<Expression>();
+
         if (_tokens.Peek().Type != TokenType.CloseParenthesis)
         {
-            arguments.Add(ParseLiteralExpression());
+            args.Add(ParseLiteral());
+
             while (_tokens.Peek().Type == TokenType.Comma)
             {
-                _tokens.Advance();
-                arguments.Add(ParseLiteralExpression());
+                Match(TokenType.Comma);
+                args.Add(ParseLiteral());
             }
         }
 
         Match(TokenType.CloseParenthesis);
-        return new PrintStatement(arguments.AsReadOnly());
+        return new PrintStatement(args.AsReadOnly());
     }
 
-    private ReturnStatement ParseReturnStatement()
+    private ReturnStatement ParseReturn()
     {
         Match(TokenType.Return);
-        Expression? value = ParseLiteralExpression();
+
+        if (_tokens.Peek().Type == TokenType.Semicolon)
+        {
+            return new ReturnStatement(null);
+        }
+
+        Expression value = ParseLiteral();
         return new ReturnStatement(value);
     }
 
-    private Expression ParseLiteralExpression()
+    private Expression ParseLiteral()
     {
         Token token = _tokens.Peek();
 
@@ -132,67 +129,73 @@ public class Parser
             case TokenType.IntLiteral:
                 _tokens.Advance();
                 return new LiteralExpression(
-                    ValueType.Int,
-                    new Value(int.Parse(token.Value!.ToString())));
+                    VmValueType.Int,
+                    new Value(int.Parse(token.Value!.ToString(), CultureInfo.InvariantCulture)));
 
             case TokenType.FloatLiteral:
                 _tokens.Advance();
                 return new LiteralExpression(
-                    ValueType.Float,
-                    new Value(double.Parse(token.Value!.ToString(), CultureInfo.InvariantCulture)));
+                    VmValueType.Float,
+                    new Value(decimal.Parse(token.Value!.ToString(), CultureInfo.InvariantCulture)));
 
             case TokenType.StringLiteral:
                 _tokens.Advance();
-                string strValue = UnescapeString(token.Value!.ToString());
                 return new LiteralExpression(
-                    ValueType.String,
-                    new Value(strValue));
+                    VmValueType.String,
+                    new Value(token.Value!.ToString()));
 
             case TokenType.OpenParenthesis:
                 _tokens.Advance();
-                Expression inner = ParseLiteralExpression();
+                Expression inner = ParseLiteral();
                 Match(TokenType.CloseParenthesis);
                 return inner;
 
             default:
                 throw new UnexpectedLexemeException(
                     token,
-                    [
+                    new List<TokenType>
+                    {
                         TokenType.IntLiteral,
                         TokenType.FloatLiteral,
                         TokenType.StringLiteral,
-                        TokenType.OpenParenthesis
-                    ]
-                );
+                        TokenType.OpenParenthesis,
+                    });
         }
     }
 
-    private ValueType ParseType()
+    private VmValueType ParseType()
     {
         Token token = _tokens.Peek();
-        ValueType type = token.Type switch
+
+        VmValueType type;
+
+        if (token.Type == TokenType.Int)
         {
-            TokenType.Int => ValueType.Int,
-            TokenType.Float => ValueType.Float,
-            TokenType.String => ValueType.String,
-            _ => throw new UnexpectedLexemeException(
+            type = VmValueType.Int;
+        }
+        else if (token.Type == TokenType.Float)
+        {
+            type = VmValueType.Float;
+        }
+        else if (token.Type == TokenType.String)
+        {
+            type = VmValueType.String;
+        }
+        else
+        {
+            throw new UnexpectedLexemeException(
                 token,
-                [TokenType.Int, TokenType.Float, TokenType.String]
-            ),
-        };
+                new List<TokenType> { TokenType.Int, TokenType.Float, TokenType.String });
+        }
 
         _tokens.Advance();
         return type;
     }
 
-    private static string UnescapeString(string value)
-    {
-        return value.Replace("\\\\", "\\").Replace("\\'", "'");
-    }
-
     private Token Match(TokenType expected)
     {
         Token token = _tokens.Peek();
+
         if (token.Type != expected)
         {
             throw new UnexpectedLexemeException(token, expected);

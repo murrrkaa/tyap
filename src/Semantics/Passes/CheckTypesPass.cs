@@ -29,7 +29,7 @@ public class CheckTypesPass : AbstractPass
         }
     }
 
-    public override void Visit(FunctionDeclaration d)
+    public override void Visit(MainFunctionDeclaration d)
     {
         _currentFunction = d;
         base.Visit(d);
@@ -42,20 +42,14 @@ public class CheckTypesPass : AbstractPass
 
         if (_currentFunction != null)
         {
-            if (e.Expression != null)
+            if (e.Expression == null)
             {
-                if (!ValueTypeUtil.AreCompatibleTypes(e.Expression.ResultType, _currentFunction.ResultType))
-                {
-                    throw new TypeErrorException(
-                        $"Return type {e.Expression.ResultType} does not match function {_currentFunction.Name} return type {_currentFunction.ResultType}"
-                    );
-                }
+                throw new TypeErrorException("Main function must return an int value");
             }
-            else if (_currentFunction.ResultType != ValueType.Void)
+
+            if (!ValueTypeUtil.AreCompatibleTypes(e.Expression.ResultType, ValueType.Int))
             {
-                throw new TypeErrorException(
-                    $"Function {_currentFunction.Name} expects return value of type {_currentFunction.ResolvedReturnType}"
-                );
+                throw new TypeErrorException($"Return type {e.Expression.ResultType} does not match int");
             }
         }
     }
@@ -63,13 +57,6 @@ public class CheckTypesPass : AbstractPass
     public override void Visit(PrintStatement node)
     {
         base.Visit(node);
-        foreach (Expression arg in node.Arguments)
-        {
-            if (arg.ResultType == ValueType.Void)
-            {
-                throw new TypeErrorException("Cannot print void expression");
-            }
-        }
     }
 
     private bool HasReturnInBlock(BlockStatement block)
