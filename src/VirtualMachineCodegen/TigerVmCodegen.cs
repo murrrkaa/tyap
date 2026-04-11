@@ -1,4 +1,6 @@
-﻿using PsTiger.Ast;
+﻿using System.Collections.Generic;
+
+using PsTiger.Ast;
 using PsTiger.Ast.Declarations;
 using PsTiger.Ast.Expressions;
 using PsTiger.Ast.Statements;
@@ -15,7 +17,6 @@ public class TigerVmCodegen : IAstVisitor
     public List<Instruction> GenerateCode(Program program)
     {
         program.Accept(this);
-
         _instructions.Add(new Instruction(InstructionCode.Halt));
 
         return _instructions;
@@ -64,6 +65,6 @@ public class TigerVmCodegen : IAstVisitor
 
     public void Visit(ReturnStatement e)
     {
-        e.Expression.Accept(this);
+        e.Expression!.Accept(this);
     }
 }

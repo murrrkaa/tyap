@@ -1,5 +1,6 @@
 ﻿using PsTiger.Ast.Attributes;
 using PsTiger.Ast.Statements;
+
 using ValueType = PsTiger.Runtime.ValueType;
 
 namespace PsTiger.Ast.Declarations;
@@ -12,7 +13,7 @@ public abstract class Declaration : Statement
     protected Declaration(string name)
     {
         _name = name;
-        _resultType = new AstAttribute<ValueType>();
+        _resultType = default;
     }
 
     public string Name => _name;

@@ -9,7 +9,7 @@ public class Instruction
     public Instruction(InstructionCode code)
     {
         Code = code;
-        Operand = default(Value);
+        Operand = null;
     }
 
     public Instruction(InstructionCode code, int value)
@@ -32,7 +32,7 @@ public class Instruction
 
     public InstructionCode Code { get; }
 
-    public Value Operand { get; }
+    public Value? Operand { get; }
 
     public override string ToString()
     {

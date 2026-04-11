@@ -23,7 +23,7 @@ public class BuiltinFunctions
         {
             _environment.Print(value.AsInt().ToString(CultureInfo.InvariantCulture));
         }
-        else if (value.IsFloat()) 
+        else if (value.IsFloat())
         {
             _environment.Print(value.AsFloat().ToString(CultureInfo.InvariantCulture));
         }

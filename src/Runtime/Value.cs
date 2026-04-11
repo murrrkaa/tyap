@@ -23,7 +23,9 @@ public class Value : IEquatable<Value>
     }
 
     public bool IsString() => _value is string;
+
     public bool IsInt() => _value is int;
+
     public bool IsFloat() => _value is decimal;
 
     public string AsString()
@@ -56,7 +58,9 @@ public class Value : IEquatable<Value>
     public bool Equals(Value? other)
     {
         if (other is null)
+        {
             return false;
+        }
 
         return _value switch
         {
@@ -68,6 +72,7 @@ public class Value : IEquatable<Value>
     }
 
     public override bool Equals(object? obj) => Equals(obj as Value);
+
     public override int GetHashCode() => _value?.GetHashCode() ?? 0;
 
     public override string ToString()

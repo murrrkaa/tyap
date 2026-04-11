@@ -1,9 +1,9 @@
-﻿using PsTiger.Runtime;
+﻿using System;
+using System.Collections.Generic;
+
+using PsTiger.Runtime;
 using PsTiger.VirtualMachine.Builtins;
 using PsTiger.VirtualMachine.Instructions;
-
-using System;
-using System.Collections.Generic;
 
 namespace PsTiger.VirtualMachine;
 
@@ -14,7 +14,8 @@ public class TigerVm
     private int _instructionPointer;
     private int _exitCode;
     private readonly Stack<Value> _evaluationStack;
-    private Value _result;
+
+    private Value? _result;
 
     public TigerVm(IEnvironment environment, IReadOnlyList<Instruction> instructions)
     {
@@ -25,7 +26,7 @@ public class TigerVm
         _instructionPointer = 0;
         _exitCode = 0;
         _evaluationStack = new Stack<Value>();
-        _result = default(Value);
+        _result = null;
     }
 
     public int ExitCode => _exitCode;
@@ -39,11 +40,13 @@ public class TigerVm
             switch (instruction.Code)
             {
                 case InstructionCode.Push:
-                    _evaluationStack.Push(instruction.Operand);
+                    // 🔧 Operand не может быть null для Push (гарантируется кодогенератором)
+                    _evaluationStack.Push(instruction.Operand!);
                     break;
 
                 case InstructionCode.CallBuiltin:
-                    CallBuiltin(instruction.Operand);
+                    // 🔧 Operand не может быть null для CallBuiltin
+                    CallBuiltin(instruction.Operand!);
                     break;
 
                 case InstructionCode.Halt:
@@ -57,7 +60,7 @@ public class TigerVm
                         }
                     }
 
-                    return _result;
+                    return _result ?? new Value(0);
 
                 default:
                     throw new NotImplementedException(

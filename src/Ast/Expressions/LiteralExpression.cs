@@ -15,7 +15,6 @@ public sealed class LiteralExpression : Expression
         Value = value;
     }
 
-
     public ValueType Type { get; }
 
     public Value Value { get; }
