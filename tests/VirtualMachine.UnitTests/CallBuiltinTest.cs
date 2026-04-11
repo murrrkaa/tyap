@@ -10,10 +10,6 @@ using Xunit;
 
 namespace PsTiger.VirtualMachine.UnitTests;
 
-/// <summary>
-/// Тесты встроенных функций для Эпика №1.
-/// Поддерживается только print(...) для литералов int, float, string.
-/// </summary>
 public class CallBuiltinTest
 {
     [Theory]
@@ -36,7 +32,6 @@ public class CallBuiltinTest
     {
         return new TheoryData<List<Instruction>, string>
         {
-            // print string literal
             {
                 new List<Instruction>
                 {
@@ -47,8 +42,6 @@ public class CallBuiltinTest
                 },
                 "Hello"
             },
-
-            // print int literal
             {
                 new List<Instruction>
                 {
@@ -59,8 +52,6 @@ public class CallBuiltinTest
                 },
                 "42"
             },
-
-            // print float literal
             {
                 new List<Instruction>
                 {
@@ -71,8 +62,6 @@ public class CallBuiltinTest
                 },
                 "3.14"
             },
-
-            // multiple prints
             {
                 new List<Instruction>
                 {
