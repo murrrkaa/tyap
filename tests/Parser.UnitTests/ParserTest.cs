@@ -166,6 +166,24 @@ public class ParserTest
     }
 
     [Fact]
+    public void Should_Parse_Print_Without_Arguments()
+    {
+        string code = """
+    function main(): int {
+        print();
+    }
+    """;
+
+        Parser parser = new(code);
+        Program program = parser.ParseProgram();
+
+        PrintStatement print = Assert.IsType<PrintStatement>(
+            program.MainFunction.Body.Nodes.Single());
+
+        Assert.Empty(print.Arguments);
+    }
+
+    [Fact]
     public void Should_Throw_When_Missing_Semicolon()
     {
         string code = """

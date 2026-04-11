@@ -310,8 +310,8 @@ var assemblies = [
   {
     "name": "Lexer",
     "classes": [
-      { "name": "PsTiger.Lexemes.Lexer", "rp": "Lexer_Lexer.html", "cl": 207, "ucl": 5, "cal": 212, "tl": 336, "cb": 85, "tb": 88, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "PsTiger.Lexemes.TextScanner", "rp": "Lexer_TextScanner.html", "cl": 14, "ucl": 0, "cal": 14, "tl": 29, "cb": 2, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "PsTiger.Lexemes.Lexer", "rp": "Lexer_Lexer.html", "cl": 207, "ucl": 5, "cal": 212, "tl": 336, "cb": 57, "tb": 60, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "PsTiger.Lexemes.TextScanner", "rp": "Lexer_TextScanner.html", "cl": 14, "ucl": 0, "cal": 14, "tl": 29, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "PsTiger.Lexemes.Token", "rp": "Lexer_Token.html", "cl": 25, "ucl": 4, "cal": 29, "tl": 61, "cb": 4, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "PsTiger.Lexemes.TokenValue", "rp": "Lexer_TokenValue.html", "cl": 22, "ucl": 22, "cal": 44, "tl": 76, "cb": 1, "tb": 16, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
@@ -400,12 +400,6 @@ var riskHotspots = [
     "metrics": [
       { "value": 42, "exceeded": true },
       { "value": 6, "exceeded": false },
-    ]},
-  {
-    "assembly": "Lexer", "class": "PsTiger.Lexemes.Lexer", "reportPath": "Lexer_Lexer.html", "methodName": "ParseStringLiteral()", "methodShortName": "ParseStringLiteral()", "fileIndex": 0, "line": 152,
-    "metrics": [
-      { "value": 24, "exceeded": false },
-      { "value": 24, "exceeded": true },
     ]},
 ];
 
