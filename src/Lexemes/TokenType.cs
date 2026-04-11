@@ -2,7 +2,6 @@
 
 /// <summary>
 /// Типы лексем языка PsTiger.
-/// Минимальный набор для Эпика №1 (пункты 1–3).
 /// </summary>
 public enum TokenType
 {

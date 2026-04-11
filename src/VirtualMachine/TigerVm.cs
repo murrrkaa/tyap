@@ -40,12 +40,12 @@ public class TigerVm
             switch (instruction.Code)
             {
                 case InstructionCode.Push:
-                    // 🔧 Operand не может быть null для Push (гарантируется кодогенератором)
+                    // Operand не может быть null для Push (гарантируется кодогенератором)
                     _evaluationStack.Push(instruction.Operand!);
                     break;
 
                 case InstructionCode.CallBuiltin:
-                    // 🔧 Operand не может быть null для CallBuiltin
+                    // Operand не может быть null для CallBuiltin
                     CallBuiltin(instruction.Operand!);
                     break;
 
@@ -64,7 +64,7 @@ public class TigerVm
 
                 default:
                     throw new NotImplementedException(
-                        $"Instruction {instruction.Code} is not supported in Epic 1 (1–3)"
+                        $"Instruction {instruction.Code} is not supported now"
                     );
             }
         }
@@ -81,7 +81,7 @@ public class TigerVm
                 break;
 
             default:
-                throw new NotImplementedException($"Builtin {code} is not allowed in Epic 1");
+                throw new NotImplementedException($"Builtin {code} is not supported now");
         }
     }
 
