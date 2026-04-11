@@ -1,0 +1,254 @@
+﻿using System.Linq;
+
+using PsTiger.Ast;
+using PsTiger.Ast.Expressions;
+using PsTiger.Ast.Statements;
+using PsTiger.Parsing;
+
+using Xunit;
+
+namespace PsTiger.Parsing.UnitTests;
+
+public class ParserTest
+{
+    [Fact]
+    public void Should_Parse_Empty_Main()
+    {
+        string code = """
+        function main(): int {
+        }
+        """;
+
+        Parser parser = new(code);
+        Program program = parser.ParseProgram();
+
+        Assert.NotNull(program);
+        Assert.NotNull(program.MainFunction);
+        Assert.Empty(program.MainFunction.Body.Nodes);
+    }
+
+    [Fact]
+    public void Should_Parse_Print_Int()
+    {
+        string code = """
+        function main(): int {
+            print(5);
+        }
+        """;
+
+        Parser parser = new(code);
+        Program program = parser.ParseProgram();
+
+        PrintStatement print = Assert.IsType<PrintStatement>(program.MainFunction.Body.Nodes.Single());
+
+        LiteralExpression literal = Assert.IsType<LiteralExpression>(print.Arguments.Single());
+
+        Assert.Equal("5", literal.Value.ToString());
+    }
+
+    [Fact]
+    public void Should_Parse_Print_String()
+    {
+        string code = """
+        function main(): int {
+            print('hello');
+        }
+        """;
+
+        Parser parser = new(code);
+        Program program = parser.ParseProgram();
+
+        PrintStatement print = Assert.IsType<PrintStatement>(program.MainFunction.Body.Nodes.Single());
+
+        Assert.Single(print.Arguments);
+    }
+
+    [Fact]
+    public void Should_Parse_Print_Multiple_Arguments()
+    {
+        string code = """
+        function main(): int {
+            print(1, 2, 'a');
+        }
+        """;
+
+        Parser parser = new(code);
+        Program program = parser.ParseProgram();
+
+        PrintStatement print = Assert.IsType<PrintStatement>(program.MainFunction.Body.Nodes.Single());
+
+        Assert.Equal(3, print.Arguments.Count);
+    }
+
+    [Fact]
+    public void Should_Parse_Return_With_Value()
+    {
+        string code = """
+        function main(): int {
+            return 5;
+        }
+        """;
+
+        Parser parser = new(code);
+        Program program = parser.ParseProgram();
+
+        ReturnStatement ret = Assert.IsType<ReturnStatement>(program.MainFunction.Body.Nodes.Single());
+
+        Assert.NotNull(ret.Expression);
+    }
+
+    [Fact]
+    public void Should_Parse_Return_Without_Value()
+    {
+        string code = """
+        function main(): int {
+            return;
+        }
+        """;
+
+        Parser parser = new(code);
+        Program program = parser.ParseProgram();
+
+        ReturnStatement ret = Assert.IsType<ReturnStatement>(program.MainFunction.Body.Nodes.Single());
+
+        Assert.Null(ret.Expression);
+    }
+
+    [Fact]
+    public void Should_Parse_Float_Literal()
+    {
+        string code = """
+        function main(): int {
+            print(3.14);
+        }
+        """;
+
+        Parser parser = new(code);
+        Program program = parser.ParseProgram();
+
+        PrintStatement print = Assert.IsType<PrintStatement>(program.MainFunction.Body.Nodes.Single());
+
+        Assert.Single(print.Arguments);
+    }
+
+    [Fact]
+    public void Should_Parse_Parenthesized_Literal()
+    {
+        string code = """
+        function main(): int {
+            print((5));
+        }
+        """;
+
+        Parser parser = new(code);
+        Program program = parser.ParseProgram();
+
+        PrintStatement print = Assert.IsType<PrintStatement>(program.MainFunction.Body.Nodes.Single());
+
+        Assert.Single(print.Arguments);
+    }
+
+    [Fact]
+    public void Should_Parse_Multiple_Statements()
+    {
+        string code = """
+        function main(): int {
+            print(1);
+            print(2);
+            return 0;
+        }
+        """;
+
+        Parser parser = new(code);
+        Program program = parser.ParseProgram();
+
+        Assert.Equal(3, program.MainFunction.Body.Nodes.Count);
+    }
+
+    [Fact]
+    public void Should_Parse_Print_Without_Arguments()
+    {
+        string code = """
+    function main(): int {
+        print();
+    }
+    """;
+
+        Parser parser = new(code);
+        Program program = parser.ParseProgram();
+
+        PrintStatement print = Assert.IsType<PrintStatement>(
+            program.MainFunction.Body.Nodes.Single());
+
+        Assert.Empty(print.Arguments);
+    }
+
+    [Fact]
+    public void Should_Throw_When_Missing_Semicolon()
+    {
+        string code = """
+        function main(): int {
+            print(1)
+        }
+        """;
+
+        Parser parser = new(code);
+
+        Assert.Throws<UnexpectedLexemeException>(() => parser.ParseProgram());
+    }
+
+    [Fact]
+    public void Should_Throw_On_Unexpected_Statement()
+    {
+        string code = """
+        function main(): int {
+            123;
+        }
+        """;
+
+        Parser parser = new(code);
+
+        Assert.Throws<UnexpectedLexemeException>(() => parser.ParseProgram());
+    }
+
+    [Fact]
+    public void Should_Throw_When_Missing_Close_Brace()
+    {
+        string code = """
+        function main(): int {
+            print(1);
+        """;
+
+        Parser parser = new(code);
+
+        Assert.Throws<UnexpectedLexemeException>(() => parser.ParseProgram());
+    }
+
+    [Fact]
+    public void Should_Throw_On_Invalid_Print_Syntax()
+    {
+        string code = """
+        function main(): int {
+            print(,);
+        }
+        """;
+
+        Parser parser = new(code);
+
+        Assert.Throws<UnexpectedLexemeException>(() => parser.ParseProgram());
+    }
+
+    [Fact]
+    public void Should_Throw_On_Invalid_Return_Syntax()
+    {
+        string code = """
+        function main(): int {
+            return );
+        }
+        """;
+
+        Parser parser = new(code);
+
+        Assert.Throws<UnexpectedLexemeException>(() => parser.ParseProgram());
+    }
+}

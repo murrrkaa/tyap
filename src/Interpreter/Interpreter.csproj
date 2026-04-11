@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Runtime\Runtime.csproj" />
+    <ProjectReference Include="..\Semantics\Semantics.csproj" />
+    <ProjectReference Include="..\Parsing\Parser.csproj" />
+    <ProjectReference Include="..\VirtualMachineCodegen\VirtualMachineCodegen.csproj" />
+    <ProjectReference Include="..\Ast\Ast.csproj" />
+    <ProjectReference Include="..\VirtualMachine\VirtualMachine.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>
