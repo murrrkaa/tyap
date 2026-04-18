@@ -1,6 +1,6 @@
-﻿using ValueType = PsTiger.Runtime.ValueType;
+﻿using ValueType = Mlt.Runtime.ValueType;
 
-namespace PsTiger.Semantics.Helpers;
+namespace Mlt.Semantics.Helpers;
 
 /// <summary>
 /// Вспомогательные методы для работы с типами данных языка.

@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace PsTiger.Lexemes;
+namespace Mlt.Lexemes;
 
 public class Token
 {

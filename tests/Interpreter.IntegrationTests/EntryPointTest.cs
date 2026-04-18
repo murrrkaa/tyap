@@ -1,5 +1,6 @@
-﻿using PsTiger.Interpreter;
-using PsTiger.Tests.TestLibrary.TestDoubles;
+﻿using Mlt.Interpreter;
+using Mlt.Semantics.Exceptions;
+using Mlt.Tests.TestLibrary.TestDoubles;
 
 using Xunit;
 
@@ -15,18 +16,19 @@ public class EntryPointTest
         int expectedExitCode)
     {
         FakeEnvironment environment = new();
-        TigerInterpreter interpreter = new(environment);
+        MltInterpreter interpreter = new(environment);
 
-        interpreter.Execute(code);
+        int exitCode = interpreter.Execute(code);
 
         Assert.Equal(expectedOutput, environment.BufferedOutput);
-        Assert.Equal(expectedExitCode, interpreter.ExitCode);
+        Assert.Equal(expectedExitCode, exitCode);
     }
 
     public static TheoryData<string, string, int> GetValidEntryPointData()
     {
         return new TheoryData<string, string, int>
         {
+            // Print int literal
             {
                 """
                 function main(): int 
@@ -38,6 +40,7 @@ public class EntryPointTest
                 "42",
                 0
             },
+            // Print float literal
             {
                 """
                 function main(): int 
@@ -49,6 +52,7 @@ public class EntryPointTest
                 "3.14",
                 0
             },
+            // Return without print
             {
                 """
                 function main(): int 
@@ -59,6 +63,7 @@ public class EntryPointTest
                 "",
                 0
             },
+            // Print string literal
             {
                 """
                 function main(): int 
@@ -70,6 +75,7 @@ public class EntryPointTest
                 "hello",
                 0
             },
+            // Return non-zero exit code
             {
                 """
                 function main(): int 
@@ -82,4 +88,21 @@ public class EntryPointTest
             },
         };
     }
+
+    [Fact]
+    public void Main_With_Wrong_ReturnType_Throws_Parse_Error()
+    {
+        string code = """
+        function main(): float 
+        {
+            return 3.14;
+        }
+        """;
+
+        FakeEnvironment environment = new();
+        MltInterpreter interpreter = new(environment);
+
+        Assert.Throws<Mlt.VirtualMachine.Exceptions.ProgramAbortedException>(() => interpreter.Execute(code));
+    }
+
 }

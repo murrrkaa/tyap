@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Text;
 
-namespace PsTiger.Lexemes;
+namespace Mlt.Lexemes;
 
 public class Lexer
 {
@@ -17,10 +17,11 @@ public class Lexer
         { "print", TokenType.Print },
     };
 
-    private static readonly Dictionary<char, char> SimpleEscapes = new()
+    private static readonly Dictionary<char, char> SimpleEscapes = new Dictionary<char, char>
     {
         { '\\', '\\' },
         { '\'', '\'' },
+        { 'n', '\n' },
     };
 
     private readonly TextScanner _scanner;

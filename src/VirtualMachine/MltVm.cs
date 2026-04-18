@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using PsTiger.Runtime;
-using PsTiger.VirtualMachine.Builtins;
-using PsTiger.VirtualMachine.Instructions;
+using Mlt.Runtime;
+using Mlt.VirtualMachine.Builtins;
+using Mlt.VirtualMachine.Instructions;
 
-namespace PsTiger.VirtualMachine;
+namespace Mlt.VirtualMachine;
 
-public class TigerVm
+public class MltVm
 {
     private readonly BuiltinFunctions _builtinFunctions;
     private readonly IReadOnlyList<Instruction> _instructions;
@@ -17,7 +17,7 @@ public class TigerVm
 
     private Value? _result;
 
-    public TigerVm(IEnvironment environment, IReadOnlyList<Instruction> instructions)
+    public MltVm(IEnvironment environment, IReadOnlyList<Instruction> instructions)
     {
         ValidateInstructions(instructions);
 
@@ -40,12 +40,10 @@ public class TigerVm
             switch (instruction.Code)
             {
                 case InstructionCode.Push:
-                    // Operand не может быть null для Push (гарантируется кодогенератором)
                     _evaluationStack.Push(instruction.Operand!);
                     break;
 
                 case InstructionCode.CallBuiltin:
-                    // Operand не может быть null для CallBuiltin
                     CallBuiltin(instruction.Operand!);
                     break;
 

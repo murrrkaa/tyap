@@ -1,16 +1,16 @@
 ﻿using System.Collections.Generic;
 
-using PsTiger.Ast;
-using PsTiger.Ast.Declarations;
-using PsTiger.Ast.Expressions;
-using PsTiger.Ast.Statements;
-using PsTiger.Runtime;
-using PsTiger.VirtualMachine.Builtins;
-using PsTiger.VirtualMachine.Instructions;
+using Mlt.Ast;
+using Mlt.Ast.Declarations;
+using Mlt.Ast.Expressions;
+using Mlt.Ast.Statements;
+using Mlt.Runtime;
+using Mlt.VirtualMachine.Builtins;
+using Mlt.VirtualMachine.Instructions;
 
-namespace PsTiger.VirtualMachineCodegen;
+namespace Mlt.VirtualMachineCodegen;
 
-public class TigerVmCodegen : IAstVisitor
+public class MltVmCodegen : IAstVisitor
 {
     private readonly List<Instruction> _instructions = new();
 

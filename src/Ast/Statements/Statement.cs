@@ -1,4 +1,4 @@
-﻿namespace PsTiger.Ast.Statements;
+﻿namespace Mlt.Ast.Statements;
 
 /// <summary>
 /// Абстрактный класс инструкций.

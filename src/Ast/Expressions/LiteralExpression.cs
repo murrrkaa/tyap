@@ -1,21 +1,16 @@
-﻿using PsTiger.Runtime;
+﻿using Mlt.Runtime;
 
-using ValueType = PsTiger.Runtime.ValueType;
+using ValueType = Mlt.Runtime.ValueType;
 
-namespace PsTiger.Ast.Expressions;
+namespace Mlt.Ast.Expressions;
 
-/// <summary>
-/// Литеральное значение: число, строка или булево.
-/// </summary>
 public sealed class LiteralExpression : Expression
 {
     public LiteralExpression(ValueType type, Value value)
     {
-        Type = type;
         Value = value;
+        ResultType = type;
     }
-
-    public ValueType Type { get; }
 
     public Value Value { get; }
 

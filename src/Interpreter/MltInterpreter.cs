@@ -1,21 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using PsTiger.Parsing;
-using PsTiger.VirtualMachine;
-using PsTiger.VirtualMachine.Instructions;
-using PsTiger.VirtualMachineCodegen;
+using Mlt.Parsing;
+using Mlt.VirtualMachine;
+using Mlt.VirtualMachine.Instructions;
+using Mlt.VirtualMachineCodegen;
 
-using AstProgram = PsTiger.Ast.Program;
+using AstProgram = Mlt.Ast.Program;
 
-namespace PsTiger.Interpreter;
+namespace Mlt.Interpreter;
 
-public class TigerInterpreter
+public class MltInterpreter
 {
     private readonly IEnvironment _environment;
     private int _exitCode;
 
-    public TigerInterpreter(IEnvironment environment)
+    public MltInterpreter(IEnvironment environment)
     {
         _environment = environment;
     }
@@ -27,12 +27,11 @@ public class TigerInterpreter
         Parser parser = new(code);
         AstProgram program = parser.ParseProgram();
 
-        TigerVmCodegen codegen = new();
+        MltVmCodegen codegen = new();
         List<Instruction> instructionsList = codegen.GenerateCode(program);
-
         IReadOnlyList<Instruction> instructions = instructionsList;
 
-        TigerVm vm = new(_environment, instructions);
+        MltVm vm = new(_environment, instructions);
         vm.RunProgram();
 
         _exitCode = vm.ExitCode;

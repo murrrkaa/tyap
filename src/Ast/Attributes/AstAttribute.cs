@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-namespace PsTiger.Ast.Attributes;
+namespace Mlt.Ast.Attributes;
 
 public struct AstAttribute<T>
 {

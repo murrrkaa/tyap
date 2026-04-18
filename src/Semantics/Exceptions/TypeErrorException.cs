@@ -1,6 +1,6 @@
-﻿using ValueType = PsTiger.Runtime.ValueType;
+﻿using ValueType = Mlt.Runtime.ValueType;
 
-namespace PsTiger.Semantics.Exceptions;
+namespace Mlt.Semantics.Exceptions;
 
 #pragma warning disable RCS1194 // Конструкторы исключения не нужны, т.к. это не класс общего назначения.
 /// <summary>

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PsTiger.VirtualMachine.Exceptions;
+namespace Mlt.VirtualMachine.Exceptions;
 
 #pragma warning disable RCS1194 // Конструкторы исключения не нужны, т.к. это не класс общего назначения.
 /// <summary>

@@ -1,4 +1,4 @@
-﻿namespace PsTiger.VirtualMachine.Instructions;
+﻿namespace Mlt.VirtualMachine.Instructions;
 
 public enum InstructionCode
 {

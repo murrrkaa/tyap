@@ -1,8 +1,8 @@
-﻿using PsTiger.Ast.Declarations;
-using PsTiger.Ast.Expressions;
-using PsTiger.Ast.Statements;
+﻿using Mlt.Ast.Declarations;
+using Mlt.Ast.Expressions;
+using Mlt.Ast.Statements;
 
-namespace PsTiger.Ast;
+namespace Mlt.Ast;
 
 /// <summary>
 /// Интерфейс для обхода дерева синтаксического анализа (паттерн Visitor).

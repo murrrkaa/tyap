@@ -1,8 +1,8 @@
 ﻿using System.Text;
 
-using PsTiger.Runtime;
+using Mlt.Runtime;
 
-namespace PsTiger.VirtualMachine.Instructions;
+namespace Mlt.VirtualMachine.Instructions;
 
 public class Instruction
 {

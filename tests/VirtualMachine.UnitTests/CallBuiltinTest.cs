@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
 
-using PsTiger.Runtime;
-using PsTiger.Tests.TestLibrary.TestDoubles;
-using PsTiger.VirtualMachine;
-using PsTiger.VirtualMachine.Builtins;
-using PsTiger.VirtualMachine.Instructions;
+using Mlt.Runtime;
+using Mlt.Tests.TestLibrary.TestDoubles;
+using Mlt.VirtualMachine;
+using Mlt.VirtualMachine.Builtins;
+using Mlt.VirtualMachine.Instructions;
 
 using Xunit;
 
-namespace PsTiger.VirtualMachine.UnitTests;
+namespace Mlt.VirtualMachine.UnitTests;
 
 public class CallBuiltinTest
 {
@@ -19,7 +19,7 @@ public class CallBuiltinTest
         string expectedBufferedOutput)
     {
         FakeEnvironment environment = new();
-        TigerVm vm = new(environment, program);
+        MltVm vm = new(environment, program);
 
         vm.RunProgram();
 
@@ -89,7 +89,7 @@ public class CallBuiltinTest
         };
 
         FakeEnvironment environment = new();
-        TigerVm vm = new(environment, program);
+        MltVm vm = new(environment, program);
 
         vm.RunProgram();
 
