@@ -1,8 +1,8 @@
-﻿using PsTiger.Ast.Attributes;
+﻿using Mlt.Ast.Attributes;
 
-using ValueType = PsTiger.Runtime.ValueType;
+using ValueType = Mlt.Runtime.ValueType;
 
-namespace PsTiger.Ast.Expressions;
+namespace Mlt.Ast.Expressions;
 
 /// <summary>
 /// Абстрактный базовый класс для всех выражений.

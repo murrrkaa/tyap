@@ -1,6 +1,6 @@
-﻿using PsTiger.Ast.Expressions;
+﻿using Mlt.Ast.Expressions;
 
-namespace PsTiger.Ast.Statements;
+namespace Mlt.Ast.Statements;
 
 /// <summary>
 /// Объявление инструкции return.

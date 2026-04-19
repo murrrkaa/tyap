@@ -1,9 +1,9 @@
-﻿using PsTiger.Ast;
-using PsTiger.Ast.Declarations;
-using PsTiger.Ast.Expressions;
-using PsTiger.Ast.Statements;
+﻿using Mlt.Ast;
+using Mlt.Ast.Declarations;
+using Mlt.Ast.Expressions;
+using Mlt.Ast.Statements;
 
-namespace PsTiger.Semantics.Passes;
+namespace Mlt.Semantics.Passes;
 
 public abstract class AbstractPass : IAstVisitor
 {

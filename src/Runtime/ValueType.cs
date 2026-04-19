@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace PsTiger.Runtime;
+namespace Mlt.Runtime;
 
 /// <summary>
 /// Тип значения времени выполнения.

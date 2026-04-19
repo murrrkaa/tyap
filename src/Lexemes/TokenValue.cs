@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 
-namespace PsTiger.Lexemes;
+namespace Mlt.Lexemes;
 
 public sealed class TokenValue
 {

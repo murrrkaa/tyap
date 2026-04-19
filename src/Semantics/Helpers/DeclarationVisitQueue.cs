@@ -1,7 +1,7 @@
-﻿using PsTiger.Ast;
-using PsTiger.Ast.Declarations;
+﻿using Mlt.Ast;
+using Mlt.Ast.Declarations;
 
-namespace PsTiger.Semantics.Helpers;
+namespace Mlt.Semantics.Helpers;
 
 public class DeclarationVisitQueue
 {

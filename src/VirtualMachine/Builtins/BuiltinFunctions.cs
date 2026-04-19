@@ -1,8 +1,8 @@
 ﻿using System.Globalization;
 
-using PsTiger.Runtime;
+using Mlt.Runtime;
 
-namespace PsTiger.VirtualMachine.Builtins;
+namespace Mlt.VirtualMachine.Builtins;
 
 public class BuiltinFunctions
 {

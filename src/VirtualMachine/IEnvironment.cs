@@ -1,4 +1,4 @@
-﻿namespace PsTiger.VirtualMachine;
+﻿namespace Mlt.VirtualMachine;
 
 public interface IEnvironment
 {

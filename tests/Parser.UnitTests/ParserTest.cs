@@ -1,13 +1,13 @@
 ﻿using System.Linq;
 
-using PsTiger.Ast;
-using PsTiger.Ast.Expressions;
-using PsTiger.Ast.Statements;
-using PsTiger.Parsing;
+using Mlt.Ast;
+using Mlt.Ast.Expressions;
+using Mlt.Ast.Statements;
+using Mlt.Parsing;
 
 using Xunit;
 
-namespace PsTiger.Parsing.UnitTests;
+namespace Mlt.Parsing.UnitTests;
 
 public class ParserTest
 {

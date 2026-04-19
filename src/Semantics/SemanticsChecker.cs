@@ -1,7 +1,7 @@
-﻿using PsTiger.Ast;
-using PsTiger.Semantics.Passes;
+﻿using Mlt.Ast;
+using Mlt.Semantics.Passes;
 
-namespace PsTiger.Semantics;
+namespace Mlt.Semantics;
 
 public class SemanticsChecker
 {

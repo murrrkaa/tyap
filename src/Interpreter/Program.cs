@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 
-using PsTiger.Interpreter;
+using Mlt.Interpreter;
 
-namespace PsTiger.Interpreter;
+namespace Mlt.Interpreter;
 
 public static class Program
 {
@@ -11,7 +11,7 @@ public static class Program
     {
         if (args.Length != 1)
         {
-            Console.Error.WriteLine("Usage: PsTiger.Interpreter <file-path>");
+            Console.Error.WriteLine("Usage: Mlt.Interpreter <file-path>");
             return 1;
         }
 
@@ -27,7 +27,7 @@ public static class Program
             string sourceCode = File.ReadAllText(sourcePath);
 
             ConsoleEnvironment environment = new();
-            TigerInterpreter interpreter = new(environment);
+            MltInterpreter interpreter = new(environment);
 
             return interpreter.Execute(sourceCode);
         }

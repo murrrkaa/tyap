@@ -1,4 +1,4 @@
-﻿namespace PsTiger.Lexemes;
+﻿namespace Mlt.Lexemes;
 
 public class TextScanner
 {

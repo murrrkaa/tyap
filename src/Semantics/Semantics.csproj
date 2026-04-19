@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Runtime\Runtime.csproj" />
     <ProjectReference Include="..\Ast\Ast.csproj" />
+    <ProjectReference Include="..\VirtualMachine\VirtualMachine.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

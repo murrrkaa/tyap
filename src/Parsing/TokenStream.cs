@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-using PsTiger.Lexemes;
+using Mlt.Lexemes;
 
-namespace PsTiger.Parsing;
+namespace Mlt.Parsing;
 
 public class TokenStream
 {

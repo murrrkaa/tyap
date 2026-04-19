@@ -1,10 +1,10 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 
-using PsTiger.VirtualMachine;
+using Mlt.VirtualMachine;
 
-namespace PsTiger.Tests.TestLibrary.TestDoubles;
+namespace Mlt.Tests.TestLibrary.TestDoubles;
 
 public class FakeEnvironment : IEnvironment
 {

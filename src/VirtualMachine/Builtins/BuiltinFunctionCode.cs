@@ -1,4 +1,4 @@
-﻿namespace PsTiger.VirtualMachine.Builtins;
+﻿namespace Mlt.VirtualMachine.Builtins;
 
 /// <summary>
 /// Код встроенной функции.

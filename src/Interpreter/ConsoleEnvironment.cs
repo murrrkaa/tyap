@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Globalization;
 
-using PsTiger.VirtualMachine;
+using Mlt.VirtualMachine;
 
-namespace PsTiger.Interpreter;
+namespace Mlt.Interpreter;
 
 public class ConsoleEnvironment : IEnvironment
 {

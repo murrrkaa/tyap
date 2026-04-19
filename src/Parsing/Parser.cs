@@ -2,17 +2,18 @@
 using System.Collections.Generic;
 using System.Globalization;
 
-using PsTiger.Ast;
-using PsTiger.Ast.Declarations;
-using PsTiger.Ast.Expressions;
-using PsTiger.Ast.Statements;
-using PsTiger.Lexemes;
-using PsTiger.Runtime;
+using Mlt.Ast;
+using Mlt.Ast.Declarations;
+using Mlt.Ast.Expressions;
+using Mlt.Ast.Statements;
+using Mlt.Lexemes;
+using Mlt.Runtime;
+using Mlt.VirtualMachine.Exceptions;
 
-using Expression = PsTiger.Ast.Expressions.Expression;
-using VmValueType = PsTiger.Runtime.ValueType;
+using Expression = Mlt.Ast.Expressions.Expression;
+using VmValueType = Mlt.Runtime.ValueType;
 
-namespace PsTiger.Parsing;
+namespace Mlt.Parsing;
 
 public class Parser
 {
@@ -37,6 +38,13 @@ public class Parser
         Match(TokenType.OpenParenthesis);
         Match(TokenType.CloseParenthesis);
         Match(TokenType.Colon);
+
+        Token returnTypeToken = _tokens.Peek();
+        if (returnTypeToken.Type != TokenType.Int)
+        {
+            throw new ProgramAbortedException($"Ожидался тип 'int' для функции main, но найдено '{returnTypeToken.Type}'");
+        }
+
         Match(TokenType.Int);
 
         Match(TokenType.OpenBrace);
@@ -161,35 +169,6 @@ public class Parser
                         TokenType.OpenParenthesis,
                     });
         }
-    }
-
-    private VmValueType ParseType()
-    {
-        Token token = _tokens.Peek();
-
-        VmValueType type;
-
-        if (token.Type == TokenType.Int)
-        {
-            type = VmValueType.Int;
-        }
-        else if (token.Type == TokenType.Float)
-        {
-            type = VmValueType.Float;
-        }
-        else if (token.Type == TokenType.String)
-        {
-            type = VmValueType.String;
-        }
-        else
-        {
-            throw new UnexpectedLexemeException(
-                token,
-                new List<TokenType> { TokenType.Int, TokenType.Float, TokenType.String });
-        }
-
-        _tokens.Advance();
-        return type;
     }
 
     private Token Match(TokenType expected)

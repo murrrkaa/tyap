@@ -1,14 +1,15 @@
-﻿using PsTiger.Ast;
-using PsTiger.Ast.Declarations;
-using PsTiger.Ast.Expressions;
-using PsTiger.Ast.Statements;
-using PsTiger.Runtime;
-using PsTiger.Semantics.Exceptions;
-using PsTiger.Semantics.Helpers;
+﻿using Mlt.Ast;
+using Mlt.Ast.Declarations;
+using Mlt.Ast.Expressions;
+using Mlt.Ast.Statements;
+using Mlt.Runtime;
+using Mlt.Semantics.Exceptions;
+using Mlt.Semantics.Helpers;
+using Mlt.VirtualMachine.Exceptions;
 
-using ValueType = PsTiger.Runtime.ValueType;
+using ValueType = Mlt.Runtime.ValueType;
 
-namespace PsTiger.Semantics.Passes;
+namespace Mlt.Semantics.Passes;
 
 public class CheckTypesPass : AbstractPass
 {
@@ -36,20 +37,15 @@ public class CheckTypesPass : AbstractPass
         _currentFunction = null;
     }
 
-    public override void Visit(ReturnStatement e)
+    public override void Visit(ReturnStatement node)
     {
-        base.Visit(e);
-
-        if (_currentFunction != null)
+        if (node.Expression != null)
         {
-            if (e.Expression == null)
-            {
-                throw new TypeErrorException("Main function must return an int value");
-            }
+            node.Expression.Accept(this);
 
-            if (!ValueTypeUtil.AreCompatibleTypes(e.Expression.ResultType, ValueType.Int))
+            if (node.Expression.ResultType != Mlt.Runtime.ValueType.Int)
             {
-                throw new TypeErrorException($"Return type {e.Expression.ResultType} does not match int");
+                throw new ProgramAbortedException("Критическая ошибка: функция main должна возвращать целое число (Int).");
             }
         }
     }

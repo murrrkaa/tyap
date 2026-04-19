@@ -1,6 +1,6 @@
-﻿using PsTiger.Ast.Declarations;
+﻿using Mlt.Ast.Declarations;
 
-namespace PsTiger.Ast;
+namespace Mlt.Ast;
 
 public class Program : AstNode
 {

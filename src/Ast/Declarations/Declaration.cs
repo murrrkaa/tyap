@@ -1,13 +1,13 @@
-﻿using PsTiger.Ast.Attributes;
-using PsTiger.Ast.Statements;
+﻿using Mlt.Ast.Attributes;
+using Mlt.Ast.Statements;
 
-using ValueType = PsTiger.Runtime.ValueType;
+using ValueType = Mlt.Runtime.ValueType;
 
-namespace PsTiger.Ast.Declarations;
+namespace Mlt.Ast.Declarations;
 
 public abstract class Declaration : Statement
 {
-    private readonly AstAttribute<ValueType> _resultType;
+    private AstAttribute<ValueType> _resultType;
     private readonly string _name;
 
     protected Declaration(string name)

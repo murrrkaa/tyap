@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 
-namespace PsTiger.Runtime;
+namespace Mlt.Runtime;
 
 public class Value : IEquatable<Value>
 {

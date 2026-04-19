@@ -1,4 +1,4 @@
-﻿namespace PsTiger.Ast;
+﻿namespace Mlt.Ast;
 
 /// <summary>
 /// Надкласс для всей иерархии классов узлов синтаксического дерева.

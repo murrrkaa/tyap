@@ -1,7 +1,7 @@
-﻿namespace PsTiger.Lexemes;
+﻿namespace Mlt.Lexemes;
 
 /// <summary>
-/// Типы лексем языка PsTiger.
+/// Типы лексем языка Mlt.
 /// </summary>
 public enum TokenType
 {

@@ -1,9 +1,9 @@
-﻿using PsTiger.Ast.Statements;
-using PsTiger.Runtime;
+﻿using Mlt.Ast.Statements;
+using Mlt.Runtime;
 
-using ValueType = PsTiger.Runtime.ValueType;
+using ValueType = Mlt.Runtime.ValueType;
 
-namespace PsTiger.Ast.Declarations;
+namespace Mlt.Ast.Declarations;
 
 public sealed class MainFunctionDeclaration : Declaration
 {

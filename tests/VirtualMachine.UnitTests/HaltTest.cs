@@ -1,8 +1,8 @@
-using PsTiger.Tests.TestLibrary.TestDoubles;
-using PsTiger.VirtualMachine;
-using PsTiger.VirtualMachine.Instructions;
+﻿using Mlt.Tests.TestLibrary.TestDoubles;
+using Mlt.VirtualMachine;
+using Mlt.VirtualMachine.Instructions;
 
-namespace PsTiger.VirtualMachine.UnitTests;
+namespace Mlt.VirtualMachine.UnitTests;
 
 public class HaltTest
 {
@@ -11,7 +11,7 @@ public class HaltTest
     public void Can_halt_VM(int exitCode)
     {
         FakeEnvironment environment = new();
-        TigerVm vm = new(
+        MltVm vm = new(
             environment,
             [
                 new Instruction(InstructionCode.Push, exitCode),
