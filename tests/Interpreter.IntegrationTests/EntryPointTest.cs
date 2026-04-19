@@ -24,11 +24,20 @@ public class EntryPointTest
         Assert.Equal(expectedExitCode, exitCode);
     }
 
+    [Theory]
+    [MemberData(nameof(GetInvalidEntryPointData))]
+    public void Throws_on_invalid_entry_point(string code)
+    {
+        FakeEnvironment environment = new();
+        MltInterpreter interpreter = new(environment);
+
+        Assert.ThrowsAny<Exception>(() => interpreter.Execute(code));
+    }
+
     public static TheoryData<string, string, int> GetValidEntryPointData()
     {
         return new TheoryData<string, string, int>
         {
-            // Print int literal
             {
                 """
                 function main(): int 
@@ -40,7 +49,6 @@ public class EntryPointTest
                 "42",
                 0
             },
-            // Print float literal
             {
                 """
                 function main(): int 
@@ -52,7 +60,6 @@ public class EntryPointTest
                 "3.14",
                 0
             },
-            // Return without print
             {
                 """
                 function main(): int 
@@ -63,7 +70,6 @@ public class EntryPointTest
                 "",
                 0
             },
-            // Print string literal
             {
                 """
                 function main(): int 
@@ -75,7 +81,6 @@ public class EntryPointTest
                 "hello",
                 0
             },
-            // Return non-zero exit code
             {
                 """
                 function main(): int 
@@ -86,6 +91,40 @@ public class EntryPointTest
                 "",
                 5
             },
+        };
+    }
+
+    public static TheoryData<string> GetInvalidEntryPointData()
+    {
+        return new TheoryData<string>
+        {
+            """
+            function test(): int 
+            {
+                return 0;
+            }
+            """,
+
+            """
+            function main(): int 
+            {
+                print(1);
+            }
+            """,
+
+            """
+            function main(): int 
+            {
+                return 'hello';
+            }
+            """,
+
+            """
+            function main(): string 
+            {
+                return 'hello';
+            }
+            """,
         };
     }
 
@@ -104,5 +143,4 @@ public class EntryPointTest
 
         Assert.Throws<Mlt.VirtualMachine.Exceptions.ProgramAbortedException>(() => interpreter.Execute(code));
     }
-
 }

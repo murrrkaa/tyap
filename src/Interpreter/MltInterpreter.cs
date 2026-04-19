@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using Mlt.Parsing;
+using Mlt.Semantics;
 using Mlt.VirtualMachine;
 using Mlt.VirtualMachine.Instructions;
 using Mlt.VirtualMachineCodegen;
@@ -26,6 +27,9 @@ public class MltInterpreter
     {
         Parser parser = new(code);
         AstProgram program = parser.ParseProgram();
+
+        SemanticsChecker cheker = new();
+        cheker.Check(program);
 
         MltVmCodegen codegen = new();
         List<Instruction> instructionsList = codegen.GenerateCode(program);
