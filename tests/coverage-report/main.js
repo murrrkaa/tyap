@@ -330,9 +330,9 @@ var assemblies = [
   {
     "name": "Runtime",
     "classes": [
-      { "name": "Mlt.Runtime.Value", "rp": "Runtime_Value.html", "cl": 36, "ucl": 20, "cal": 56, "tl": 88, "cb": 2, "tb": 26, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Mlt.Runtime.ValueType", "rp": "Runtime_ValueType.html", "cl": 11, "ucl": 6, "cal": 17, "tl": 50, "cb": 1, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Mlt.Runtime.ValueUtil", "rp": "Runtime_ValueUtil.html", "cl": 0, "ucl": 20, "cal": 20, "tl": 31, "cb": 0, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Mlt.Runtime.Value", "rp": "Runtime_Value.html", "cl": 48, "ucl": 8, "cal": 56, "tl": 88, "cb": 13, "tb": 26, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Mlt.Runtime.ValueType", "rp": "Runtime_ValueType.html", "cl": 14, "ucl": 3, "cal": 17, "tl": 50, "cb": 1, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Mlt.Runtime.ValueUtil", "rp": "Runtime_ValueUtil.html", "cl": 20, "ucl": 0, "cal": 20, "tl": 31, "cb": 6, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
     "name": "Semantics",
@@ -365,23 +365,9 @@ var metrics = [{ "name": "Crap Score", "abbreviation": "crp", "explanationUrl": 
 var historicCoverageExecutionTimes = [];
 
 var riskHotspotMetrics = [
-      { "name": "Crap Score", "explanationUrl": "https://googletesting.blogspot.de/2011/02/this-code-is-crap.html" },
-      { "name": "Cyclomatic complexity", "explanationUrl": "https://en.wikipedia.org/wiki/Cyclomatic_complexity" },
 ];
 
 var riskHotspots = [
-  {
-    "assembly": "Runtime", "class": "Mlt.Runtime.Value", "reportPath": "Runtime_Value.html", "methodName": "Equals(Mlt.Runtime.Value)", "methodShortName": "Equals(...)", "fileIndex": 0, "line": 59,
-    "metrics": [
-      { "value": 210, "exceeded": true },
-      { "value": 14, "exceeded": false },
-    ]},
-  {
-    "assembly": "Runtime", "class": "Mlt.Runtime.ValueUtil", "reportPath": "Runtime_ValueUtil.html", "methodName": "EscapeStringValue(System.String)", "methodShortName": "EscapeStringValue(...)", "fileIndex": 0, "line": 8,
-    "metrics": [
-      { "value": 42, "exceeded": true },
-      { "value": 6, "exceeded": false },
-    ]},
 ];
 
 var branchCoverageAvailable = true;
