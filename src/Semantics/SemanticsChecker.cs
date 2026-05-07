@@ -5,15 +5,23 @@ namespace Mlt.Semantics;
 
 public class SemanticsChecker
 {
-    private readonly AbstractPass _pass;
+    private readonly AbstractPass[] _passes;
 
     public SemanticsChecker()
     {
-        _pass = new CheckTypesPass();
+        _passes =
+        [
+            new ResolveNamesPass(), 
+           
+            new CheckTypesPass(),
+        ];
     }
 
     public void Check(Program program)
     {
-        program.Accept(_pass);
+        foreach (AbstractPass pass in _passes)
+        {
+            program.Accept(pass);
+        }
     }
 }

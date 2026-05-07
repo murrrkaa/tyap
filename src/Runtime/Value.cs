@@ -1,5 +1,4 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 
 namespace Mlt.Runtime;
 
@@ -9,11 +8,6 @@ public class Value : IEquatable<Value>
 
     public Value(string value)
     {
-        _value = value ?? throw new ArgumentNullException(nameof(value));
-    }
-
-    public Value(int value)
-    {
         _value = value;
     }
 
@@ -22,67 +16,78 @@ public class Value : IEquatable<Value>
         _value = value;
     }
 
-    public bool IsString() => _value is string;
+    public Value(int value)
+    {
+        _value = (decimal)value;
+    }
 
-    public bool IsInt() => _value is int;
+    public bool IsString()
+    {
+        return _value is string;
+    }
 
-    public bool IsFloat() => _value is decimal;
+    public bool IsInt()
+    {
+        return _value is decimal;
+    }
+
+    public bool IsFloat()
+    {
+        return _value is decimal;
+    }
 
     public string AsString()
     {
         return _value switch
         {
             string s => s,
-            _ => throw new InvalidOperationException($"Value is not a string: {_value}"),
+            _ => throw new InvalidOperationException($"Value {_value} is not a string"),
+        };
+    }
+
+    public decimal AsDecimal()
+    {
+        return _value switch
+        {
+            decimal d => d,
+            _ => throw new InvalidOperationException($"Value {_value} is not a number"),
         };
     }
 
     public int AsInt()
     {
-        return _value switch
-        {
-            int i => i,
-            _ => throw new InvalidOperationException($"Value is not an integer: {_value}"),
-        };
+        return (int)AsDecimal();
     }
-
-    public decimal AsFloat()
-    {
-        return _value switch
-        {
-            decimal f => f,
-            _ => throw new InvalidOperationException($"Value is not a float: {_value}"),
-        };
-    }
-
-    public bool Equals(Value? other)
-    {
-        if (other is null)
-        {
-            return false;
-        }
-
-        return _value switch
-        {
-            string s => other.IsString() && other.AsString() == s,
-            int i => other.IsInt() && other.AsInt() == i,
-            decimal f => other.IsFloat() && other.AsFloat() == f,
-            _ => false,
-        };
-    }
-
-    public override bool Equals(object? obj) => Equals(obj as Value);
-
-    public override int GetHashCode() => _value?.GetHashCode() ?? 0;
 
     public override string ToString()
     {
         return _value switch
         {
             string s => s,
-            int i => i.ToString(CultureInfo.InvariantCulture),
-            decimal f => f.ToString(CultureInfo.InvariantCulture),
+            decimal d => d.ToString(CultureInfo.InvariantCulture),
             _ => _value?.ToString() ?? "null",
         };
+    }
+
+    public bool Equals(Value? other)
+    {
+        if (other is null) return false;
+
+        return _value switch
+        {
+            string s => other.IsString() && other.AsString() == s,
+            decimal d => (other.IsInt() || other.IsFloat()) && other.AsDecimal() == d,
+            _ => Equals(_value, other._value),
+        };
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return Equals(obj as Value);
+    }
+
+    public override int GetHashCode()
+    {
+        return _value.GetHashCode();
     }
 }

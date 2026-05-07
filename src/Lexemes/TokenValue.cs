@@ -14,19 +14,22 @@ public sealed class TokenValue
 
     public TokenValue(int value)
     {
-        _value = value;
+        _value = (decimal)value;
     }
 
     public TokenValue(double value)
+    {
+        _value = (decimal)value;
+    }
+
+    public TokenValue(decimal value)
     {
         _value = value;
     }
 
     public bool IsString() => _value is string;
-
-    public bool IsInt() => _value is int;
-
-    public bool IsDouble() => _value is double;
+    public bool IsInt() => _value is decimal;
+    public bool IsDecimal() => _value is decimal;
 
     public string AsString()
     {
@@ -35,17 +38,14 @@ public sealed class TokenValue
 
     public int AsInt()
     {
-        return _value is int i ? i : throw new InvalidCastException("TokenValue is not an integer");
+        if (_value is decimal d) return (int)d;
+        throw new InvalidCastException("TokenValue is not a number");
     }
 
-    public double AsDouble()
+    public decimal AsDecimal()
     {
-        return _value switch
-        {
-            double d => d,
-            int i => i,
-            _ => throw new InvalidCastException("TokenValue is not a number"),
-        };
+        if (_value is decimal d) return d;
+        throw new InvalidCastException("TokenValue is not a decimal");
     }
 
     public override string ToString()
@@ -53,8 +53,7 @@ public sealed class TokenValue
         return _value switch
         {
             string s => s,
-            int i => i.ToString(CultureInfo.InvariantCulture),
-            double d => d.ToString(CultureInfo.InvariantCulture),
+            decimal dec => dec.ToString(CultureInfo.InvariantCulture),
             _ => _value?.ToString() ?? "null",
         };
     }
@@ -65,7 +64,6 @@ public sealed class TokenValue
         {
             return Equals(_value, other._value);
         }
-
         return false;
     }
 

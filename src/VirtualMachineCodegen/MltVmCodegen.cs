@@ -22,35 +22,80 @@ public class MltVmCodegen : IAstVisitor
         return _instructions;
     }
 
-    public void Visit(Program e)
+    public void Visit(Program node)
     {
-        e.MainFunction.Accept(this);
+        node.MainFunction.Accept(this);
     }
 
-    public void Visit(MainFunctionDeclaration d)
+    public void Visit(MainFunctionDeclaration node)
     {
-        d.Body.Accept(this);
+        node.Body.Accept(this);
     }
 
-    public void Visit(BlockStatement e)
+    public void Visit(ExpressionStatement node)
     {
-        foreach (AstNode node in e.Nodes)
+        node.Expression.Accept(this);
+    }
+
+    public void Visit(ReturnStatement node)
+    {
+        node.Expression?.Accept(this);
+    }
+
+    public void Visit(BlockStatement node)
+    {
+        foreach (AstNode nodeItem in node.Nodes)
         {
-            if (node is Statement stmt)
-            {
-                stmt.Accept(this);
-            }
+            nodeItem.Accept(this);
         }
     }
 
-    public void Visit(LiteralExpression e)
+    public void Visit(LiteralExpression node)
     {
-        _instructions.Add(new Instruction(InstructionCode.Push, e.Value));
+        _instructions.Add(new Instruction(InstructionCode.Push, node.Value));
     }
 
-    public void Visit(PrintStatement e)
+    public void Visit(VariableDeclaration node)
     {
-        foreach (Expression arg in e.Arguments)
+        node.Initializer?.Accept(this);
+        _instructions.Add(new Instruction(InstructionCode.DefineVar, node.Name));
+    }
+
+    public void Visit(VariableAccessExpression node)
+    {
+        _instructions.Add(new Instruction(InstructionCode.LoadVar, node.Name));
+    }
+
+    public void Visit(AssignmentExpression node)
+    {
+        node.Right.Accept(this);
+
+        if (node.Left is VariableAccessExpression varAccess)
+        {
+            _instructions.Add(new Instruction(InstructionCode.StoreVar, varAccess.Name));
+        }
+    }
+
+    public void Visit(BinaryOperationExpression node)
+    {
+        node.Left.Accept(this);
+        node.Right.Accept(this);
+
+        InstructionCode code = node.Operation switch
+        {
+            BinaryOperation.Add => InstructionCode.Add,
+            BinaryOperation.Subtract => InstructionCode.Subtract,
+            BinaryOperation.Multiply => InstructionCode.Multiply,
+            BinaryOperation.Divide => InstructionCode.Divide,
+            _ => throw new System.NotImplementedException($"Operation {node.Operation} is not supported")
+        };
+
+        _instructions.Add(new Instruction(code));
+    }
+
+    public void Visit(PrintStatement node)
+    {
+        foreach (Expression arg in node.Arguments)
         {
             arg.Accept(this);
 
@@ -61,10 +106,5 @@ public class MltVmCodegen : IAstVisitor
                 )
             );
         }
-    }
-
-    public void Visit(ReturnStatement e)
-    {
-        e.Expression!.Accept(this);
     }
 }
