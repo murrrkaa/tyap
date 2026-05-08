@@ -15,6 +15,8 @@ public class MltVm
     private int _exitCode;
     private readonly Stack<Value> _evaluationStack;
 
+    private readonly Dictionary<string, Value> _variables = new();
+
     private Value? _result;
 
     public MltVm(IEnvironment environment, IReadOnlyList<Instruction> instructions)
@@ -43,6 +45,43 @@ public class MltVm
                     _evaluationStack.Push(instruction.Operand!);
                     break;
 
+                case InstructionCode.Pop:
+                    _evaluationStack.Pop();
+                    break;
+
+                case InstructionCode.DefineVar:
+                    _variables[instruction.Operand!.AsString()] = _evaluationStack.Pop();
+                    break;
+
+                case InstructionCode.StoreVar:
+                    _variables[instruction.Operand!.AsString()] = _evaluationStack.Pop();
+                    break;
+
+                case InstructionCode.LoadVar:
+                    _evaluationStack.Push(_variables[instruction.Operand!.AsString()]);
+                    break;
+
+                case InstructionCode.Add:
+                    PerformBinaryOp((a, b) => a + b);
+                    break;
+
+                case InstructionCode.Subtract:
+                    PerformBinaryOp((a, b) => a - b);
+                    break;
+
+                case InstructionCode.Multiply:
+                    PerformBinaryOp((a, b) => a * b);
+                    break;
+
+                case InstructionCode.Divide:
+                    PerformBinaryOp((a, b) => a / b);
+                    break;
+
+                case InstructionCode.Negate:
+                    decimal val = _evaluationStack.Pop().AsDecimal();
+                    _evaluationStack.Push(new Value(-val));
+                    break;
+
                 case InstructionCode.CallBuiltin:
                     CallBuiltin(instruction.Operand!);
                     break;
@@ -51,7 +90,6 @@ public class MltVm
                     if (_evaluationStack.Count > 0)
                     {
                         Value finalVal = _evaluationStack.Pop();
-
                         if (finalVal.IsInt())
                         {
                             _exitCode = finalVal.AsInt();
@@ -61,25 +99,31 @@ public class MltVm
                     return _result ?? new Value(0);
 
                 default:
-                    throw new NotImplementedException(
-                        $"Instruction {instruction.Code} is not supported now"
-                    );
+                    throw new NotImplementedException($"Instruction {instruction.Code} is not supported");
             }
         }
     }
 
+    private void PerformBinaryOp(Func<decimal, decimal, decimal> op)
+    {
+        decimal b = _evaluationStack.Pop().AsDecimal();
+        decimal a = _evaluationStack.Pop().AsDecimal();
+        _evaluationStack.Push(new Value(op(a, b)));
+    }
+
     private void CallBuiltin(Value operand)
     {
-        BuiltinFunctionCode code = (BuiltinFunctionCode)operand.AsInt();
+        string funcName = operand.IsString()
+            ? operand.AsString()
+            : ((BuiltinFunctionCode)operand.AsInt()).ToString();
 
-        switch (code)
+        if (string.Equals(funcName, "print", StringComparison.OrdinalIgnoreCase) || funcName == "0")
         {
-            case BuiltinFunctionCode.Print:
-                _builtinFunctions.Print(_evaluationStack.Pop());
-                break;
-
-            default:
-                throw new NotImplementedException($"Builtin {code} is not supported now");
+            _builtinFunctions.Print(_evaluationStack.Pop());
+        }
+        else
+        {
+            throw new NotImplementedException($"Builtin {funcName} is not supported");
         }
     }
 
@@ -87,7 +131,7 @@ public class MltVm
     {
         if (instructions.Count == 0)
         {
-            throw new InvalidOperationException("Empty program is not allowed");
+            throw new InvalidOperationException("Empty program");
         }
 
         if (instructions[instructions.Count - 1].Code != InstructionCode.Halt)

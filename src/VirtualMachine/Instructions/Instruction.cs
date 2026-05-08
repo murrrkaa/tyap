@@ -12,7 +12,7 @@ public class Instruction
         Operand = null;
     }
 
-    public Instruction(InstructionCode code, int value)
+    public Instruction(InstructionCode code, decimal value)
     {
         Code = code;
         Operand = new Value(value);
@@ -31,14 +31,13 @@ public class Instruction
     }
 
     public InstructionCode Code { get; }
-
     public Value? Operand { get; }
 
     public override string ToString()
     {
-        StringBuilder sb = new();
-        sb.Append(Code);
+        if (Operand == null)
+            return Code.ToString();
 
-        return sb.ToString();
+        return $"{Code} {Operand}";
     }
 }

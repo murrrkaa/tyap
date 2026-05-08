@@ -5,6 +5,7 @@ using Mlt.Ast.Statements;
 
 namespace Mlt.Semantics.Passes;
 
+
 public abstract class AbstractPass : IAstVisitor
 {
     public virtual void Visit(Program node)
@@ -12,16 +13,16 @@ public abstract class AbstractPass : IAstVisitor
         node.MainFunction.Accept(this);
     }
 
-    public virtual void Visit(MainFunctionDeclaration d)
+    public virtual void Visit(MainFunctionDeclaration node)
     {
-        d.Body.Accept(this);
+        node.Body.Accept(this);
     }
 
     public virtual void Visit(BlockStatement node)
     {
-        foreach (Statement statement in node.Nodes)
+        foreach (AstNode nodeItem in node.Nodes)
         {
-            statement.Accept(this);
+            nodeItem.Accept(this);
         }
     }
 
@@ -33,12 +34,38 @@ public abstract class AbstractPass : IAstVisitor
         }
     }
 
+    public virtual void Visit(VariableDeclaration node)
+    {
+        node.Initializer?.Accept(this);
+    }
+
+    public virtual void Visit(AssignmentExpression node)
+    {
+        node.Left.Accept(this);
+        node.Right.Accept(this);
+    }
+
+    public virtual void Visit(BinaryOperationExpression node)
+    {
+        node.Left.Accept(this);
+        node.Right.Accept(this);
+    }
+
+    public virtual void Visit(ExpressionStatement node)
+    {
+        node.Expression.Accept(this);
+    }
+
     public virtual void Visit(ReturnStatement node)
     {
         node.Expression?.Accept(this);
     }
 
-    public virtual void Visit(LiteralExpression e)
+    public virtual void Visit(VariableAccessExpression node)
+    {
+    }
+
+    public virtual void Visit(LiteralExpression node)
     {
     }
 }

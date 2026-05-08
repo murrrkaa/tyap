@@ -15,13 +15,7 @@ public class Token
         Value = new TokenValue(value);
     }
 
-    public Token(TokenType type, int value)
-    {
-        Type = type;
-        Value = new TokenValue(value);
-    }
-
-    public Token(TokenType type, double value)
+    public Token(TokenType type, decimal value)
     {
         Type = type;
         Value = new TokenValue(value);

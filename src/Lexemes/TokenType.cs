@@ -104,4 +104,39 @@ public enum TokenType
     /// Ошибка лексического анализа
     /// </summary>
     Error,
+
+    /// <summary>
+    /// Ключевое слово var (изменяемая переменная)
+    /// </summary>
+    Var,
+
+    /// <summary>
+    /// Ключевое слово const (неизменяемая переменная)
+    /// </summary>
+    Const,
+
+    /// <summary>
+    /// Оператор сложения +
+    /// </summary>
+    Plus,
+
+    /// <summary>
+    /// Оператор вычитания -
+    /// </summary>
+    Minus,
+
+    /// <summary>
+    /// Оператор умножения *
+    /// </summary>
+    Star,
+
+    /// <summary>
+    /// Оператор деления /
+    /// </summary>
+    Slash,
+
+    /// <summary>
+    /// Оператор присваивания =
+    /// </summary>
+    Assignment,
 }
