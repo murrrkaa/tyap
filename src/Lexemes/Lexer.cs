@@ -15,6 +15,8 @@ public class Lexer
         { "string", TokenType.String },
         { "return", TokenType.Return },
         { "print", TokenType.Print },
+        { "var", TokenType.Var },
+        { "const", TokenType.Const },
     };
 
     private static readonly Dictionary<char, char> SimpleEscapes = new Dictionary<char, char>
@@ -59,6 +61,26 @@ public class Lexer
 
         switch (c)
         {
+            case '+':
+                _scanner.Advance();
+                return new Token(TokenType.Plus);
+
+            case '-':
+                _scanner.Advance();
+                return new Token(TokenType.Minus);
+
+            case '*':
+                _scanner.Advance();
+                return new Token(TokenType.Star);
+
+            case '/':
+                _scanner.Advance();
+                return new Token(TokenType.Slash);
+
+            case '=':
+                _scanner.Advance();
+                return new Token(TokenType.Assignment);
+
             case '{':
                 _scanner.Advance();
                 return new Token(TokenType.OpenBrace);
@@ -90,18 +112,6 @@ public class Lexer
             case '#':
                 SkipHashComment();
                 return ParseToken();
-
-            case '.':
-                _scanner.Advance();
-
-                if (!_scanner.IsEnd() && char.IsAsciiLetter(_scanner.Peek()))
-                {
-                    char bad = _scanner.Peek();
-                    _scanner.Advance();
-                    return new Token(TokenType.Error, $"Unexpected character '{bad}'");
-                }
-
-                return new Token(TokenType.Error, "Unexpected character '.'");
         }
 
         _scanner.Advance();
@@ -131,9 +141,9 @@ public class Lexer
 
             string text = sb.ToString();
 
-            if (double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out double value))
+            if (decimal.TryParse(text, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal floatValue))
             {
-                return new Token(TokenType.FloatLiteral, value);
+                return new Token(TokenType.FloatLiteral, floatValue);
             }
 
             return new Token(TokenType.Error, $"Invalid float literal: '{text}'");
@@ -141,7 +151,7 @@ public class Lexer
 
         string intText = sb.ToString();
 
-        if (int.TryParse(intText, out int intValue))
+        if (decimal.TryParse(intText, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal intValue))
         {
             return new Token(TokenType.IntLiteral, intValue);
         }
@@ -164,29 +174,12 @@ public class Lexer
             if (c == '\'')
             {
                 _scanner.Advance();
-
-                if (hasError)
-                {
-                    return new Token(TokenType.Error, errorMessage);
-                }
-
-                return new Token(TokenType.StringLiteral, valueBuilder.ToString());
+                return hasError ? new Token(TokenType.Error, errorMessage) : new Token(TokenType.StringLiteral, valueBuilder.ToString());
             }
 
             if (c == '\n' || c == '\r')
             {
                 _scanner.Advance();
-
-                while (!_scanner.IsEnd() && _scanner.Peek() != '\'')
-                {
-                    _scanner.Advance();
-                }
-
-                if (!_scanner.IsEnd())
-                {
-                    _scanner.Advance();
-                }
-
                 return new Token(TokenType.Error, "Unterminated string literal");
             }
 
@@ -200,12 +193,6 @@ public class Lexer
             }
             else
             {
-                if (c == ' ' && _scanner.Peek(1) == '\'')
-                {
-                    _scanner.Advance();
-                    continue;
-                }
-
                 valueBuilder.Append(c);
                 _scanner.Advance();
             }

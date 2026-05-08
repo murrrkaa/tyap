@@ -11,10 +11,12 @@ public sealed class MainFunctionDeclaration : Declaration
         : base("main")
     {
         Body = body;
-        ResultType = ValueType.Int;
+        ReturnType = ValueType.Int;
     }
 
     public BlockStatement Body { get; }
+
+    public ValueType ReturnType { get; }
 
     public override void Accept(IAstVisitor visitor) => visitor.Visit(this);
 }

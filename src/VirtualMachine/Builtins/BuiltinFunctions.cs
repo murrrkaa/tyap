@@ -19,17 +19,13 @@ public class BuiltinFunctions
         {
             _environment.Print(value.AsString());
         }
-        else if (value.IsInt())
+        else if (value.IsInt() || value.IsFloat())
         {
-            _environment.Print(value.AsInt().ToString(CultureInfo.InvariantCulture));
-        }
-        else if (value.IsFloat())
-        {
-            _environment.Print(value.AsFloat().ToString(CultureInfo.InvariantCulture));
+            _environment.Print(value.AsDecimal().ToString(CultureInfo.InvariantCulture));
         }
         else
         {
-            _environment.Print(value.ToString());
+            _environment.Print(value.ToString() ?? "");
         }
     }
 }
