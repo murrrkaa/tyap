@@ -1,147 +1,542 @@
 ﻿using System.Linq;
+
 using Mlt.Ast;
+using Mlt.Ast.Declarations;
 using Mlt.Ast.Expressions;
 using Mlt.Ast.Statements;
-using Mlt.Ast.Declarations;
 using Mlt.Parsing;
+using Mlt.Runtime;
+
 using Xunit;
+
+using VmValueType = Mlt.Runtime.ValueType;
 
 namespace Mlt.Parsing.UnitTests;
 
-public class ParserEpic1Tests
+public class ParserTest
 {
     [Fact]
-    public void Should_Parse_Variable_Declaration_With_Initializer()
+    public void Should_Parse_Empty_Main()
     {
         string code = """
         function main(): int {
-            var x = 10;
         }
         """;
 
-        Parser parser = new Parser(code);
+        Parser parser = new(code);
+
         Program program = parser.ParseProgram();
 
-        VariableDeclaration decl = Assert.IsType<VariableDeclaration>(
-            program.MainFunction.Body.Nodes.Single()
-        );
-
-        Assert.Equal("x", decl.Name);
-        LiteralExpression lit = Assert.IsType<LiteralExpression>(decl.Initializer);
-        Assert.Equal("10", lit.Value.ToString());
+        Assert.NotNull(program);
+        Assert.NotNull(program.MainFunction);
+        Assert.Empty(program.MainFunction.Body.Nodes);
     }
 
     [Fact]
-    public void Should_Parse_Arithmetic_Expression_With_Priorities()
+    public void Should_Parse_Print_Int()
     {
         string code = """
         function main(): int {
-            print(2 + 2 * 2);
+            print(5);
         }
         """;
 
-        Parser parser = new Parser(code);
+        Parser parser = new(code);
+
         Program program = parser.ParseProgram();
 
-        PrintStatement print = Assert.IsType<PrintStatement>(
-            program.MainFunction.Body.Nodes.Single()
-        );
+        PrintStatement print =
+            Assert.IsType<PrintStatement>(
+                program.MainFunction.Body.Nodes.Single());
 
-        BinaryOperationExpression addExpr = Assert.IsType<BinaryOperationExpression>(
-            print.Arguments.Single()
-        );
+        LiteralExpression literal =
+            Assert.IsType<LiteralExpression>(
+                print.Arguments.Single());
 
-        Assert.Equal(BinaryOperation.Add, addExpr.Operation);
-        Assert.IsType<BinaryOperationExpression>(addExpr.Right);
-        Assert.Equal(BinaryOperation.Multiply, ((BinaryOperationExpression)addExpr.Right).Operation);
+        Assert.Equal("5", literal.Value.ToString());
     }
 
     [Fact]
-    public void Should_Parse_Assignment_As_ExpressionStatement()
+    public void Should_Parse_Print_String()
     {
         string code = """
         function main(): int {
-            var a = 1;
-            a = 5;
+            print('hello');
         }
         """;
 
-        Parser parser = new Parser(code);
+        Parser parser = new(code);
+
         Program program = parser.ParseProgram();
 
-        // Проверяем второй узел — теперь это честный ExpressionStatement
-        ExpressionStatement exprStmt = Assert.IsType<ExpressionStatement>(
-            program.MainFunction.Body.Nodes[1]
-        );
+        PrintStatement print =
+            Assert.IsType<PrintStatement>(
+                program.MainFunction.Body.Nodes.Single());
 
-        AssignmentExpression assign = Assert.IsType<AssignmentExpression>(exprStmt.Expression);
-        Assert.Equal("a", ((VariableAccessExpression)assign.Left).Name);
+        LiteralExpression literal =
+            Assert.IsType<LiteralExpression>(
+                print.Arguments.Single());
+
+        Assert.Equal("hello", literal.Value.ToString());
     }
 
     [Fact]
-    public void Should_Parse_Nested_Parentheses()
+    public void Should_Parse_Print_Multiple_Arguments()
     {
         string code = """
         function main(): int {
-            var z = (1 + (2 * 3));
+            print(1, 2, 'a');
         }
         """;
 
-        Parser parser = new Parser(code);
+        Parser parser = new(code);
+
         Program program = parser.ParseProgram();
 
-        VariableDeclaration decl = Assert.IsType<VariableDeclaration>(
-            program.MainFunction.Body.Nodes.Single()
-        );
+        PrintStatement print =
+            Assert.IsType<PrintStatement>(
+                program.MainFunction.Body.Nodes.Single());
 
-        // Проверяем, что парсер "проглотил" глубокую вложенность
-        Assert.IsType<BinaryOperationExpression>(decl.Initializer);
+        Assert.Equal(3, print.Arguments.Count);
     }
 
     [Fact]
-    public void Should_Parse_Multiple_Variables_And_Print()
+    public void Should_Parse_Return_With_Value()
     {
         string code = """
         function main(): int {
-            var a = 10;
-            var b = 20;
-            print(a + b);
+            return 5;
         }
         """;
 
-        Parser parser = new Parser(code);
+        Parser parser = new(code);
+
+        Program program = parser.ParseProgram();
+
+        ReturnStatement ret =
+            Assert.IsType<ReturnStatement>(
+                program.MainFunction.Body.Nodes.Single());
+
+        Assert.NotNull(ret.Expression);
+
+        Assert.IsType<LiteralExpression>(ret.Expression);
+    }
+
+    [Fact]
+    public void Should_Parse_Return_Without_Value()
+    {
+        string code = """
+        function main(): int {
+            return;
+        }
+        """;
+
+        Parser parser = new(code);
+
+        Program program = parser.ParseProgram();
+
+        ReturnStatement ret =
+            Assert.IsType<ReturnStatement>(
+                program.MainFunction.Body.Nodes.Single());
+
+        Assert.Null(ret.Expression);
+    }
+
+    [Fact]
+    public void Should_Parse_Float_Literal()
+    {
+        string code = """
+        function main(): int {
+            print(3.14);
+        }
+        """;
+
+        Parser parser = new(code);
+
+        Program program = parser.ParseProgram();
+
+        PrintStatement print =
+            Assert.IsType<PrintStatement>(
+                program.MainFunction.Body.Nodes.Single());
+
+        LiteralExpression literal =
+            Assert.IsType<LiteralExpression>(
+                print.Arguments.Single());
+
+        Assert.Equal("3.14", literal.Value.ToString());
+    }
+
+    [Fact]
+    public void Should_Parse_Parenthesized_Literal()
+    {
+        string code = """
+        function main(): int {
+            print((5));
+        }
+        """;
+
+        Parser parser = new(code);
+
+        Program program = parser.ParseProgram();
+
+        PrintStatement print =
+            Assert.IsType<PrintStatement>(
+                program.MainFunction.Body.Nodes.Single());
+
+        Assert.Single(print.Arguments);
+    }
+
+    [Fact]
+    public void Should_Parse_Multiple_Statements()
+    {
+        string code = """
+        function main(): int {
+            print(1);
+            print(2);
+            return 0;
+        }
+        """;
+
+        Parser parser = new(code);
+
         Program program = parser.ParseProgram();
 
         Assert.Equal(3, program.MainFunction.Body.Nodes.Count);
-        Assert.IsType<VariableDeclaration>(program.MainFunction.Body.Nodes[0]);
-        Assert.IsType<VariableDeclaration>(program.MainFunction.Body.Nodes[1]);
-        Assert.IsType<PrintStatement>(program.MainFunction.Body.Nodes[2]);
     }
 
     [Fact]
-    public void Should_Throw_On_Incomplete_Expression()
+    public void Should_Parse_Print_Without_Arguments()
     {
         string code = """
         function main(): int {
-            var x = 10 + ;
+            print();
         }
         """;
 
-        Parser parser = new Parser(code);
+        Parser parser = new(code);
 
-        Assert.ThrowsAny<System.Exception>(() => parser.ParseProgram());
+        Program program = parser.ParseProgram();
+
+        PrintStatement print =
+            Assert.IsType<PrintStatement>(
+                program.MainFunction.Body.Nodes.Single());
+
+        Assert.Empty(print.Arguments);
     }
 
     [Fact]
-    public void Should_Throw_On_Invalid_Variable_Name()
+    public void Should_Parse_Expression_Statement()
     {
         string code = """
         function main(): int {
-            var 1x = 10;
+            123;
         }
         """;
 
-        Parser parser = new Parser(code);
-        Assert.ThrowsAny<System.Exception>(() => parser.ParseProgram());
+        Parser parser = new(code);
+
+        Program program = parser.ParseProgram();
+
+        ExpressionStatement statement =
+            Assert.IsType<ExpressionStatement>(
+                program.MainFunction.Body.Nodes.Single());
+
+        Assert.IsType<LiteralExpression>(statement.Expression);
+    }
+
+    [Fact]
+    public void Should_Parse_Variable_Declaration()
+    {
+        string code = """
+        function main(): int {
+            var x: int = 5;
+        }
+        """;
+
+        Parser parser = new(code);
+
+        Program program = parser.ParseProgram();
+
+        VariableDeclaration declaration =
+            Assert.IsType<VariableDeclaration>(
+                program.MainFunction.Body.Nodes.Single());
+
+        Assert.Equal("x", declaration.Name);
+        Assert.Equal(VmValueType.Int, declaration.Type);
+        Assert.True(declaration.IsMutable);
+
+        Assert.IsType<LiteralExpression>(declaration.Initializer);
+    }
+
+    [Fact]
+    public void Should_Parse_Const_Declaration()
+    {
+        string code = """
+        function main(): int {
+            const pi: float = 3.14;
+        }
+        """;
+
+        Parser parser = new(code);
+
+        Program program = parser.ParseProgram();
+
+        VariableDeclaration declaration =
+            Assert.IsType<VariableDeclaration>(
+                program.MainFunction.Body.Nodes.Single());
+
+        Assert.False(declaration.IsMutable);
+    }
+
+    [Fact]
+    public void Should_Parse_Assignment()
+    {
+        string code = """
+        function main(): int {
+            x = 5;
+        }
+        """;
+
+        Parser parser = new(code);
+
+        Program program = parser.ParseProgram();
+
+        ExpressionStatement statement =
+            Assert.IsType<ExpressionStatement>(
+                program.MainFunction.Body.Nodes.Single());
+
+        Assert.IsType<AssignmentExpression>(statement.Expression);
+    }
+
+    [Fact]
+    public void Should_Parse_Addition()
+    {
+        string code = """
+        function main(): int {
+            print(1 + 2);
+        }
+        """;
+
+        Parser parser = new(code);
+
+        Program program = parser.ParseProgram();
+
+        PrintStatement print =
+            Assert.IsType<PrintStatement>(
+                program.MainFunction.Body.Nodes.Single());
+
+        BinaryOperationExpression expression =
+            Assert.IsType<BinaryOperationExpression>(
+                print.Arguments.Single());
+
+        Assert.Equal(BinaryOperation.Add, expression.Operation);
+    }
+
+    [Fact]
+    public void Should_Parse_Multiplication()
+    {
+        string code = """
+        function main(): int {
+            print(2 * 3);
+        }
+        """;
+
+        Parser parser = new(code);
+
+        Program program = parser.ParseProgram();
+
+        PrintStatement print =
+            Assert.IsType<PrintStatement>(
+                program.MainFunction.Body.Nodes.Single());
+
+        BinaryOperationExpression expression =
+            Assert.IsType<BinaryOperationExpression>(
+                print.Arguments.Single());
+
+        Assert.Equal(BinaryOperation.Multiply, expression.Operation);
+    }
+
+    [Fact]
+    public void Should_Respect_Operator_Precedence()
+    {
+        string code = """
+        function main(): int {
+            print(1 + 2 * 3);
+        }
+        """;
+
+        Parser parser = new(code);
+
+        Program program = parser.ParseProgram();
+
+        PrintStatement print =
+            Assert.IsType<PrintStatement>(
+                program.MainFunction.Body.Nodes.Single());
+
+        BinaryOperationExpression add =
+            Assert.IsType<BinaryOperationExpression>(
+                print.Arguments.Single());
+
+        Assert.Equal(BinaryOperation.Add, add.Operation);
+
+        BinaryOperationExpression multiply =
+            Assert.IsType<BinaryOperationExpression>(
+                add.Right);
+
+        Assert.Equal(BinaryOperation.Multiply, multiply.Operation);
+    }
+
+    [Fact]
+    public void Should_Parse_Variable_Access()
+    {
+        string code = """
+        function main(): int {
+            print(x);
+        }
+        """;
+
+        Parser parser = new(code);
+
+        Program program = parser.ParseProgram();
+
+        PrintStatement print =
+            Assert.IsType<PrintStatement>(
+                program.MainFunction.Body.Nodes.Single());
+
+        Assert.IsType<VariableAccessExpression>(
+            print.Arguments.Single());
+    }
+
+    [Fact]
+    public void Should_Throw_When_Missing_Semicolon()
+    {
+        string code = """
+        function main(): int {
+            print(1)
+        }
+        """;
+
+        Parser parser = new(code);
+
+        Assert.Throws<UnexpectedLexemeException>(
+            () => parser.ParseProgram());
+    }
+
+    [Fact]
+    public void Should_Throw_When_Missing_Close_Brace()
+    {
+        string code = """
+        function main(): int {
+            print(1);
+        """;
+
+        Parser parser = new(code);
+
+        Assert.Throws<UnexpectedLexemeException>(
+            () => parser.ParseProgram());
+    }
+
+    [Fact]
+    public void Should_Throw_On_Invalid_Print_Syntax()
+    {
+        string code = """
+        function main(): int {
+            print(,);
+        }
+        """;
+
+        Parser parser = new(code);
+
+        Assert.Throws<UnexpectedLexemeException>(
+            () => parser.ParseProgram());
+    }
+
+    [Fact]
+    public void Should_Throw_On_Invalid_Return_Syntax()
+    {
+        string code = """
+        function main(): int {
+            return );
+        }
+        """;
+
+        Parser parser = new(code);
+
+        Assert.Throws<UnexpectedLexemeException>(
+            () => parser.ParseProgram());
+    }
+
+    [Fact]
+    public void Should_Throw_When_Main_Return_Type_Is_Not_Int()
+    {
+        string code = """
+        function main(): float {
+        }
+        """;
+
+        Parser parser = new(code);
+
+        Assert.Throws<Exception>(
+            () => parser.ParseProgram());
+    }
+
+    [Fact]
+    public void Should_Throw_When_Variable_Has_No_Initializer()
+    {
+        string code = """
+        function main(): int {
+            var x: int;
+        }
+        """;
+
+        Parser parser = new(code);
+
+        Assert.Throws<UnexpectedLexemeException>(
+            () => parser.ParseProgram());
+    }
+
+    [Fact]
+    public void Should_Throw_When_Missing_Assignment_In_Declaration()
+    {
+        string code = """
+        function main(): int {
+            var x: int 5;
+        }
+        """;
+
+        Parser parser = new(code);
+
+        Assert.Throws<UnexpectedLexemeException>(
+            () => parser.ParseProgram());
+    }
+
+    [Fact]
+    public void Should_Throw_When_Expression_Is_Invalid()
+    {
+        string code = """
+        function main(): int {
+            print(1 + );
+        }
+        """;
+
+        Parser parser = new(code);
+
+        Assert.Throws<UnexpectedLexemeException>(
+            () => parser.ParseProgram());
+    }
+
+    [Fact]
+    public void Should_Throw_When_Parenthesis_Is_Not_Closed()
+    {
+        string code = """
+        function main(): int {
+            print((1 + 2);
+        }
+        """;
+
+        Parser parser = new(code);
+
+        Assert.Throws<UnexpectedLexemeException>(
+            () => parser.ParseProgram());
     }
 }
