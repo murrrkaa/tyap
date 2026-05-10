@@ -62,7 +62,7 @@ public class MltVm
                     break;
 
                 case InstructionCode.Add:
-                    PerformBinaryOp((a, b) => a + b);
+                    PerformAdd();
                     break;
 
                 case InstructionCode.Subtract:
@@ -101,6 +101,21 @@ public class MltVm
                 default:
                     throw new NotImplementedException($"Instruction {instruction.Code} is not supported");
             }
+        }
+    }
+
+    private void PerformAdd()
+    {
+        Value b = _evaluationStack.Pop();
+        Value a = _evaluationStack.Pop();
+
+        if (a.IsString() && b.IsString())
+        {
+            _evaluationStack.Push(new Value(a.AsString() + b.AsString()));
+        }
+        else
+        {
+            _evaluationStack.Push(new Value(a.AsDecimal() + b.AsDecimal()));
         }
     }
 

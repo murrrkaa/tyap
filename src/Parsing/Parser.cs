@@ -97,14 +97,9 @@ public class Parser
             return null;
         }
 
-        if (currentType == TokenType.Identifier)
-        {
-            Expression expr = ParseExpression();
-            Match(TokenType.Semicolon);
-            return new ExpressionStatement(expr);
-        }
-
-        throw new UnexpectedLexemeException(_tokens.Peek(), TokenType.Identifier);
+        Expression expr = ParseExpression();
+        Match(TokenType.Semicolon);
+        return new ExpressionStatement(expr);
     }
 
     private VariableDeclaration ParseVariableDeclaration()
