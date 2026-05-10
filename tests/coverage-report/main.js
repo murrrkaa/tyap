@@ -315,7 +315,7 @@ var assemblies = [
   {
     "name": "Lexer",
     "classes": [
-      { "name": "Mlt.Lexemes.Lexer", "rp": "Lexer_Lexer.html", "cl": 186, "ucl": 17, "cal": 203, "tl": 324, "cb": 47, "tb": 52, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Mlt.Lexemes.Lexer", "rp": "Lexer_Lexer.html", "cl": 193, "ucl": 10, "cal": 203, "tl": 324, "cb": 49, "tb": 52, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Mlt.Lexemes.TextScanner", "rp": "Lexer_TextScanner.html", "cl": 14, "ucl": 0, "cal": 14, "tl": 29, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Mlt.Lexemes.Token", "rp": "Lexer_Token.html", "cl": 22, "ucl": 4, "cal": 26, "tl": 55, "cb": 4, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Mlt.Lexemes.TokenValue", "rp": "Lexer_TokenValue.html", "cl": 18, "ucl": 29, "cal": 47, "tl": 85, "cb": 1, "tb": 18, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -349,7 +349,7 @@ var assemblies = [
       { "name": "Mlt.Semantics.Helpers.ValueTypeUtil", "rp": "Semantics_ValueTypeUtil.html", "cl": 3, "ucl": 0, "cal": 3, "tl": 14, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Mlt.Semantics.Passes.AbstractPass", "rp": "Semantics_AbstractPass.html", "cl": 39, "ucl": 0, "cal": 39, "tl": 70, "cb": 6, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Mlt.Semantics.Passes.CheckTypesPass", "rp": "Semantics_CheckTypesPass.html", "cl": 71, "ucl": 18, "cal": 89, "tl": 144, "cb": 21, "tb": 26, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Mlt.Semantics.Passes.ResolveNamesPass", "rp": "Semantics_ResolveNamesPass.html", "cl": 17, "ucl": 6, "cal": 23, "tl": 48, "cb": 6, "tb": 10, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Mlt.Semantics.Passes.ResolveNamesPass", "rp": "Semantics_ResolveNamesPass.html", "cl": 35, "ucl": 11, "cal": 46, "tl": 82, "cb": 8, "tb": 14, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Mlt.Semantics.SemanticsChecker", "rp": "Semantics_SemanticsChecker.html", "cl": 13, "ucl": 0, "cal": 13, "tl": 26, "cb": 2, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "PsTiger.Semantics.Exceptions.InvalidAssignmentException", "rp": "Semantics_InvalidAssignmentException.html", "cl": 0, "ucl": 3, "cal": 3, "tl": 16, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},

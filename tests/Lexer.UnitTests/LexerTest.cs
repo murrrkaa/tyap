@@ -124,6 +124,36 @@ public class LexerTest
             }
         },
         {
+            @"'\\' '\'' '\n'",
+            new List<Token>
+            {
+                new Token(TokenType.StringLiteral, "\\"),
+                new Token(TokenType.StringLiteral, "'"),
+                new Token(TokenType.StringLiteral, "\n"),
+            }
+        },
+        {
+            "'!@#$%^&*()_+-='",
+            new List<Token>
+            {
+                new Token(TokenType.StringLiteral, "!@#$%^&*()_+-="),
+            }
+        },
+        {
+            "'\\a'",
+            new List<Token>
+            {
+                new Token(TokenType.Error, "Invalid escape sequence"),
+            }
+        },
+        {
+            "'abc",
+            new List<Token>
+            {
+                new Token(TokenType.Error, "Unterminated string literal"),
+            }
+        },
+        {
             "'\\\\'",
             new List<Token>
             {
@@ -165,6 +195,21 @@ public class LexerTest
                 new Token(TokenType.Assignment),
             }
         },
+        {
+            "{ main() : return 0; }",
+            new List<Token>
+            {
+                new Token(TokenType.OpenBrace),
+                new Token(TokenType.Main, "main"),
+                new Token(TokenType.OpenParenthesis),
+                new Token(TokenType.CloseParenthesis),
+                new Token(TokenType.Colon),
+                new Token(TokenType.Return, "return"),
+                new Token(TokenType.IntLiteral, 0),
+                new Token(TokenType.Semicolon),
+                new Token(TokenType.CloseBrace),
+            }
+        },
     };
 
     public static TheoryData<string, List<Token>> GetCommentsAndWhitespaceData()
@@ -172,6 +217,14 @@ public class LexerTest
     {
         {
             "x # comment\n y",
+            new List<Token>
+            {
+                new Token(TokenType.Identifier, "x"),
+                new Token(TokenType.Identifier, "y"),
+            }
+        },
+        {
+            " x\t\ty\n",
             new List<Token>
             {
                 new Token(TokenType.Identifier, "x"),
@@ -195,6 +248,28 @@ public class LexerTest
             new List<Token>
             {
                 new Token(TokenType.Error, "Unexpected character '@'"),
+            }
+        },
+        {
+            "$100",
+            new List<Token>
+            {
+                new Token(TokenType.Error, "Unexpected character '$'"),
+                new Token(TokenType.IntLiteral, 100),
+            }
+        },
+        {
+            "'abc\\z'",
+            new List<Token>
+            {
+                new Token(TokenType.Error, "Invalid escape sequence"),
+            }
+        },
+        {
+            "Return",
+            new List<Token>
+            {
+                new Token(TokenType.Identifier, "Return"),
             }
         },
     };
