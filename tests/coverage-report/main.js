@@ -290,18 +290,18 @@ var assemblies = [
   {
     "name": "Ast",
     "classes": [
-      { "name": "Mlt.Ast.Attributes.AstAttribute<T>", "rp": "Ast_AstAttribute_1.html", "cl": 0, "ucl": 13, "cal": 13, "tl": 31, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Mlt.Ast.Declarations.Declaration", "rp": "Ast_Declaration.html", "cl": 5, "ucl": 3, "cal": 8, "tl": 26, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Mlt.Ast.Attributes.AstAttribute<T>", "rp": "Ast_AstAttribute_1.html", "cl": 9, "ucl": 4, "cal": 13, "tl": 31, "cb": 2, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Mlt.Ast.Declarations.Declaration", "rp": "Ast_Declaration.html", "cl": 6, "ucl": 2, "cal": 8, "tl": 26, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Mlt.Ast.Declarations.MainFunctionDeclaration", "rp": "Ast_MainFunctionDeclaration.html", "cl": 4, "ucl": 0, "cal": 4, "tl": 22, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Mlt.Ast.Declarations.VariableDeclaration", "rp": "Ast_VariableDeclaration.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 25, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Mlt.Ast.Expressions.AssignmentExpression", "rp": "Ast_AssignmentExpression.html", "cl": 3, "ucl": 3, "cal": 6, "tl": 25, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Mlt.Ast.Expressions.BinaryOperationExpression", "rp": "Ast_BinaryOperationExpression.html", "cl": 3, "ucl": 3, "cal": 6, "tl": 22, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Mlt.Ast.Expressions.Expression", "rp": "Ast_Expression.html", "cl": 0, "ucl": 2, "cal": 2, "tl": 19, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Mlt.Ast.Declarations.VariableDeclaration", "rp": "Ast_VariableDeclaration.html", "cl": 4, "ucl": 0, "cal": 4, "tl": 25, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Mlt.Ast.Expressions.AssignmentExpression", "rp": "Ast_AssignmentExpression.html", "cl": 6, "ucl": 0, "cal": 6, "tl": 26, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Mlt.Ast.Expressions.BinaryOperationExpression", "rp": "Ast_BinaryOperationExpression.html", "cl": 6, "ucl": 0, "cal": 6, "tl": 24, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Mlt.Ast.Expressions.Expression", "rp": "Ast_Expression.html", "cl": 2, "ucl": 0, "cal": 2, "tl": 19, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Mlt.Ast.Expressions.LiteralExpression", "rp": "Ast_LiteralExpression.html", "cl": 6, "ucl": 0, "cal": 6, "tl": 26, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Mlt.Ast.Expressions.VariableAccessExpression", "rp": "Ast_VariableAccessExpression.html", "cl": 3, "ucl": 3, "cal": 6, "tl": 20, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Mlt.Ast.Expressions.VariableAccessExpression", "rp": "Ast_VariableAccessExpression.html", "cl": 6, "ucl": 0, "cal": 6, "tl": 21, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Mlt.Ast.Program", "rp": "Ast_Program.html", "cl": 4, "ucl": 0, "cal": 4, "tl": 15, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Mlt.Ast.Statements.BlockStatement", "rp": "Ast_BlockStatement.html", "cl": 4, "ucl": 0, "cal": 4, "tl": 18, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Mlt.Ast.Statements.ExpressionStatement", "rp": "Ast_ExpressionStatement.html", "cl": 3, "ucl": 3, "cal": 6, "tl": 18, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Mlt.Ast.Statements.ExpressionStatement", "rp": "Ast_ExpressionStatement.html", "cl": 6, "ucl": 0, "cal": 6, "tl": 21, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Mlt.Ast.Statements.PrintStatement", "rp": "Ast_PrintStatement.html", "cl": 6, "ucl": 0, "cal": 6, "tl": 23, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Mlt.Ast.Statements.ReturnStatement", "rp": "Ast_ReturnStatement.html", "cl": 4, "ucl": 0, "cal": 4, "tl": 18, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
@@ -309,7 +309,7 @@ var assemblies = [
     "name": "Interpreter",
     "classes": [
       { "name": "Mlt.Interpreter.ConsoleEnvironment", "rp": "Interpreter_ConsoleEnvironment.html", "cl": 0, "ucl": 6, "cal": 6, "tl": 19, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Mlt.Interpreter.MltInterpreter", "rp": "Interpreter_MltInterpreter.html", "cl": 16, "ucl": 1, "cal": 17, "tl": 45, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Mlt.Interpreter.MltInterpreter", "rp": "Interpreter_MltInterpreter.html", "cl": 16, "ucl": 1, "cal": 17, "tl": 44, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Mlt.Interpreter.Program", "rp": "Interpreter_Program.html", "cl": 0, "ucl": 20, "cal": 20, "tl": 40, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
@@ -318,17 +318,17 @@ var assemblies = [
       { "name": "Mlt.Lexemes.Lexer", "rp": "Lexer_Lexer.html", "cl": 186, "ucl": 17, "cal": 203, "tl": 324, "cb": 47, "tb": 52, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Mlt.Lexemes.TextScanner", "rp": "Lexer_TextScanner.html", "cl": 14, "ucl": 0, "cal": 14, "tl": 29, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Mlt.Lexemes.Token", "rp": "Lexer_Token.html", "cl": 22, "ucl": 4, "cal": 26, "tl": 55, "cb": 4, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Mlt.Lexemes.TokenValue", "rp": "Lexer_TokenValue.html", "cl": 18, "ucl": 25, "cal": 43, "tl": 74, "cb": 1, "tb": 18, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Mlt.Lexemes.TokenValue", "rp": "Lexer_TokenValue.html", "cl": 18, "ucl": 29, "cal": 47, "tl": 85, "cb": 1, "tb": 18, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
     "name": "Mlt.Tests.TestLibrary",
     "classes": [
-      { "name": "Mlt.Tests.TestLibrary.TestDoubles.FakeEnvironment", "rp": "Mlt.Tests.TestLibrary_FakeEnvironment.html", "cl": 8, "ucl": 19, "cal": 27, "tl": 52, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Mlt.Tests.TestLibrary.TestDoubles.FakeEnvironment", "rp": "Mlt.Tests.TestLibrary_FakeEnvironment.html", "cl": 12, "ucl": 15, "cal": 27, "tl": 52, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
     "name": "Parser",
     "classes": [
-      { "name": "Mlt.Parsing.Parser", "rp": "Parser_Parser.html", "cl": 155, "ucl": 22, "cal": 177, "tl": 288, "cb": 43, "tb": 56, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Mlt.Parsing.Parser", "rp": "Parser_Parser.html", "cl": 176, "ucl": 6, "cal": 182, "tl": 298, "cb": 43, "tb": 46, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Mlt.Parsing.TokenStream", "rp": "Parser_TokenStream.html", "cl": 14, "ucl": 15, "cal": 29, "tl": 53, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Mlt.Parsing.UnexpectedLexemeException", "rp": "Parser_UnexpectedLexemeException.html", "cl": 5, "ucl": 4, "cal": 9, "tl": 29, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
@@ -336,21 +336,21 @@ var assemblies = [
     "name": "Runtime",
     "classes": [
       { "name": "Mlt.Runtime.Value", "rp": "Runtime_Value.html", "cl": 53, "ucl": 7, "cal": 60, "tl": 96, "cb": 10, "tb": 16, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Mlt.Runtime.ValueType", "rp": "Runtime_ValueType.html", "cl": 9, "ucl": 8, "cal": 17, "tl": 50, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Mlt.Runtime.ValueType", "rp": "Runtime_ValueType.html", "cl": 13, "ucl": 4, "cal": 17, "tl": 50, "cb": 1, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Mlt.Runtime.ValueUtil", "rp": "Runtime_ValueUtil.html", "cl": 20, "ucl": 0, "cal": 20, "tl": 31, "cb": 6, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
     "name": "Semantics",
     "classes": [
       { "name": "Mlt.Semantics.Exceptions.InvalidExpressionException", "rp": "Semantics_InvalidExpressionException.html", "cl": 0, "ucl": 3, "cal": 3, "tl": 16, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Mlt.Semantics.Exceptions.TypeErrorException", "rp": "Semantics_TypeErrorException.html", "cl": 0, "ucl": 6, "cal": 6, "tl": 21, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Mlt.Semantics.Exceptions.TypeErrorException", "rp": "Semantics_TypeErrorException.html", "cl": 3, "ucl": 3, "cal": 6, "tl": 21, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Mlt.Semantics.Exceptions.UnknownSymbolException", "rp": "Semantics_UnknownSymbolException.html", "cl": 0, "ucl": 15, "cal": 15, "tl": 35, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Mlt.Semantics.Helpers.DeclarationVisitQueue", "rp": "Semantics_DeclarationVisitQueue.html", "cl": 0, "ucl": 6, "cal": 6, "tl": 22, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Mlt.Semantics.Helpers.ValueTypeUtil", "rp": "Semantics_ValueTypeUtil.html", "cl": 0, "ucl": 3, "cal": 3, "tl": 14, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Mlt.Semantics.Passes.AbstractPass", "rp": "Semantics_AbstractPass.html", "cl": 23, "ucl": 16, "cal": 39, "tl": 71, "cb": 5, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Mlt.Semantics.Passes.CheckTypesPass", "rp": "Semantics_CheckTypesPass.html", "cl": 5, "ucl": 28, "cal": 33, "tl": 67, "cb": 0, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Mlt.Semantics.Passes.ResolveNamesPass", "rp": "Semantics_ResolveNamesPass.html", "cl": 1, "ucl": 22, "cal": 23, "tl": 46, "cb": 0, "tb": 10, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Mlt.Semantics.SemanticsChecker", "rp": "Semantics_SemanticsChecker.html", "cl": 14, "ucl": 0, "cal": 14, "tl": 27, "cb": 2, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Mlt.Semantics.Helpers.ValueTypeUtil", "rp": "Semantics_ValueTypeUtil.html", "cl": 3, "ucl": 0, "cal": 3, "tl": 14, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Mlt.Semantics.Passes.AbstractPass", "rp": "Semantics_AbstractPass.html", "cl": 39, "ucl": 0, "cal": 39, "tl": 70, "cb": 6, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Mlt.Semantics.Passes.CheckTypesPass", "rp": "Semantics_CheckTypesPass.html", "cl": 71, "ucl": 18, "cal": 89, "tl": 144, "cb": 21, "tb": 26, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Mlt.Semantics.Passes.ResolveNamesPass", "rp": "Semantics_ResolveNamesPass.html", "cl": 17, "ucl": 6, "cal": 23, "tl": 48, "cb": 6, "tb": 10, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Mlt.Semantics.SemanticsChecker", "rp": "Semantics_SemanticsChecker.html", "cl": 13, "ucl": 0, "cal": 13, "tl": 26, "cb": 2, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "PsTiger.Semantics.Exceptions.InvalidAssignmentException", "rp": "Semantics_InvalidAssignmentException.html", "cl": 0, "ucl": 3, "cal": 3, "tl": 16, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
@@ -358,13 +358,13 @@ var assemblies = [
     "classes": [
       { "name": "Mlt.VirtualMachine.Builtins.BuiltinFunctions", "rp": "VirtualMachine_BuiltinFunctions.html", "cl": 13, "ucl": 3, "cal": 16, "tl": 31, "cb": 2, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Mlt.VirtualMachine.Exceptions.ProgramAbortedException", "rp": "VirtualMachine_ProgramAbortedException.html", "cl": 3, "ucl": 0, "cal": 3, "tl": 16, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Mlt.VirtualMachine.Instructions.Instruction", "rp": "VirtualMachine_Instruction.html", "cl": 12, "ucl": 3, "cal": 15, "tl": 43, "cb": 2, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Mlt.VirtualMachine.MltVm", "rp": "VirtualMachine_MltVm.html", "cl": 44, "ucl": 31, "cal": 75, "tl": 142, "cb": 6, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Mlt.VirtualMachine.Instructions.Instruction", "rp": "VirtualMachine_Instruction.html", "cl": 16, "ucl": 0, "cal": 16, "tl": 46, "cb": 2, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Mlt.VirtualMachine.MltVm", "rp": "VirtualMachine_MltVm.html", "cl": 74, "ucl": 12, "cal": 86, "tl": 157, "cb": 10, "tb": 10, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
     "name": "VirtualMachineCodegen",
     "classes": [
-      { "name": "Mlt.VirtualMachineCodegen.MltVmCodegen", "rp": "VirtualMachineCodegen_MltVmCodegen.html", "cl": 36, "ucl": 30, "cal": 66, "tl": 110, "cb": 5, "tb": 15, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Mlt.VirtualMachineCodegen.MltVmCodegen", "rp": "VirtualMachineCodegen_MltVmCodegen.html", "cl": 65, "ucl": 1, "cal": 66, "tl": 110, "cb": 12, "tb": 15, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
 ];
 
@@ -373,23 +373,9 @@ var metrics = [{ "name": "Crap Score", "abbreviation": "crp", "explanationUrl": 
 var historicCoverageExecutionTimes = [];
 
 var riskHotspotMetrics = [
-      { "name": "Crap Score", "explanationUrl": "https://googletesting.blogspot.de/2011/02/this-code-is-crap.html" },
-      { "name": "Cyclomatic complexity", "explanationUrl": "https://en.wikipedia.org/wiki/Cyclomatic_complexity" },
 ];
 
 var riskHotspots = [
-  {
-    "assembly": "Parser", "class": "Mlt.Parsing.Parser", "reportPath": "Parser_Parser.html", "methodName": "ParseType(System.String)", "methodShortName": "ParseType(...)", "fileIndex": 0, "line": 143,
-    "metrics": [
-      { "value": 42, "exceeded": true },
-      { "value": 6, "exceeded": false },
-    ]},
-  {
-    "assembly": "Semantics", "class": "Mlt.Semantics.Passes.ResolveNamesPass", "reportPath": "Semantics_ResolveNamesPass.html", "methodName": "Visit(Mlt.Ast.Expressions.AssignmentExpression)", "methodShortName": "Visit(...)", "fileIndex": 0, "line": 36,
-    "metrics": [
-      { "value": 42, "exceeded": true },
-      { "value": 6, "exceeded": false },
-    ]},
 ];
 
 var branchCoverageAvailable = true;

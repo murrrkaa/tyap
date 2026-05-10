@@ -32,7 +32,7 @@ public class LexerTest
         }
     }
 
-    public static TheoryData<string, List<Token>> GetIdentifiersAndKeywordsData() 
+    public static TheoryData<string, List<Token>> GetIdentifiersAndKeywordsData()
         => new TheoryData<string, List<Token>>
     {
         {
@@ -71,7 +71,7 @@ public class LexerTest
         },
     };
 
-    public static TheoryData<string, List<Token>> GetNumberLiteralsData() 
+    public static TheoryData<string, List<Token>> GetNumberLiteralsData()
         => new TheoryData<string, List<Token>>
     {
         {
@@ -108,10 +108,10 @@ public class LexerTest
                 new Token(TokenType.Error, "Unexpected character '.'"),
                 new Token(TokenType.Identifier, "a"),
             }
-        }
+        },
     };
 
-    public static TheoryData<string, List<Token>> GetStringLiteralsData() 
+    public static TheoryData<string, List<Token>> GetStringLiteralsData()
         => new TheoryData<string, List<Token>>
     {
         {
@@ -129,10 +129,10 @@ public class LexerTest
             {
                 new Token(TokenType.StringLiteral, "\\"),
             }
-        }
+        },
     };
 
-    public static TheoryData<string, List<Token>> GetOperatorsAndPunctuationData() 
+    public static TheoryData<string, List<Token>> GetOperatorsAndPunctuationData()
         => new TheoryData<string, List<Token>>
     {
         {
@@ -164,10 +164,10 @@ public class LexerTest
             {
                 new Token(TokenType.Assignment),
             }
-        }
+        },
     };
 
-    public static TheoryData<string, List<Token>> GetCommentsAndWhitespaceData() 
+    public static TheoryData<string, List<Token>> GetCommentsAndWhitespaceData()
         => new TheoryData<string, List<Token>>
     {
         {
@@ -185,7 +185,7 @@ public class LexerTest
                 new Token(TokenType.Identifier, "a"),
                 new Token(TokenType.Identifier, "b"),
             }
-        }
+        },
     };
 
     public static TheoryData<string, List<Token>> GetErrorCasesData() => new TheoryData<string, List<Token>>
@@ -196,6 +196,6 @@ public class LexerTest
             {
                 new Token(TokenType.Error, "Unexpected character '@'"),
             }
-        }
+        },
     };
 }
