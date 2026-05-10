@@ -98,7 +98,9 @@ public class Parser
         }
 
         Expression expr = ParseExpression();
+
         Match(TokenType.Semicolon);
+
         return new ExpressionStatement(expr);
     }
 
@@ -122,7 +124,15 @@ public class Parser
 
         Token typeToken = _tokens.Peek();
         string typeName = typeToken.Value?.ToString() ?? throw new Exception("Тип переменной не указан");
-        Match(TokenType.Identifier);
+
+        if (typeToken.Type == TokenType.Int || typeToken.Type == TokenType.Float || typeToken.Type == TokenType.String)
+        {
+            _tokens.Advance();
+        }
+        else
+        {
+            throw new UnexpectedLexemeException(typeToken, TokenType.Int);
+        }
 
         VmValueType varType = ParseType(typeName);
 
