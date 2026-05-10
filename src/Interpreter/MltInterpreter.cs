@@ -6,7 +6,6 @@ using Mlt.Semantics;
 using Mlt.VirtualMachine;
 using Mlt.VirtualMachine.Instructions;
 using Mlt.VirtualMachineCodegen;
-using Mlt.Semantics;
 
 using AstProgram = Mlt.Ast.Program;
 

@@ -87,7 +87,7 @@ public class MltVmCodegen : IAstVisitor
             BinaryOperation.Subtract => InstructionCode.Subtract,
             BinaryOperation.Multiply => InstructionCode.Multiply,
             BinaryOperation.Divide => InstructionCode.Divide,
-            _ => throw new System.NotImplementedException($"Operation {node.Operation} is not supported")
+            _ => throw new System.NotImplementedException($"Operation {node.Operation} is not supported"),
         };
 
         _instructions.Add(new Instruction(code));

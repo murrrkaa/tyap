@@ -28,7 +28,9 @@ public sealed class TokenValue
     }
 
     public bool IsString() => _value is string;
+
     public bool IsInt() => _value is decimal;
+
     public bool IsDecimal() => _value is decimal;
 
     public string AsString()
@@ -38,13 +40,21 @@ public sealed class TokenValue
 
     public int AsInt()
     {
-        if (_value is decimal d) return (int)d;
+        if (_value is decimal d)
+        {
+            return (int)d;
+        }
+
         throw new InvalidCastException("TokenValue is not a number");
     }
 
     public decimal AsDecimal()
     {
-        if (_value is decimal d) return d;
+        if (_value is decimal d)
+        {
+            return d;
+        }
+
         throw new InvalidCastException("TokenValue is not a decimal");
     }
 
@@ -64,6 +74,7 @@ public sealed class TokenValue
         {
             return Equals(_value, other._value);
         }
+
         return false;
     }
 

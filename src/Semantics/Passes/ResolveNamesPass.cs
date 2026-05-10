@@ -1,8 +1,9 @@
-﻿using Mlt.Ast.Declarations;
+﻿using System;
+using System.Collections.Generic;
+
+using Mlt.Ast.Declarations;
 using Mlt.Ast.Expressions;
 using Mlt.Ast.Statements;
-using System.Collections.Generic;
-using System;
 
 namespace Mlt.Semantics.Passes;
 
@@ -41,6 +42,7 @@ public sealed class ResolveNamesPass : AbstractPass
                 throw new Exception($"Семантическая ошибка: Попытка изменения константы '{varAccess.Name}'.");
             }
         }
+
         base.Visit(node);
     }
 }
