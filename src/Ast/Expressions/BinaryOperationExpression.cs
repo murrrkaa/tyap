@@ -12,9 +12,7 @@ public sealed class BinaryOperationExpression : Expression
     }
 
     public Expression Left { get; }
-
     public BinaryOperation Operation { get; }
-
     public Expression Right { get; }
 
     public override void Accept(IAstVisitor visitor)

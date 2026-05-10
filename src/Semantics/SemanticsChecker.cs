@@ -11,7 +11,8 @@ public class SemanticsChecker
     {
         _passes =
         [
-            new ResolveNamesPass(),
+            new ResolveNamesPass(), 
+           
             new CheckTypesPass(),
         ];
     }

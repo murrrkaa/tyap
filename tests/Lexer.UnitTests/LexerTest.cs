@@ -12,7 +12,7 @@ public class LexerTest
     [MemberData(nameof(GetIdentifiersAndKeywordsData))]
     [MemberData(nameof(GetNumberLiteralsData))]
     [MemberData(nameof(GetStringLiteralsData))]
-    [MemberData(nameof(GetPunctuationData))]
+    [MemberData(nameof(GetOperatorsAndPunctuationData))]
     [MemberData(nameof(GetCommentsAndWhitespaceData))]
     [MemberData(nameof(GetErrorCasesData))]
     public void Tokenize_ReturnsExpectedTokens(string code, List<Token> expected)
@@ -20,7 +20,6 @@ public class LexerTest
         List<Token> actual = new List<Token>();
         Lexer lexer = new Lexer(code);
 
-        // Заменили var на Token
         for (Token token = lexer.ParseToken(); token.Type != TokenType.EndOfFile; token = lexer.ParseToken())
         {
             actual.Add(token);
@@ -33,7 +32,8 @@ public class LexerTest
         }
     }
 
-    public static TheoryData<string, List<Token>> GetIdentifiersAndKeywordsData() => new TheoryData<string, List<Token>>
+    public static TheoryData<string, List<Token>> GetIdentifiersAndKeywordsData() 
+        => new TheoryData<string, List<Token>>
     {
         {
             "foo _bar A123 xyz",
@@ -43,6 +43,15 @@ public class LexerTest
                 new Token(TokenType.Identifier, "_bar"),
                 new Token(TokenType.Identifier, "A123"),
                 new Token(TokenType.Identifier, "xyz"),
+            }
+        },
+        {
+            "main Main MAIN",
+            new List<Token>
+            {
+                new Token(TokenType.Main, "main"),
+                new Token(TokenType.Identifier, "Main"),
+                new Token(TokenType.Identifier, "MAIN"),
             }
         },
         {
@@ -62,22 +71,24 @@ public class LexerTest
         },
     };
 
-    public static TheoryData<string, List<Token>> GetNumberLiteralsData() => new TheoryData<string, List<Token>>
+    public static TheoryData<string, List<Token>> GetNumberLiteralsData() 
+        => new TheoryData<string, List<Token>>
     {
         {
-            "0 1234",
+            "0 1234 0017",
             new List<Token>
             {
-                // Используем decimal (M), так как Lexer теперь работает с ним
                 new Token(TokenType.IntLiteral, 0m),
                 new Token(TokenType.IntLiteral, 1234m),
+                new Token(TokenType.IntLiteral, 17m),
             }
         },
         {
-            "0.5 123.456",
+            "0.5 10.0 123.456",
             new List<Token>
             {
                 new Token(TokenType.FloatLiteral, 0.5m),
+                new Token(TokenType.FloatLiteral, 10.0m),
                 new Token(TokenType.FloatLiteral, 123.456m),
             }
         },
@@ -88,17 +99,28 @@ public class LexerTest
                 new Token(TokenType.IntLiteral, 123m),
                 new Token(TokenType.Error, "Unexpected character '.'"),
             }
+        },
+        {
+            "45.a",
+            new List<Token>
+            {
+                new Token(TokenType.IntLiteral, 45m),
+                new Token(TokenType.Error, "Unexpected character '.'"),
+                new Token(TokenType.Identifier, "a"),
+            }
         }
     };
 
-    public static TheoryData<string, List<Token>> GetStringLiteralsData() => new TheoryData<string, List<Token>>
+    public static TheoryData<string, List<Token>> GetStringLiteralsData() 
+        => new TheoryData<string, List<Token>>
     {
         {
-            "'' 'Hello'",
+            "'' '0' 'Hello, world!'",
             new List<Token>
             {
                 new Token(TokenType.StringLiteral, ""),
-                new Token(TokenType.StringLiteral, "Hello"),
+                new Token(TokenType.StringLiteral, "0"),
+                new Token(TokenType.StringLiteral, "Hello, world!"),
             }
         },
         {
@@ -110,10 +132,11 @@ public class LexerTest
         }
     };
 
-    public static TheoryData<string, List<Token>> GetPunctuationData() => new TheoryData<string, List<Token>>
+    public static TheoryData<string, List<Token>> GetOperatorsAndPunctuationData() 
+        => new TheoryData<string, List<Token>>
     {
         {
-            "{ } ( ) : , ; =",
+            "{ } ( ) : , ;",
             new List<Token>
             {
                 new Token(TokenType.OpenBrace),
@@ -123,12 +146,29 @@ public class LexerTest
                 new Token(TokenType.Colon),
                 new Token(TokenType.Comma),
                 new Token(TokenType.Semicolon),
+            }
+        },
+        {
+            "+ - * /",
+            new List<Token>
+            {
+                new Token(TokenType.Plus),
+                new Token(TokenType.Minus),
+                new Token(TokenType.Star),
+                new Token(TokenType.Slash),
+            }
+        },
+        {
+            "=",
+            new List<Token>
+            {
                 new Token(TokenType.Assignment),
             }
         }
     };
 
-    public static TheoryData<string, List<Token>> GetCommentsAndWhitespaceData() => new TheoryData<string, List<Token>>
+    public static TheoryData<string, List<Token>> GetCommentsAndWhitespaceData() 
+        => new TheoryData<string, List<Token>>
     {
         {
             "x # comment\n y",

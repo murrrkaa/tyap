@@ -31,15 +31,12 @@ public class Instruction
     }
 
     public InstructionCode Code { get; }
-
     public Value? Operand { get; }
 
     public override string ToString()
     {
         if (Operand == null)
-        {
             return Code.ToString();
-        }
 
         return $"{Code} {Operand}";
     }

@@ -5,6 +5,7 @@ using Mlt.Ast.Statements;
 
 namespace Mlt.Semantics.Passes;
 
+
 public abstract class AbstractPass : IAstVisitor
 {
     public virtual void Visit(Program node)

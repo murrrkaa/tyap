@@ -122,15 +122,7 @@ public class Parser
 
         Token typeToken = _tokens.Peek();
         string typeName = typeToken.Value?.ToString() ?? throw new Exception("Тип переменной не указан");
-
-        if (typeToken.Type == TokenType.Int || typeToken.Type == TokenType.Float || typeToken.Type == TokenType.String)
-        {
-            _tokens.Advance();
-        }
-        else
-        {
-            throw new UnexpectedLexemeException(typeToken, TokenType.Int);
-        }
+        Match(TokenType.Identifier);
 
         VmValueType varType = ParseType(typeName);
 

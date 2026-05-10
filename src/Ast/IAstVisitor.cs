@@ -28,4 +28,5 @@ public interface IAstVisitor
     void Visit(VariableDeclaration d);
 
     void Visit(Program node);
+
 }
