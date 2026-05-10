@@ -9,23 +9,24 @@ namespace Mlt.Semantics.Passes;
 
 public sealed class ResolveNamesPass : AbstractPass
 {
-    private readonly Dictionary<string, bool> _variableMutability = new();
+    private readonly Stack<Dictionary<string, bool>> _scopes = new();
+
+    public override void Visit(BlockStatement node)
+    {
+        PushScope();
+        base.Visit(node);
+        PopScope();
+    }
 
     public override void Visit(VariableDeclaration node)
     {
-        if (_variableMutability.ContainsKey(node.Name))
-        {
-            throw new Exception($"Семантическая ошибка: Переменная '{node.Name}' уже объявлена.");
-        }
-
         base.Visit(node);
-
-        _variableMutability.Add(node.Name, node.IsMutable);
+        Declare(node.Name, node.IsMutable);
     }
 
     public override void Visit(VariableAccessExpression node)
     {
-        if (!_variableMutability.ContainsKey(node.Name))
+        if (!TryResolve(node.Name, out _))
         {
             throw new Exception($"Семантическая ошибка: Использование необъявленной переменной '{node.Name}'.");
         }
@@ -37,12 +38,45 @@ public sealed class ResolveNamesPass : AbstractPass
     {
         if (node.Left is VariableAccessExpression varAccess)
         {
-            if (_variableMutability.TryGetValue(varAccess.Name, out bool isMutable) && !isMutable)
+            if (!TryResolve(varAccess.Name, out bool isMutable))
+            {
+                throw new Exception($"Семантическая ошибка: Использование необъявленной переменной '{varAccess.Name}'.");
+            }
+
+            if (!isMutable)
             {
                 throw new Exception($"Семантическая ошибка: Попытка изменения константы '{varAccess.Name}'.");
             }
         }
 
         base.Visit(node);
+    }
+
+    private void PushScope() => _scopes.Push(new Dictionary<string, bool>());
+
+    private void PopScope() => _scopes.Pop();
+
+    private void Declare(string name, bool isMutable)
+    {
+        if (_scopes.Peek().ContainsKey(name))
+        {
+            throw new Exception($"Семантическая ошибка: Переменная '{name}' уже объявлена.");
+        }
+
+        _scopes.Peek()[name] = isMutable;
+    }
+
+    private bool TryResolve(string name, out bool isMutable)
+    {
+        foreach (Dictionary<string, bool> scope in _scopes)
+        {
+            if (scope.TryGetValue(name, out isMutable))
+            {
+                return true;
+            }
+        }
+
+        isMutable = false;
+        return false;
     }
 }
