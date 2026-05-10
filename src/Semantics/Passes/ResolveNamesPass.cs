@@ -8,23 +8,23 @@ namespace Mlt.Semantics.Passes;
 
 public sealed class ResolveNamesPass : AbstractPass
 {
-    private readonly HashSet<string> _declaredVariables = new();
+    private readonly Dictionary<string, bool> _variableMutability = new();
 
     public override void Visit(VariableDeclaration node)
     {
-        if (_declaredVariables.Contains(node.Name))
+        if (_variableMutability.ContainsKey(node.Name))
         {
             throw new Exception($"Семантическая ошибка: Переменная '{node.Name}' уже объявлена.");
         }
 
         base.Visit(node);
 
-        _declaredVariables.Add(node.Name);
+        _variableMutability.Add(node.Name, node.IsMutable);
     }
 
     public override void Visit(VariableAccessExpression node)
     {
-        if (!_declaredVariables.Contains(node.Name))
+        if (!_variableMutability.ContainsKey(node.Name))
         {
             throw new Exception($"Семантическая ошибка: Использование необъявленной переменной '{node.Name}'.");
         }
@@ -34,6 +34,13 @@ public sealed class ResolveNamesPass : AbstractPass
 
     public override void Visit(AssignmentExpression node)
     {
+        if (node.Left is VariableAccessExpression varAccess)
+        {
+            if (_variableMutability.TryGetValue(varAccess.Name, out bool isMutable) && !isMutable)
+            {
+                throw new Exception($"Семантическая ошибка: Попытка изменения константы '{varAccess.Name}'.");
+            }
+        }
         base.Visit(node);
     }
 }

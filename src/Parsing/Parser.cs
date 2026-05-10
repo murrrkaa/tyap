@@ -60,9 +60,9 @@ public class Parser
     {
         List<AstNode> nodes = new List<AstNode>();
 
-        while (_tokens.Peek().Type != TokenType.CloseBrace)
+        while (_tokens.Peek().Type != TokenType.CloseBrace && _tokens.Peek().Type != TokenType.EndOfFile)
         {
-            Statement statement = ParseStatement();
+            Statement? statement = ParseStatement();
 
             if (statement != null)
             {
@@ -73,7 +73,7 @@ public class Parser
         return new BlockStatement(nodes);
     }
 
-    private Statement ParseStatement()
+    private Statement? ParseStatement()
     {
         TokenType currentType = _tokens.Peek().Type;
 
@@ -82,7 +82,7 @@ public class Parser
             return ParsePrint();
         }
 
-        if (currentType == TokenType.Var)
+        if (currentType == TokenType.Var || currentType == TokenType.Const)
         {
             return ParseVariableDeclaration();
         }
@@ -104,25 +104,50 @@ public class Parser
 
     private VariableDeclaration ParseVariableDeclaration()
     {
-        Match(TokenType.Var);
+        Token declToken = _tokens.Peek();
+        if (declToken.Type == TokenType.Var)
+        {
+            Match(TokenType.Var);
+        }
+        else
+        {
+            Match(TokenType.Const);
+        }
+
         Token nameToken = _tokens.Peek();
+        string name = nameToken.Value?.ToString() ?? throw new Exception("Имя переменной не может быть пустым");
         Match(TokenType.Identifier);
 
-        Expression initializer = null;
-        if (_tokens.Peek().Type == TokenType.Assignment)
-        {
-            Match(TokenType.Assignment);
-            initializer = ParseExpression();
-        }
+        Match(TokenType.Colon);
+
+        Token typeToken = _tokens.Peek();
+        string typeName = typeToken.Value?.ToString() ?? throw new Exception("Тип переменной не указан");
+        Match(TokenType.Identifier);
+
+        VmValueType varType = ParseType(typeName);
+
+        Match(TokenType.Assignment);
+        Expression initializer = ParseExpression();
 
         Match(TokenType.Semicolon);
 
         return new VariableDeclaration(
-            nameToken.Value.ToString(),
-            VmValueType.Int,
+            name,
+            varType,
             initializer,
-            false
+            declToken.Type == TokenType.Var
         );
+    }
+
+    private VmValueType ParseType(string typeName)
+    {
+        return typeName switch
+        {
+            "int" => VmValueType.Int,
+            "float" => VmValueType.Float,
+            "string" => VmValueType.String,
+            _ => throw new Exception($"Unknown type: {typeName}"),
+        };
     }
 
     private PrintStatement ParsePrint()

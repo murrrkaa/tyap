@@ -71,7 +71,10 @@ public class Value : IEquatable<Value>
 
     public bool Equals(Value? other)
     {
-        if (other is null) return false;
+        if (other is null)
+        {
+            return false;
+        }
 
         return _value switch
         {
