@@ -1,6 +1,7 @@
 # IDE settings
 /.vscode/
 /.idea/
+/.vs/
 *.sln.DotSettings.user
 
 # Build results
