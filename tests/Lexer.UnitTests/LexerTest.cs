@@ -78,9 +78,9 @@ public class LexerTest
             "0 1234 0017",
             new List<Token>
             {
-                new Token(TokenType.IntLiteral, 0m),
-                new Token(TokenType.IntLiteral, 1234m),
-                new Token(TokenType.IntLiteral, 17m),
+                new Token(TokenType.IntLiteral, 0),
+                new Token(TokenType.IntLiteral, 1234),
+                new Token(TokenType.IntLiteral, 17),
             }
         },
         {
@@ -96,7 +96,7 @@ public class LexerTest
             "123.",
             new List<Token>
             {
-                new Token(TokenType.IntLiteral, 123m),
+                new Token(TokenType.IntLiteral, 123),
                 new Token(TokenType.Error, "Unexpected character '.'"),
             }
         },
@@ -104,7 +104,7 @@ public class LexerTest
             "45.a",
             new List<Token>
             {
-                new Token(TokenType.IntLiteral, 45m),
+                new Token(TokenType.IntLiteral, 45),
                 new Token(TokenType.Error, "Unexpected character '.'"),
                 new Token(TokenType.Identifier, "a"),
             }
