@@ -12,11 +12,9 @@ public class MltVm
     private readonly BuiltinFunctions _builtinFunctions;
     private readonly IReadOnlyList<Instruction> _instructions;
     private int _instructionPointer;
-    private int _exitCode;
+    private long _exitCode;
     private readonly Stack<Value> _evaluationStack;
-
     private readonly Dictionary<string, Value> _variables = new();
-
     private Value? _result;
 
     public MltVm(IEnvironment environment, IReadOnlyList<Instruction> instructions)
@@ -31,7 +29,7 @@ public class MltVm
         _result = null;
     }
 
-    public int ExitCode => _exitCode;
+    public long ExitCode => _exitCode;
 
     public Value RunProgram()
     {
@@ -66,20 +64,19 @@ public class MltVm
                     break;
 
                 case InstructionCode.Subtract:
-                    PerformBinaryOp((a, b) => a - b);
+                    PerformIntOrFloatOp((a, b) => a - b, (a, b) => a - b);
                     break;
 
                 case InstructionCode.Multiply:
-                    PerformBinaryOp((a, b) => a * b);
+                    PerformIntOrFloatOp((a, b) => a * b, (a, b) => a * b);
                     break;
 
                 case InstructionCode.Divide:
-                    PerformBinaryOp((a, b) => a / b);
+                    PerformDivide();
                     break;
 
                 case InstructionCode.Negate:
-                    decimal val = _evaluationStack.Pop().AsDecimal();
-                    _evaluationStack.Push(new Value(-val));
+                    PerformNegate();
                     break;
 
                 case InstructionCode.CallBuiltin:
@@ -92,11 +89,15 @@ public class MltVm
                         Value finalVal = _evaluationStack.Pop();
                         if (finalVal.IsInt())
                         {
-                            _exitCode = finalVal.AsInt();
+                            _exitCode = finalVal.AsLong();
+                        }
+                        else if (finalVal.IsFloat())
+                        {
+                            _exitCode = (long)finalVal.AsDecimal();
                         }
                     }
 
-                    return _result ?? new Value(0);
+                    return _result ?? new Value(0L);
 
                 default:
                     throw new NotImplementedException($"Instruction {instruction.Code} is not supported");
@@ -113,32 +114,95 @@ public class MltVm
         {
             _evaluationStack.Push(new Value(a.AsString() + b.AsString()));
         }
+        else if (a.IsInt() && b.IsInt())
+        {
+            _evaluationStack.Push(new Value(checked(a.AsLong() + b.AsLong())));
+        }
         else
         {
             _evaluationStack.Push(new Value(a.AsDecimal() + b.AsDecimal()));
         }
     }
 
-    private void PerformBinaryOp(Func<decimal, decimal, decimal> op)
+    private void PerformDivide()
     {
-        decimal b = _evaluationStack.Pop().AsDecimal();
-        decimal a = _evaluationStack.Pop().AsDecimal();
-        _evaluationStack.Push(new Value(op(a, b)));
+        Value b = _evaluationStack.Pop();
+        Value a = _evaluationStack.Pop();
+
+        if (a.IsInt() && b.IsInt())
+        {
+            long divisor = b.AsLong();
+            if (divisor == 0)
+            {
+                throw new InvalidOperationException("Division by zero");
+            }
+
+            _evaluationStack.Push(new Value(a.AsLong() / divisor));
+        }
+        else
+        {
+            decimal divisor = b.AsDecimal();
+            if (divisor == 0)
+            {
+                throw new InvalidOperationException("Division by zero");
+            }
+
+            _evaluationStack.Push(new Value(a.AsDecimal() / divisor));
+        }
+    }
+
+    private void PerformNegate()
+    {
+        Value a = _evaluationStack.Pop();
+        if (a.IsInt())
+        {
+            _evaluationStack.Push(new Value(-a.AsLong()));
+        }
+        else
+        {
+            _evaluationStack.Push(new Value(-a.AsDecimal()));
+        }
+    }
+
+    private void PerformIntOrFloatOp(
+        Func<long, long, long> intOp,
+        Func<decimal, decimal, decimal> floatOp)
+    {
+        Value b = _evaluationStack.Pop();
+        Value a = _evaluationStack.Pop();
+
+        if (a.IsInt() && b.IsInt())
+        {
+            _evaluationStack.Push(new Value(intOp(a.AsLong(), b.AsLong())));
+        }
+        else
+        {
+            _evaluationStack.Push(new Value(floatOp(a.AsDecimal(), b.AsDecimal())));
+        }
     }
 
     private void CallBuiltin(Value operand)
     {
-        string funcName = operand.IsString()
-            ? operand.AsString()
-            : ((BuiltinFunctionCode)operand.AsInt()).ToString();
-
-        if (string.Equals(funcName, "print", StringComparison.OrdinalIgnoreCase) || funcName == "0")
+        // Проверяем, что операнд — это число (Long). 
+        // Если пришла строка, значит на этапе кодогенерации что-то пошло не так.
+        if (!operand.IsInt())
         {
-            _builtinFunctions.Print(_evaluationStack.Pop());
+            throw new InvalidOperationException(
+                $"VM Error: Builtin function operand must be an integer (code), but found {operand.ToString()}");
         }
-        else
+
+        // Прямое приведение long к Enum. Это работает мгновенно в отличие от Enum.Parse.
+        BuiltinFunctionCode code = (BuiltinFunctionCode)operand.AsLong();
+
+        switch (code)
         {
-            throw new NotImplementedException($"Builtin {funcName} is not supported");
+            case BuiltinFunctionCode.Print:
+                // Извлекаем значение из стека и передаем в среду вывода
+                _builtinFunctions.Print(_evaluationStack.Pop());
+                break;
+
+            default:
+                throw new NotImplementedException($"Builtin function with code '{code}' is not supported");
         }
     }
 

@@ -16,25 +16,16 @@ public class Value : IEquatable<Value>
         _value = value;
     }
 
-    public Value(int value)
+    public Value(long value)
     {
-        _value = (decimal)value;
+        _value = value;
     }
 
-    public bool IsString()
-    {
-        return _value is string;
-    }
+    public bool IsString() => _value is string;
 
-    public bool IsInt()
-    {
-        return _value is decimal;
-    }
+    public bool IsInt() => _value is long;
 
-    public bool IsFloat()
-    {
-        return _value is decimal;
-    }
+    public bool IsFloat() => _value is decimal;
 
     public string AsString()
     {
@@ -50,13 +41,18 @@ public class Value : IEquatable<Value>
         return _value switch
         {
             decimal d => d,
+            long l => (decimal)l,
             _ => throw new InvalidOperationException($"Value {_value} is not a number"),
         };
     }
 
-    public int AsInt()
+    public long AsLong()
     {
-        return (int)AsDecimal();
+        return _value switch
+        {
+            long l => l,
+            _ => throw new InvalidOperationException($"Value {_value} is not an int"),
+        };
     }
 
     public override string ToString()
@@ -64,6 +60,7 @@ public class Value : IEquatable<Value>
         return _value switch
         {
             string s => s,
+            long l => l.ToString(CultureInfo.InvariantCulture),
             decimal d => d.ToString(CultureInfo.InvariantCulture),
             _ => _value?.ToString() ?? "null",
         };
@@ -71,26 +68,18 @@ public class Value : IEquatable<Value>
 
     public bool Equals(Value? other)
     {
-        if (other is null)
-        {
-            return false;
-        }
+        if (other is null) return false;
 
         return _value switch
         {
             string s => other.IsString() && other.AsString() == s,
-            decimal d => (other.IsInt() || other.IsFloat()) && other.AsDecimal() == d,
+            long l => other.IsInt() && other.AsLong() == l,
+            decimal d => other.IsFloat() && other.AsDecimal() == d,
             _ => Equals(_value, other._value),
         };
     }
 
-    public override bool Equals(object? obj)
-    {
-        return Equals(obj as Value);
-    }
+    public override bool Equals(object? obj) => Equals(obj as Value);
 
-    public override int GetHashCode()
-    {
-        return _value.GetHashCode();
-    }
+    public override int GetHashCode() => _value.GetHashCode();
 }

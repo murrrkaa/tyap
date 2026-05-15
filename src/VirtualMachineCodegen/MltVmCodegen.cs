@@ -18,7 +18,6 @@ public class MltVmCodegen : IAstVisitor
     {
         program.Accept(this);
         _instructions.Add(new Instruction(InstructionCode.Halt));
-
         return _instructions;
     }
 
@@ -69,7 +68,6 @@ public class MltVmCodegen : IAstVisitor
     public void Visit(AssignmentExpression node)
     {
         node.Right.Accept(this);
-
         if (node.Left is VariableAccessExpression varAccess)
         {
             _instructions.Add(new Instruction(InstructionCode.StoreVar, varAccess.Name));
@@ -98,13 +96,10 @@ public class MltVmCodegen : IAstVisitor
         foreach (Expression arg in node.Arguments)
         {
             arg.Accept(this);
-
-            _instructions.Add(
-                new Instruction(
-                    InstructionCode.CallBuiltin,
-                    (int)BuiltinFunctionCode.Print
-                )
-            );
+            _instructions.Add(new Instruction(
+                InstructionCode.CallBuiltin,
+                new Value((long)BuiltinFunctionCode.Print)
+            ));
         }
     }
 }

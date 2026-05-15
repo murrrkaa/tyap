@@ -39,9 +39,7 @@ public class CheckTypesPass : AbstractPass
                     "Функция 'main' должна возвращать значение типа int");
             }
 
-            if (!ValueTypeUtil.AreCompatibleTypes(
-                    ValueType.Int,
-                    ret.Expression.ResultType))
+            if (!ValueTypeUtil.AreCompatibleTypes(ValueType.Int, ret.Expression.ResultType))
             {
                 throw new TypeErrorException(
                     $"Функция 'main' должна возвращать int, " +
@@ -56,9 +54,7 @@ public class CheckTypesPass : AbstractPass
 
         if (node.Initializer != null)
         {
-            if (!ValueTypeUtil.AreCompatibleTypes(
-                    node.Type,
-                    node.Initializer.ResultType))
+            if (!ValueTypeUtil.AreCompatibleTypes(node.Type, node.Initializer.ResultType))
             {
                 throw new TypeErrorException(
                     $"Cannot initialize variable of type {node.Type} " +
@@ -73,9 +69,7 @@ public class CheckTypesPass : AbstractPass
     {
         base.Visit(node);
 
-        if (!ValueTypeUtil.AreCompatibleTypes(
-                node.Left.ResultType,
-                node.Right.ResultType))
+        if (!ValueTypeUtil.AreCompatibleTypes(node.Left.ResultType, node.Right.ResultType))
         {
             throw new TypeErrorException(
                 $"Cannot assign {node.Right.ResultType} " +
@@ -89,13 +83,18 @@ public class CheckTypesPass : AbstractPass
     {
         base.Visit(node);
 
-        if (!ValueTypeUtil.AreCompatibleTypes(
-                node.Left.ResultType,
-                node.Right.ResultType))
+        if (!ValueTypeUtil.AreCompatibleTypes(node.Left.ResultType, node.Right.ResultType))
         {
             throw new TypeErrorException(
                 $"Type mismatch in binary operation: " +
                 $"{node.Left.ResultType} and {node.Right.ResultType}");
+        }
+
+        if (node.Left.ResultType == ValueType.String && node.Operation != BinaryOperation.Add)
+        {
+            throw new TypeErrorException(
+                $"Operator {node.Operation} is not supported for type string. " +
+                $"Only '+' (concatenation) is allowed.");
         }
 
         node.ResultType = node.Left.ResultType;
@@ -110,8 +109,7 @@ public class CheckTypesPass : AbstractPass
     {
         if (!_variables.TryGetValue(node.Name, out ValueType? type))
         {
-            throw new TypeErrorException(
-                $"Variable '{node.Name}' is not declared");
+            throw new TypeErrorException($"Variable '{node.Name}' is not declared");
         }
 
         node.ResultType = type!;
@@ -130,8 +128,7 @@ public class CheckTypesPass : AbstractPass
         return false;
     }
 
-    private static IEnumerable<ReturnStatement> FindReturnStatements(
-        BlockStatement block)
+    private static IEnumerable<ReturnStatement> FindReturnStatements(BlockStatement block)
     {
         foreach (AstNode node in block.Nodes)
         {

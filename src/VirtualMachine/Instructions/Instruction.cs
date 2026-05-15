@@ -12,6 +12,18 @@ public class Instruction
         Operand = null;
     }
 
+    public Instruction(InstructionCode code, int value)
+    {
+        Code = code;
+        Operand = new Value((long)value);
+    }
+
+    public Instruction(InstructionCode code, long value)
+    {
+        Code = code;
+        Operand = new Value(value);
+    }
+
     public Instruction(InstructionCode code, decimal value)
     {
         Code = code;

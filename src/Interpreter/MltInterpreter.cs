@@ -38,7 +38,7 @@ public class MltInterpreter
         MltVm vm = new(_environment, instructions);
         vm.RunProgram();
 
-        _exitCode = vm.ExitCode;
+        _exitCode = (int)vm.ExitCode;
         return _exitCode;
     }
 }

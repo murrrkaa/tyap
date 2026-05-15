@@ -98,9 +98,7 @@ public class Parser
         }
 
         Expression expr = ParseExpression();
-
         Match(TokenType.Semicolon);
-
         return new ExpressionStatement(expr);
     }
 
@@ -259,11 +257,15 @@ public class Parser
         {
             case TokenType.IntLiteral:
                 _tokens.Advance();
-                return new LiteralExpression(VmValueType.Int, new Value(decimal.Parse(token.Value!.ToString()!, CultureInfo.InvariantCulture)));
+                return new LiteralExpression(
+                    VmValueType.Int,
+                    new Value(long.Parse(token.Value!.ToString()!, CultureInfo.InvariantCulture)));
 
             case TokenType.FloatLiteral:
                 _tokens.Advance();
-                return new LiteralExpression(VmValueType.Float, new Value(decimal.Parse(token.Value!.ToString()!, CultureInfo.InvariantCulture)));
+                return new LiteralExpression(
+                    VmValueType.Float,
+                    new Value(decimal.Parse(token.Value!.ToString()!, CultureInfo.InvariantCulture)));
 
             case TokenType.StringLiteral:
                 _tokens.Advance();
