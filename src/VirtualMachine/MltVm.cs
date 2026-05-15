@@ -183,21 +183,17 @@ public class MltVm
 
     private void CallBuiltin(Value operand)
     {
-        // Проверяем, что операнд — это число (Long). 
-        // Если пришла строка, значит на этапе кодогенерации что-то пошло не так.
         if (!operand.IsInt())
         {
             throw new InvalidOperationException(
                 $"VM Error: Builtin function operand must be an integer (code), but found {operand.ToString()}");
         }
 
-        // Прямое приведение long к Enum. Это работает мгновенно в отличие от Enum.Parse.
         BuiltinFunctionCode code = (BuiltinFunctionCode)operand.AsLong();
 
         switch (code)
         {
             case BuiltinFunctionCode.Print:
-                // Извлекаем значение из стека и передаем в среду вывода
                 _builtinFunctions.Print(_evaluationStack.Pop());
                 break;
 
