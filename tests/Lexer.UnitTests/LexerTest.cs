@@ -184,15 +184,15 @@ public class LexerTest
             {
                 new Token(TokenType.Plus),
                 new Token(TokenType.Minus),
-                new Token(TokenType.Star),
-                new Token(TokenType.Slash),
+                new Token(TokenType.Multiply),
+                new Token(TokenType.Divide),
             }
         },
         {
             "=",
             new List<Token>
             {
-                new Token(TokenType.Assignment),
+                new Token(TokenType.Equal),
             }
         },
         {

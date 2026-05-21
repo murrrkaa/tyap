@@ -1,25 +1,32 @@
-﻿using Mlt.Ast.Expressions;
-using Mlt.Runtime;
+﻿using Mlt.Ast.Attributes;
+using Mlt.Ast.Expressions;
 
 using ValueType = Mlt.Runtime.ValueType;
 
 namespace Mlt.Ast.Declarations;
 
-public sealed class VariableDeclaration : Declaration
+/// <summary>
+///  Узел дерева, представляющий объявление переменной.
+///  У переменной может быть указан тип и всегда указано начальное значение.
+/// </summary>
+public sealed class VariableDeclaration : AbstractVariableDeclaration
 {
-    public VariableDeclaration(string name, ValueType type, Expression initializer, bool isMutable)
+    public VariableDeclaration(string name, string declaredTypeName, ValueType resolvedType, Expression initialValue)
         : base(name)
     {
-        Type = type;
-        Initializer = initializer;
-        IsMutable = isMutable;
+        DeclaredTypeName = declaredTypeName;
+        ResolvedType = resolvedType;
+        InitialValue = initialValue;
     }
 
-    public ValueType Type { get; }
+    public string DeclaredTypeName { get; }
 
-    public Expression Initializer { get; }
+    public ValueType ResolvedType { get; set; }
 
-    public bool IsMutable { get; }
+    public Expression InitialValue { get; }
 
-    public override void Accept(IAstVisitor visitor) => visitor.Visit(this);
+    public override void Accept(IAstVisitor visitor)
+    {
+        visitor.Visit(this);
+    }
 }

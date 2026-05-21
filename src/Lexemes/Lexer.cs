@@ -13,13 +13,18 @@ public class Lexer
         { "int", TokenType.Int },
         { "float", TokenType.Float },
         { "string", TokenType.String },
+        { "bool", TokenType.Bool },
         { "return", TokenType.Return },
         { "print", TokenType.Print },
         { "var", TokenType.Var },
         { "const", TokenType.Const },
+        { "and", TokenType.And },
+        { "or", TokenType.Or },
+        { "true", TokenType.True },
+        { "false", TokenType.False },
     };
 
-    private static readonly Dictionary<char, char> SimpleEscapes = new Dictionary<char, char>
+    private static readonly Dictionary<char, char> SimpleEscapes = new()
     {
         { '\\', '\\' },
         { '\'', '\'' },
@@ -71,15 +76,47 @@ public class Lexer
 
             case '*':
                 _scanner.Advance();
-                return new Token(TokenType.Star);
+                return new Token(TokenType.Multiply);
 
             case '/':
                 _scanner.Advance();
-                return new Token(TokenType.Slash);
+                return new Token(TokenType.Divide);
 
             case '=':
                 _scanner.Advance();
-                return new Token(TokenType.Assignment);
+                if (_scanner.Peek() == '=')
+                {
+                    _scanner.Advance();
+                    return new Token(TokenType.Equal);
+                }
+                return new Token(TokenType.Equal);
+
+            case '!':
+                _scanner.Advance();
+                if (_scanner.Peek() == '=')
+                {
+                    _scanner.Advance();
+                    return new Token(TokenType.NotEqual);
+                }
+                return new Token(TokenType.Not);
+
+            case '<':
+                _scanner.Advance();
+                if (_scanner.Peek() == '=')
+                {
+                    _scanner.Advance();
+                    return new Token(TokenType.LessThanOrEqual);
+                }
+                return new Token(TokenType.LessThan);
+
+            case '>':
+                _scanner.Advance();
+                if (_scanner.Peek() == '=')
+                {
+                    _scanner.Advance();
+                    return new Token(TokenType.GreaterThanOrEqual);
+                }
+                return new Token(TokenType.GreaterThan);
 
             case '{':
                 _scanner.Advance();
@@ -151,7 +188,7 @@ public class Lexer
 
         string intText = sb.ToString();
 
-        if (decimal.TryParse(intText, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal intValue))
+        if (long.TryParse(intText, out long intValue))
         {
             return new Token(TokenType.IntLiteral, intValue);
         }
@@ -174,7 +211,9 @@ public class Lexer
             if (c == '\'')
             {
                 _scanner.Advance();
-                return hasError ? new Token(TokenType.Error, errorMessage) : new Token(TokenType.StringLiteral, valueBuilder.ToString());
+                return hasError
+                    ? new Token(TokenType.Error, errorMessage)
+                    : new Token(TokenType.StringLiteral, valueBuilder.ToString());
             }
 
             if (c == '\n' || c == '\r')
@@ -258,15 +297,9 @@ public class Lexer
         {
             SkipWhiteSpaces();
 
-            if (_scanner.IsEnd())
-            {
-                break;
-            }
+            if (_scanner.IsEnd()) break;
 
-            if (SkipHashComment() || SkipMultiLineComment())
-            {
-                continue;
-            }
+            if (SkipHashComment() || SkipMultiLineComment()) continue;
 
             break;
         }
@@ -285,15 +318,12 @@ public class Lexer
         if (_scanner.Peek() == '#')
         {
             _scanner.Advance();
-
             while (!_scanner.IsEnd() && _scanner.Peek() != '\n')
             {
                 _scanner.Advance();
             }
-
             return true;
         }
-
         return false;
     }
 
@@ -312,13 +342,10 @@ public class Lexer
                     _scanner.Advance();
                     return true;
                 }
-
                 _scanner.Advance();
             }
-
             return true;
         }
-
         return false;
     }
 }

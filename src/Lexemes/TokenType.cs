@@ -6,29 +6,14 @@
 public enum TokenType
 {
     /// <summary>
-    /// Ключевое слово function
-    /// </summary>
-    Function,
-
-    /// <summary>
-    /// Имя главной функции main
+    /// Ключевое слово main
     /// </summary>
     Main,
 
     /// <summary>
-    /// Тип целого числа: int
+    /// Ключевое слово function
     /// </summary>
-    Int,
-
-    /// <summary>
-    /// Тип числа с плавающей точкой: float
-    /// </summary>
-    Float,
-
-    /// <summary>
-    /// Строковый тип: string
-    /// </summary>
-    String,
+    Function,
 
     /// <summary>
     /// Ключевое слово return
@@ -36,29 +21,154 @@ public enum TokenType
     Return,
 
     /// <summary>
-    /// Встроенная функция вывода: print.
+    /// Ключевое слово  break
+    /// </summary>
+    Break,
+
+    /// <summary>
+    /// Ключевое слово  continue
+    /// </summary>
+    Continue,
+
+    /// <summary>
+    /// Ключевое слово  var
+    /// </summary>
+    Var,
+
+    /// <summary>
+    /// Ключевое слово  const
+    /// </summary>
+    Const,
+
+    /// <summary>
+    /// Ключевое слово  and
+    /// </summary>
+    And,
+
+    /// <summary>
+    /// Ключевое слово  or
+    /// </summary>
+    Or,
+
+    /// <summary>
+    /// Ключевое слово  int
+    /// </summary>
+    Int,
+
+    /// <summary>
+    /// Ключевое слово float
+    /// </summary>
+    Float,
+
+    /// <summary>
+    /// Ключевое слово string
+    /// </summary>
+    String,
+
+    /// <summary>
+    /// Ключевое слово void
+    /// </summary>
+    Void,
+
+    /// <summary>
+    /// Ключевое слово bool
+    /// </summary>
+    Bool,
+
+    /// <summary>
+    /// Ключевое слово print
     /// </summary>
     Print,
 
+    /// <summary
+    /// Логический литерал true
+    /// </summary>
+    True,
+
     /// <summary>
-    /// Идентификатор.
+    /// Логический литерал false
+    /// </summary>
+    False,
+
+    /// <summary>
+    /// Идентификатор
     /// </summary>
     Identifier,
 
     /// <summary>
-    /// Литерал целого числа.
+    /// Литерал целого числа
     /// </summary>
     IntLiteral,
 
     /// <summary>
-    /// Литерал числа с плавающей точкой.
+    /// Литерал числа с плавающей точкой
     /// </summary>
     FloatLiteral,
 
     /// <summary>
-    /// Строковый литерал.
+    /// Строковый литерал
     /// </summary>
     StringLiteral,
+
+    /// <summary>
+    /// Оператор сложения +
+    /// </summary>
+    Plus,
+
+    /// <summary>
+    /// Оператор вычитания -
+    /// </summary>
+    Minus,
+
+    /// <summary>
+    /// Оператор умножения *
+    /// </summary>
+    Multiply,
+
+    /// <summary>
+    /// Оператор деления /
+    /// </summary>
+    Divide,
+
+    /// <summary>
+    /// Оператор сравнения «равно» ==
+    /// </summary>
+    Equal,
+
+    /// <summary>
+    /// Оператор сравнения «не равно» !=
+    /// </summary>
+    NotEqual,
+
+    /// <summary>
+    /// Оператор сравнения «меньше»
+    /// </summary>
+    LessThan,
+
+    /// <summary>
+    /// Оператор сравнения «меньше или равно»
+    /// </summary>
+    LessThanOrEqual,
+
+    /// <summary>
+    /// Оператор сравнения «больше»
+    /// </summary>
+    GreaterThan,
+
+    /// <summary>
+    /// Оператор сравнения «больше или равно»
+    /// </summary>
+    GreaterThanOrEqual,
+
+    /// <summary>
+    /// Логический оператор «НЕ»
+    /// </summary>
+    Not,
+
+    /// <summary>
+    /// Оператор присваивания
+    /// </summary>
+    Assign,
 
     /// <summary>
     /// Открывающая фигурная скобка {
@@ -80,9 +190,6 @@ public enum TokenType
     /// </summary>
     CloseParenthesis,
 
-    /// <summary>
-    /// Двоеточие :
-    /// </summary>
     Colon,
 
     /// <summary>
@@ -96,47 +203,12 @@ public enum TokenType
     Semicolon,
 
     /// <summary>
-    /// Конец входного потока
+    /// Конец входного потока токенов.
     /// </summary>
     EndOfFile,
 
     /// <summary>
-    /// Ошибка лексического анализа
+    /// Ошибка лексического анализа.
     /// </summary>
     Error,
-
-    /// <summary>
-    /// Ключевое слово var (изменяемая переменная)
-    /// </summary>
-    Var,
-
-    /// <summary>
-    /// Ключевое слово const (неизменяемая переменная)
-    /// </summary>
-    Const,
-
-    /// <summary>
-    /// Оператор сложения +
-    /// </summary>
-    Plus,
-
-    /// <summary>
-    /// Оператор вычитания -
-    /// </summary>
-    Minus,
-
-    /// <summary>
-    /// Оператор умножения *
-    /// </summary>
-    Star,
-
-    /// <summary>
-    /// Оператор деления /
-    /// </summary>
-    Slash,
-
-    /// <summary>
-    /// Оператор присваивания =
-    /// </summary>
-    Assignment,
 }

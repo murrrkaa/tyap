@@ -263,10 +263,9 @@ public class ParserTest
                 program.MainFunction.Body.Nodes.Single());
 
         Assert.Equal("x", declaration.Name);
-        Assert.Equal(VmValueType.Int, declaration.Type);
-        Assert.True(declaration.IsMutable);
 
-        Assert.IsType<LiteralExpression>(declaration.Initializer);
+        Assert.NotNull(declaration.InitialValue);
+        Assert.IsType<LiteralExpression>(declaration.InitialValue);
     }
 
     [Fact]
@@ -282,11 +281,12 @@ public class ParserTest
 
         Program program = parser.ParseProgram();
 
-        VariableDeclaration declaration =
-            Assert.IsType<VariableDeclaration>(
+        ConstantDeclaration declaration =
+            Assert.IsType<ConstantDeclaration>(
                 program.MainFunction.Body.Nodes.Single());
 
-        Assert.False(declaration.IsMutable);
+        Assert.Equal("pi", declaration.Name);
+        Assert.NotNull(declaration.InitialValue);
     }
 
     [Fact]
@@ -302,11 +302,12 @@ public class ParserTest
 
         Program program = parser.ParseProgram();
 
-        ExpressionStatement statement =
-            Assert.IsType<ExpressionStatement>(
+        AssignmentStatement statement =
+            Assert.IsType<AssignmentStatement>(
                 program.MainFunction.Body.Nodes.Single());
 
-        Assert.IsType<AssignmentExpression>(statement.Expression);
+        Assert.Equal("x", statement.VariableName);
+        Assert.IsType<LiteralExpression>(statement.Value);
     }
 
     [Fact]
@@ -539,5 +540,52 @@ public class ParserTest
 
         Assert.Throws<UnexpectedLexemeException>(
             () => parser.ParseProgram());
+    }
+
+    [Fact]
+    public void Should_Parse_GreaterThan_Comparisons()
+    {
+        string code = """
+        function main(): int {
+            print(5 > 3, 5 >= 3);
+        }
+        """;
+
+        Parser parser = new(code);
+        Program program = parser.ParseProgram();
+
+        PrintStatement print = Assert.IsType<PrintStatement>(
+            program.MainFunction.Body.Nodes.Single());
+
+        Assert.Equal(2, print.Arguments.Count);
+
+        BinaryOperationExpression gt = Assert.IsType<BinaryOperationExpression>(print.Arguments[0]);
+        Assert.Equal(BinaryOperation.GreaterThan, gt.Operation);
+
+        BinaryOperationExpression gte = Assert.IsType<BinaryOperationExpression>(print.Arguments[1]);
+        Assert.Equal(BinaryOperation.GreaterThanOrEqual, gte.Operation);
+    }
+
+    [Fact]
+    public void Should_Parse_Logical_And_Or()
+    {
+        string code = """
+        function main(): int {
+            print(true && false || true);
+        }
+        """;
+
+        Parser parser = new(code);
+        Program program = parser.ParseProgram();
+
+        PrintStatement print = Assert.IsType<PrintStatement>(
+            program.MainFunction.Body.Nodes.Single());
+
+   
+        BinaryOperationExpression orExpr = Assert.IsType<BinaryOperationExpression>(print.Arguments.Single());
+        Assert.Equal(BinaryOperation.Or, orExpr.Operation);
+
+        BinaryOperationExpression andExpr = Assert.IsType<BinaryOperationExpression>(orExpr.Left);
+        Assert.Equal(BinaryOperation.And, andExpr.Operation);
     }
 }

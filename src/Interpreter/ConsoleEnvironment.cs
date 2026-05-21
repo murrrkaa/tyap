@@ -16,4 +16,9 @@ public class ConsoleEnvironment : IEnvironment
     {
         Console.Out.Flush();
     }
+
+    public string ReadLine()
+    {
+        return Console.ReadLine() ?? string.Empty;
+    }
 }

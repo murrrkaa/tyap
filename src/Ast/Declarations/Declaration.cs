@@ -8,19 +8,14 @@ namespace Mlt.Ast.Declarations;
 public abstract class Declaration : Statement
 {
     private AstAttribute<ValueType> _resultType;
-    private readonly string _name;
 
-    protected Declaration(string name)
-    {
-        _name = name;
-        _resultType = default;
-    }
-
-    public string Name => _name;
-
+    /// <summary>
+    /// Тип результата объявления.
+    /// </summary>
     public ValueType ResultType
     {
         get => _resultType.Get();
+
         set => _resultType.Set(value);
     }
 }
