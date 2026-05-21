@@ -55,7 +55,7 @@ public class CheckTypesPass : AbstractPass
                 {
                     paramTypes.Add(p.ResolvedType);
                 }
-                // ИСПРАВЛЕНО: Применяем ResolvedReturnType
+
                 _functions[func.Name] = (func.ResolvedReturnType, paramTypes);
             }
         }
@@ -100,7 +100,6 @@ public class CheckTypesPass : AbstractPass
         PushScope();
         ValueType previousReturnType = _currentExpectedReturnType;
 
-        // ИСПРАВЛЕНО: Применяем ResolvedReturnType
         _currentExpectedReturnType = node.ResolvedReturnType;
 
         foreach (ParameterDeclaration param in node.Parameters)
@@ -110,7 +109,6 @@ public class CheckTypesPass : AbstractPass
 
         node.Body.Accept(this);
 
-        // ИСПРАВЛЕНО: Применяем ResolvedReturnType
         if (node.ResolvedReturnType != ValueType.Void && !HasReturnStatement(node.Body))
         {
             throw new TypeErrorException($"Функция '{node.Name}' не все пути к коду возвращают значение.");
@@ -119,7 +117,7 @@ public class CheckTypesPass : AbstractPass
         foreach (ReturnStatement ret in FindReturnStatements(node.Body))
         {
             ValueType actualType = ret.Expression?.ResultType ?? ValueType.Void;
-            // ИСПРАВЛЕНО: Применяем ResolvedReturnType
+
             if (!ValueTypeUtil.AreCompatibleTypes(node.ResolvedReturnType, actualType))
             {
                 throw new TypeErrorException(
@@ -161,7 +159,6 @@ public class CheckTypesPass : AbstractPass
 
     public override void Visit(AssignmentStatement node)
     {
-        // ИСПРАВЛЕНО: Применяем VariableName
         if (!TryLookupVariable(node.VariableName, out ValueType targetType))
             throw new TypeErrorException($"Variable '{node.VariableName}' is not declared");
 

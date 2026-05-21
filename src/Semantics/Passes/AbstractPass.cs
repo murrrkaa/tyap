@@ -11,13 +11,11 @@ public abstract class AbstractPass : IAstVisitor
 {
     public virtual void Visit(Program node)
     {
-        // Обязательно обходим все глобальные функции и переменные
         foreach (Declaration statement in node.TopLevelStatements)
         {
             statement.Accept(this);
         }
 
-        // Затем заходим в точку входа
         node.MainFunction.Accept(this);
     }
 
@@ -100,7 +98,6 @@ public abstract class AbstractPass : IAstVisitor
         node.Expression?.Accept(this);
     }
 
-    // Листовые узлы дерева, которые не содержат вложенных узлов для обхода
     public virtual void Visit(ParameterDeclaration node) { }
     public virtual void Visit(BuiltinFunction node) { }
     public virtual void Visit(BuiltinFunctionParameter node) { }

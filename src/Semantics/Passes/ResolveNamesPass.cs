@@ -75,7 +75,6 @@ public sealed class ResolveNamesPass : AbstractPass
 
     public override void Visit(AssignmentStatement node)
     {
-        // ИСПРАВЛЕНО: Применяем VariableName
         if (!TryResolve(node.VariableName, out bool isMutable))
         {
             throw new Exception(
