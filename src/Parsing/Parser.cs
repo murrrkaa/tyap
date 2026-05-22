@@ -110,7 +110,7 @@ public class Parser
         ValueType returnType = ParseType();
         if (returnType != ValueType.Int)
         {
-            throw new Exception("Семантическое ограничение: Функция main должна возвращать тип 'int'.");
+            throw new ProgramAbortedException("Семантическое ограничение: Функция main должна возвращать тип 'int'.");
         }
 
         Match(TokenType.OpenBrace);
