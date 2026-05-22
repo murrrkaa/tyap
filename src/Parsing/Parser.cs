@@ -14,9 +14,6 @@ using ValueType = Mlt.Runtime.ValueType;
 
 namespace Mlt.Parsing;
 
-/// <summary>
-/// Рекурсивный спуск-парсер для языка по спецификации эпика.
-/// </summary>
 public class Parser
 {
     private readonly TokenStream _tokens;
@@ -26,21 +23,15 @@ public class Parser
         _tokens = new TokenStream(code);
     }
 
-    /// <summary>
-    /// Разбирает программу.
-    /// Правило: program = { top_level_statement }, main_function ;
-    /// </summary>
     public Program ParseProgram()
     {
         List<Declaration> topLevelStatements = [];
 
-        // Собираем все глобальные функции, переменные и константы ДО функции main
         while (!IsMainFunctionNext() && _tokens.Peek().Type != TokenType.EndOfFile)
         {
             topLevelStatements.Add(ParseTopLevelStatement());
         }
 
-        // Парсим выделенный узел точки входа
         MainFunctionDeclaration mainFunction = ParseMainFunction();
 
         Match(TokenType.EndOfFile);
@@ -48,14 +39,10 @@ public class Parser
         return new Program(topLevelStatements.AsReadOnly(), mainFunction);
     }
 
-    /// <summary>
-    /// Разбирает выделенную функцию main.
-    /// Правило: main_function = "function", "main", "(", ")", ":", "int", "{", {statement}, "}" ;
-    /// </summary>
     private MainFunctionDeclaration ParseMainFunction()
     {
         Match(TokenType.Function);
-        Match(TokenType.Main); // Используем Main из оригинального TokenType
+        Match(TokenType.Main);
 
         Match(TokenType.OpenParenthesis);
         Match(TokenType.CloseParenthesis);
@@ -74,9 +61,6 @@ public class Parser
         return new MainFunctionDeclaration(body);
     }
 
-    /// <summary>
-    /// Разбирает обычное объявление функции.
-    /// </summary>
     public FunctionDeclaration ParseFunctionDeclaration()
     {
         Match(TokenType.Function);
@@ -111,7 +95,7 @@ public class Parser
         string name = Match(TokenType.Identifier).Value!.ToString();
         Match(TokenType.Colon);
         ValueType type = ParseType();
-        Match(TokenType.Assign); // Возвращено имя Assign
+        Match(TokenType.Assign);
         Expression value = ParseExpression();
 
         return new VariableDeclaration(name, type.ToString().ToLower(), type, value);
@@ -123,7 +107,7 @@ public class Parser
         string name = Match(TokenType.Identifier).Value!.ToString();
         Match(TokenType.Colon);
         ValueType type = ParseType();
-        Match(TokenType.Assign); // Возвращено имя Assign
+        Match(TokenType.Assign);
         Expression value = ParseExpression();
 
         return new ConstantDeclaration(name, type.ToString().ToLower(), type, value);
@@ -256,7 +240,7 @@ public class Parser
             case TokenType.Print:
                 return ParsePrintStatement();
             case TokenType.Identifier:
-                if (_tokens.Peek(1).Type == TokenType.Assign) // Используем Assign
+                if (_tokens.Peek(1).Type == TokenType.Assign)
                 {
                     return ParseAssignmentStatement();
                 }
@@ -430,11 +414,11 @@ public class Parser
         {
             switch (_tokens.Peek().Type)
             {
-                case TokenType.Multiply: // Возвращено исходное Multiply
+                case TokenType.Multiply:
                     _tokens.Advance();
                     expr = new BinaryOperationExpression(expr, BinaryOperation.Multiply, ParseFactorExpression());
                     break;
-                case TokenType.Divide: // Возвращено исходное Divide
+                case TokenType.Divide:
                     _tokens.Advance();
                     expr = new BinaryOperationExpression(expr, BinaryOperation.Divide, ParseFactorExpression());
                     break;
@@ -455,9 +439,6 @@ public class Parser
         return ParseSimpleExpression();
     }
 
-    /// <summary>
-    /// Разбирает простое выражение.
-    /// </summary>
     private Expression ParseSimpleExpression()
     {
         Token token = _tokens.Peek();

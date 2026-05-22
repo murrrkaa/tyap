@@ -13,7 +13,6 @@ namespace Mlt.Semantics.Passes;
 
 public class CheckTypesPass : AbstractPass
 {
-    // Хранит типы переменных: имя → тип
     private readonly Stack<Dictionary<string, ValueType>> _scopes = new();
 
     public override void Visit(Program node)
