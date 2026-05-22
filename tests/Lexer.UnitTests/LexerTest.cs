@@ -28,7 +28,7 @@ public class LexerTest
         Assert.Equal(expected.Count, actual.Count);
         for (int i = 0; i < actual.Count; i++)
         {
-            Assert.Equal(expected[i], actual[i]);
+            Assert.Assign(expected[i], actual[i]);
         }
     }
 
