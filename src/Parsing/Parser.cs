@@ -8,6 +8,7 @@ using Mlt.Ast.Expressions;
 using Mlt.Ast.Statements;
 using Mlt.Lexemes;
 using Mlt.Runtime;
+using Mlt.VirtualMachine.Exceptions;
 
 using Expression = Mlt.Ast.Expressions.Expression;
 using ValueType = Mlt.Runtime.ValueType;
@@ -110,7 +111,7 @@ public class Parser
         ValueType returnType = ParseType();
         if (returnType != ValueType.Int)
         {
-            throw new Exception("Семантическое ограничение: Функция main должна возвращать тип 'int'.");
+            throw new ProgramAbortedException("Семантическое ограничение: Функция main должна возвращать тип 'int'.");
         }
 
         Match(TokenType.OpenBrace);
