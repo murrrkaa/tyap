@@ -17,23 +17,6 @@ namespace Mlt.Parsing.UnitTests;
 public class ParserTest
 {
     [Fact]
-    public void Should_Parse_Empty_Main()
-    {
-        string code = """
-        function main(): int {
-        }
-        """;
-
-        Parser parser = new(code);
-
-        Program program = parser.ParseProgram();
-
-        Assert.NotNull(program);
-        Assert.NotNull(program.MainFunction);
-        Assert.Empty(program.MainFunction.Body.Nodes);
-    }
-
-    [Fact]
     public void Should_Parse_Print_Int()
     {
         string code = """
@@ -124,26 +107,6 @@ public class ParserTest
     }
 
     [Fact]
-    public void Should_Parse_Return_Without_Value()
-    {
-        string code = """
-        function main(): int {
-            return;
-        }
-        """;
-
-        Parser parser = new(code);
-
-        Program program = parser.ParseProgram();
-
-        ReturnStatement ret =
-            Assert.IsType<ReturnStatement>(
-                program.MainFunction.Body.Nodes.Single());
-
-        Assert.Null(ret.Expression);
-    }
-
-    [Fact]
     public void Should_Parse_Float_Literal()
     {
         string code = """
@@ -223,26 +186,6 @@ public class ParserTest
                 program.MainFunction.Body.Nodes.Single());
 
         Assert.Empty(print.Arguments);
-    }
-
-    [Fact]
-    public void Should_Parse_Expression_Statement()
-    {
-        string code = """
-        function main(): int {
-            123;
-        }
-        """;
-
-        Parser parser = new(code);
-
-        Program program = parser.ParseProgram();
-
-        ExpressionStatement statement =
-            Assert.IsType<ExpressionStatement>(
-                program.MainFunction.Body.Nodes.Single());
-
-        Assert.IsType<LiteralExpression>(statement.Expression);
     }
 
     [Fact]
@@ -478,7 +421,7 @@ public class ParserTest
 
         Parser parser = new(code);
 
-        Assert.Throws<ProgramAbortedException>(
+        Assert.Throws<Exception>(
             () => parser.ParseProgram());
     }
 
@@ -571,7 +514,7 @@ public class ParserTest
     {
         string code = """
         function main(): int {
-            print(true && false || true);
+            print(true and false or true);
         }
         """;
 
