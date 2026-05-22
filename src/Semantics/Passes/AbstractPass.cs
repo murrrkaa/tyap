@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-using Mlt.Ast;
+﻿using Mlt.Ast;
 using Mlt.Ast.Declarations;
 using Mlt.Ast.Expressions;
 using Mlt.Ast.Statements;
@@ -11,11 +9,6 @@ public abstract class AbstractPass : IAstVisitor
 {
     public virtual void Visit(Program node)
     {
-        foreach (Declaration statement in node.TopLevelStatements)
-        {
-            statement.Accept(this);
-        }
-
         node.MainFunction.Accept(this);
     }
 
@@ -26,27 +19,21 @@ public abstract class AbstractPass : IAstVisitor
 
     public virtual void Visit(FunctionDeclaration node)
     {
-        foreach (ParameterDeclaration param in node.Parameters)
-        {
+        foreach (ParameterDeclaration param in node.Parameters.OfType<ParameterDeclaration>())
             param.Accept(this);
-        }
         node.Body.Accept(this);
     }
 
     public virtual void Visit(BlockStatement node)
     {
         foreach (AstNode nodeItem in node.Nodes)
-        {
             nodeItem.Accept(this);
-        }
     }
 
     public virtual void Visit(PrintStatement node)
     {
         foreach (Expression argument in node.Arguments)
-        {
             argument.Accept(this);
-        }
     }
 
     public virtual void Visit(VariableDeclaration node)
@@ -61,7 +48,7 @@ public abstract class AbstractPass : IAstVisitor
 
     public virtual void Visit(AssignmentStatement node)
     {
-        node.Value.Accept(this); // Если компилятор ругается на строку 57/63 в AbstractPass, проверь, что у AssignmentStatement свойство называется именно Value
+        node.Value.Accept(this);
     }
 
     public virtual void Visit(BinaryOperationExpression node)
@@ -78,9 +65,7 @@ public abstract class AbstractPass : IAstVisitor
     public virtual void Visit(FunctionCallExpression node)
     {
         foreach (Expression arg in node.Arguments)
-        {
             arg.Accept(this);
-        }
     }
 
     public virtual void Visit(FunctionCallStatement node)

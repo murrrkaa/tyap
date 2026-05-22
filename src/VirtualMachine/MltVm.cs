@@ -75,21 +75,6 @@ public class MltVm
                     PerformDivide();
                     break;
 
-                case InstructionCode.And:
-                    {
-                        Value b = _evaluationStack.Pop();
-                        Value a = _evaluationStack.Pop();
-                        _evaluationStack.Push(new Value(a.AsBool() && b.AsBool()));
-                        break;
-                    }
-                case InstructionCode.Or:
-                    {
-                        Value b = _evaluationStack.Pop();
-                        Value a = _evaluationStack.Pop();
-                        _evaluationStack.Push(new Value(a.AsBool() || b.AsBool()));
-                        break;
-                    }
-
                 case InstructionCode.Equal:
                     PerformComparison((a, b) => a.Equals(b));
                     break;
