@@ -28,7 +28,7 @@ public class LexerTest
         Assert.Equal(expected.Count, actual.Count);
         for (int i = 0; i < actual.Count; i++)
         {
-            Assert.Assign(expected[i], actual[i]);
+            Assert.Equal(expected[i], actual[i]);
         }
     }
 
@@ -192,7 +192,7 @@ public class LexerTest
             "=",
             new List<Token>
             {
-                new Token(TokenType.Equal),
+                new Token(TokenType.Assign),
             }
         },
         {
