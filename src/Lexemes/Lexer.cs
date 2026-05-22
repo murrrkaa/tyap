@@ -71,15 +71,15 @@ public class Lexer
 
             case '*':
                 _scanner.Advance();
-                return new Token(TokenType.Star);
+                return new Token(TokenType.Multiply);
 
             case '/':
                 _scanner.Advance();
-                return new Token(TokenType.Slash);
+                return new Token(TokenType.Divide);
 
             case '=':
                 _scanner.Advance();
-                return new Token(TokenType.Assignment);
+                return new Token(TokenType.Assign);
 
             case '{':
                 _scanner.Advance();
