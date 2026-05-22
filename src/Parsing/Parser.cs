@@ -39,28 +39,9 @@ public class Parser
         return new Program(topLevelStatements.AsReadOnly(), mainFunction);
     }
 
-    private MainFunctionDeclaration ParseMainFunction()
-    {
-        Match(TokenType.Function);
-        Match(TokenType.Main);
-
-        Match(TokenType.OpenParenthesis);
-        Match(TokenType.CloseParenthesis);
-
-        Match(TokenType.Colon);
-        ValueType returnType = ParseType();
-        if (returnType != ValueType.Int)
-        {
-            throw new Exception("Семантическое ограничение: Функция main должна возвращать тип 'int'.");
-        }
-
-        Match(TokenType.OpenBrace);
-        BlockStatement body = ParseBlockContent();
-        Match(TokenType.CloseBrace);
-
-        return new MainFunctionDeclaration(body);
-    }
-
+    /// <summary>
+    /// Разбирает обычное объявление функции.
+    /// </summary>
     public FunctionDeclaration ParseFunctionDeclaration()
     {
         Match(TokenType.Function);
@@ -111,6 +92,32 @@ public class Parser
         Expression value = ParseExpression();
 
         return new ConstantDeclaration(name, type.ToString().ToLower(), type, value);
+    }
+
+    /// <summary>
+    /// Разбирает выделенную функцию main.
+    /// Правило: main_function = "function", "main", "(", ")", ":", "int", "{", {statement}, "}" ;
+    /// </summary>
+    private MainFunctionDeclaration ParseMainFunction()
+    {
+        Match(TokenType.Function);
+        Match(TokenType.Main); // Используем Main из оригинального TokenType
+
+        Match(TokenType.OpenParenthesis);
+        Match(TokenType.CloseParenthesis);
+
+        Match(TokenType.Colon);
+        ValueType returnType = ParseType();
+        if (returnType != ValueType.Int)
+        {
+            throw new Exception("Семантическое ограничение: Функция main должна возвращать тип 'int'.");
+        }
+
+        Match(TokenType.OpenBrace);
+        BlockStatement body = ParseBlockContent();
+        Match(TokenType.CloseBrace);
+
+        return new MainFunctionDeclaration(body);
     }
 
     private bool IsMainFunctionNext()

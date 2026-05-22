@@ -15,27 +15,62 @@ public sealed class ResolveNamesPass : AbstractPass
     private static readonly IReadOnlyDictionary<string, BuiltinFunction> BuiltinFunctions =
         new Dictionary<string, BuiltinFunction>
         {
-            ["print"] = new BuiltinFunction("print",
-                [new BuiltinFunctionParameter("value", ValueType.Any)], ValueType.Void),
+            ["print"] = new BuiltinFunction(
+                "print",
+                [
+                    new BuiltinFunctionParameter("value", ValueType.Any)
+                ],
+                ValueType.Void),
+
             ["readInt"] = new BuiltinFunction("readInt", [], ValueType.Int),
+
             ["readFloat"] = new BuiltinFunction("readFloat", [], ValueType.Float),
+
             ["readString"] = new BuiltinFunction("readString", [], ValueType.String),
-            ["len"] = new BuiltinFunction("len",
-                [new BuiltinFunctionParameter("s", ValueType.String)], ValueType.Int),
-            ["substring"] = new BuiltinFunction("substring",
+
+            ["len"] = new BuiltinFunction(
+                "len",
+                [
+                    new BuiltinFunctionParameter("s", ValueType.String)
+                ],
+                ValueType.Int),
+
+            ["substring"] = new BuiltinFunction(
+                "substring",
                 [
                     new BuiltinFunctionParameter("s", ValueType.String),
                     new BuiltinFunctionParameter("start", ValueType.Int),
                     new BuiltinFunctionParameter("count", ValueType.Int),
-                ], ValueType.String),
-            ["toString"] = new BuiltinFunction("toString",
-                [new BuiltinFunctionParameter("x", ValueType.Any)], ValueType.String),
-            ["parseInt"] = new BuiltinFunction("parseInt",
-                [new BuiltinFunctionParameter("s", ValueType.String)], ValueType.Int),
-            ["toBool"] = new BuiltinFunction("toBool",
-                [new BuiltinFunctionParameter("x", ValueType.Int)], ValueType.Bool),
-            ["toFloat"] = new BuiltinFunction("toFloat",
-                [new BuiltinFunctionParameter("x", ValueType.Int)], ValueType.Float),
+                ],
+                ValueType.String),
+
+            ["toString"] = new BuiltinFunction(
+                "toString",
+                [
+                    new BuiltinFunctionParameter("x", ValueType.Any)
+                ],
+                ValueType.String),
+
+            ["parseInt"] = new BuiltinFunction(
+                "parseInt",
+                [
+                    new BuiltinFunctionParameter("s", ValueType.String)
+                ],
+                ValueType.Int),
+
+            ["toBool"] = new BuiltinFunction(
+                "toBool",
+                [
+                    new BuiltinFunctionParameter("x", ValueType.Int)
+                ],
+                ValueType.Bool),
+
+            ["toFloat"] = new BuiltinFunction(
+                "toFloat",
+                [
+                    new BuiltinFunctionParameter("x", ValueType.Int)
+                ],
+                ValueType.Float),
         };
 
     private readonly Stack<Dictionary<string, bool>> _scopes = new();
@@ -76,12 +111,16 @@ public sealed class ResolveNamesPass : AbstractPass
     public override void Visit(AssignmentStatement node)
     {
         if (!TryResolve(node.VariableName, out bool isMutable))
+        {
             throw new Exception(
                 $"Семантическая ошибка: Использование необъявленной переменной '{node.VariableName}'.");
+        }
 
         if (!isMutable)
+        {
             throw new Exception(
                 $"Семантическая ошибка: Попытка изменения константы '{node.VariableName}'.");
+        }
 
         node.Value.Accept(this);
     }
@@ -89,8 +128,10 @@ public sealed class ResolveNamesPass : AbstractPass
     public override void Visit(VariableAccessExpression node)
     {
         if (!TryResolve(node.Name, out _))
+        {
             throw new Exception(
                 $"Семантическая ошибка: Использование необъявленной переменной '{node.Name}'.");
+        }
     }
 
     public override void Visit(FunctionCallExpression node)
@@ -98,22 +139,29 @@ public sealed class ResolveNamesPass : AbstractPass
         base.Visit(node);
 
         if (!BuiltinFunctions.TryGetValue(node.Name, out BuiltinFunction? builtin))
+        {
             throw new Exception(
                 $"Семантическая ошибка: Неизвестная функция '{node.Name}'.");
+        }
 
         node.Function = builtin;
     }
 
     private void PushScope() => _scopes.Push(new Dictionary<string, bool>());
+
     private void PopScope() => _scopes.Pop();
 
     private void Declare(string name, bool isMutable)
     {
         if (_scopes.Count > 0 && _scopes.Peek().ContainsKey(name))
+        {
             throw new Exception($"Семантическая ошибка: Переменная '{name}' уже объявлена.");
+        }
 
         if (_scopes.Count > 0)
+        {
             _scopes.Peek()[name] = isMutable;
+        }
     }
 
     private bool TryResolve(string name, out bool isMutable)
@@ -121,7 +169,9 @@ public sealed class ResolveNamesPass : AbstractPass
         foreach (Dictionary<string, bool> scope in _scopes)
         {
             if (scope.TryGetValue(name, out isMutable))
+            {
                 return true;
+            }
         }
 
         isMutable = false;

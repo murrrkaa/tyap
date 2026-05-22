@@ -105,12 +105,18 @@ public class MltVm
 
                 case InstructionCode.JumpIfFalse:
                     if (!_evaluationStack.Peek().AsBool())
+                    {
                         _instructionPointer = (int)instruction.Operand!.AsLong();
+                    }
+
                     break;
 
                 case InstructionCode.JumpIfTrue:
                     if (_evaluationStack.Peek().AsBool())
+                    {
                         _instructionPointer = (int)instruction.Operand!.AsLong();
+                    }
+
                     break;
 
                 case InstructionCode.Jump:
@@ -125,9 +131,16 @@ public class MltVm
                     if (_evaluationStack.Count > 0)
                     {
                         Value finalVal = _evaluationStack.Pop();
-                        if (finalVal.IsInt()) _exitCode = finalVal.AsLong();
-                        else if (finalVal.IsFloat()) _exitCode = (long)finalVal.AsDecimal();
+                        if (finalVal.IsInt())
+                        {
+                            _exitCode = finalVal.AsLong();
+                        }
+                        else if (finalVal.IsFloat())
+                        {
+                            _exitCode = (long)finalVal.AsDecimal();
+                        }
                     }
+
                     return _result ?? new Value(0L);
 
                 default:
@@ -178,7 +191,10 @@ public class MltVm
                 {
                     string s = _evaluationStack.Pop().AsString();
                     if (!long.TryParse(s, out long result))
+                    {
                         throw new InvalidOperationException($"Cannot parse '{s}' as int");
+                    }
+
                     _evaluationStack.Push(new Value(result));
                     break;
                 }
@@ -202,11 +218,17 @@ public class MltVm
         Value a = _evaluationStack.Pop();
 
         if (a.IsString() && b.IsString())
+        {
             _evaluationStack.Push(new Value(a.AsString() + b.AsString()));
+        }
         else if (a.IsInt() && b.IsInt())
+        {
             _evaluationStack.Push(new Value(checked(a.AsLong() + b.AsLong())));
+        }
         else
+        {
             _evaluationStack.Push(new Value(a.AsDecimal() + b.AsDecimal()));
+        }
     }
 
     private void PerformDivide()
@@ -217,13 +239,21 @@ public class MltVm
         if (a.IsInt() && b.IsInt())
         {
             long divisor = b.AsLong();
-            if (divisor == 0) throw new InvalidOperationException("Division by zero");
+            if (divisor == 0)
+            {
+                throw new InvalidOperationException("Division by zero");
+            }
+
             _evaluationStack.Push(new Value(a.AsLong() / divisor));
         }
         else
         {
             decimal divisor = b.AsDecimal();
-            if (divisor == 0) throw new InvalidOperationException("Division by zero");
+            if (divisor == 0)
+            {
+                throw new InvalidOperationException("Division by zero");
+            }
+
             _evaluationStack.Push(new Value(a.AsDecimal() / divisor));
         }
     }
@@ -257,17 +287,25 @@ public class MltVm
         Value a = _evaluationStack.Pop();
 
         if (a.IsInt() && b.IsInt())
+        {
             _evaluationStack.Push(new Value(intOp(a.AsLong(), b.AsLong())));
+        }
         else
+        {
             _evaluationStack.Push(new Value(floatOp(a.AsDecimal(), b.AsDecimal())));
+        }
     }
 
     private static void ValidateInstructions(IReadOnlyList<Instruction> instructions)
     {
         if (instructions.Count == 0)
+        {
             throw new InvalidOperationException("Empty program");
+        }
 
         if (instructions[instructions.Count - 1].Code != InstructionCode.Halt)
+        {
             throw new InvalidOperationException("Program must end with Halt");
+        }
     }
 }
