@@ -8,6 +8,7 @@ using Mlt.Ast.Expressions;
 using Mlt.Ast.Statements;
 using Mlt.Lexemes;
 using Mlt.Runtime;
+using Mlt.VirtualMachine.Exceptions;
 
 using Expression = Mlt.Ast.Expressions.Expression;
 using ValueType = Mlt.Runtime.ValueType;
