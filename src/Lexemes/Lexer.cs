@@ -89,6 +89,7 @@ public class Lexer
                     _scanner.Advance();
                     return new Token(TokenType.Equal);
                 }
+
                 return new Token(TokenType.Equal);
 
             case '!':
@@ -98,6 +99,7 @@ public class Lexer
                     _scanner.Advance();
                     return new Token(TokenType.NotEqual);
                 }
+
                 return new Token(TokenType.Not);
 
             case '<':
@@ -107,6 +109,7 @@ public class Lexer
                     _scanner.Advance();
                     return new Token(TokenType.LessThanOrEqual);
                 }
+
                 return new Token(TokenType.LessThan);
 
             case '>':
@@ -116,6 +119,7 @@ public class Lexer
                     _scanner.Advance();
                     return new Token(TokenType.GreaterThanOrEqual);
                 }
+
                 return new Token(TokenType.GreaterThan);
 
             case '{':
@@ -297,9 +301,15 @@ public class Lexer
         {
             SkipWhiteSpaces();
 
-            if (_scanner.IsEnd()) break;
+            if (_scanner.IsEnd())
+            {
+                break;
+            }
 
-            if (SkipHashComment() || SkipMultiLineComment()) continue;
+            if (SkipHashComment() || SkipMultiLineComment())
+            {
+                continue;
+            }
 
             break;
         }
@@ -322,8 +332,10 @@ public class Lexer
             {
                 _scanner.Advance();
             }
+
             return true;
         }
+
         return false;
     }
 
@@ -342,10 +354,13 @@ public class Lexer
                     _scanner.Advance();
                     return true;
                 }
+
                 _scanner.Advance();
             }
+
             return true;
         }
+
         return false;
     }
 }

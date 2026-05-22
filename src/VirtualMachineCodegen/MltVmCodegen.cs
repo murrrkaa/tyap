@@ -24,17 +24,31 @@ public class MltVmCodegen : IAstVisitor
     }
 
     public void Visit(Program node) => node.MainFunction.Accept(this);
+
     public void Visit(MainFunctionDeclaration node) => node.Body.Accept(this);
 
-    public void Visit(FunctionDeclaration node) { }
-    public void Visit(BuiltinFunction node) { }
-    public void Visit(BuiltinFunctionParameter node) { }
-    public void Visit(ParameterDeclaration node) { }
+    public void Visit(FunctionDeclaration node)
+    {
+    }
+
+    public void Visit(BuiltinFunction node)
+    {
+    }
+
+    public void Visit(BuiltinFunctionParameter node)
+    {
+    }
+
+    public void Visit(ParameterDeclaration node)
+    {
+    }
 
     public void Visit(BlockStatement node)
     {
         foreach (AstNode nodeItem in node.Nodes)
+        {
             nodeItem.Accept(this);
+        }
     }
 
     public void Visit(ReturnStatement node) => node.Expression?.Accept(this);
@@ -138,7 +152,9 @@ public class MltVmCodegen : IAstVisitor
     public void Visit(FunctionCallExpression node)
     {
         foreach (Expression arg in node.Arguments)
+        {
             arg.Accept(this);
+        }
 
         BuiltinFunctionCode code = node.Name switch
         {

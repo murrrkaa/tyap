@@ -20,12 +20,18 @@ public class ValueType
 
     private readonly string _name;
 
-    protected ValueType(string name) { _name = name; }
+    protected ValueType(string name)
+    {
+        _name = name;
+    }
 
     public static bool operator ==(ValueType? a, ValueType? b) => a?.Equals(b) ?? b is null;
+
     public static bool operator !=(ValueType? a, ValueType? b) => !(a == b);
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj);
+
     public override int GetHashCode() => RuntimeHelpers.GetHashCode(this);
+
     public override string ToString() => _name;
 }

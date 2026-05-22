@@ -8,7 +8,6 @@ public abstract class AbstractFunctionDeclaration : Declaration
         string name,
         IReadOnlyList<AbstractParameterDeclaration> parameters
     )
-
     {
         Name = name;
         Parameters = parameters;

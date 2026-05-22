@@ -7,14 +7,32 @@ public class Value : IEquatable<Value>
 {
     private readonly object _value;
 
-    public Value(string value) { _value = value; }
-    public Value(decimal value) { _value = value; }
-    public Value(long value) { _value = value; }
-    public Value(bool value) { _value = value; }
+    public Value(string value)
+    {
+        _value = value;
+    }
+
+    public Value(decimal value)
+    {
+        _value = value;
+    }
+
+    public Value(long value)
+    {
+        _value = value;
+    }
+
+    public Value(bool value)
+    {
+        _value = value;
+    }
 
     public bool IsString() => _value is string;
+
     public bool IsInt() => _value is long;
+
     public bool IsFloat() => _value is decimal;
+
     public bool IsBool() => _value is bool;
 
     public string AsString()
@@ -68,7 +86,10 @@ public class Value : IEquatable<Value>
 
     public bool Equals(Value? other)
     {
-        if (other is null) return false;
+        if (other is null)
+        {
+            return false;
+        }
 
         return _value switch
         {
@@ -81,5 +102,6 @@ public class Value : IEquatable<Value>
     }
 
     public override bool Equals(object? obj) => Equals(obj as Value);
+
     public override int GetHashCode() => _value.GetHashCode();
 }
