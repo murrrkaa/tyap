@@ -1,4 +1,4 @@
-using Mlt.Runtime;
+﻿using Mlt.Runtime;
 
 using Xunit;
 
@@ -30,8 +30,8 @@ public class EvaluationTest
     [Fact]
     public void Value_Equals_Float()
     {
-        Value a = new(3.14m);
-        Value b = new(3.14m);
+        Value a = new(3.14);
+        Value b = new(3.14);
 
         Assert.True(a.Equals(b));
     }

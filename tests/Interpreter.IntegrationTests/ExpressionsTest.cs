@@ -1,4 +1,4 @@
-using Mlt.Interpreter;
+﻿using Mlt.Interpreter;
 using Mlt.Tests.TestLibrary.TestDoubles;
 
 using Xunit;
@@ -79,7 +79,7 @@ public class ExpressionsTest
 
         string output = Run(code);
 
-        Assert.Equal("4.0", output);
+        Assert.Equal("4", output);
     }
 
     [Fact]
@@ -94,7 +94,7 @@ public class ExpressionsTest
 
         string output = Run(code);
 
-        Assert.Equal("10.0", output);
+        Assert.Equal("10", output);
     }
 
     [Fact]
@@ -109,7 +109,7 @@ public class ExpressionsTest
 
         string output = Run(code);
 
-        Assert.Equal("7.00", output);
+        Assert.Equal("7", output);
     }
 
     [Fact]

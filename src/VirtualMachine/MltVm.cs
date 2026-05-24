@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 
 using Mlt.Runtime;
 using Mlt.VirtualMachine.Builtins;
@@ -137,7 +136,7 @@ public class MltVm
                         }
                         else if (finalVal.IsFloat())
                         {
-                            _exitCode = (long)finalVal.AsDecimal();
+                            _exitCode = (long)finalVal.AsDouble();
                         }
                     }
 
@@ -171,7 +170,8 @@ public class MltVm
                 break;
 
             case BuiltinFunctionCode.Len:
-                _evaluationStack.Push(new Value((long)_evaluationStack.Pop().AsString().Length));
+                _evaluationStack.Push(
+                    new Value((long)_evaluationStack.Pop().AsString().Length));
                 break;
 
             case BuiltinFunctionCode.Substring:
@@ -192,7 +192,7 @@ public class MltVm
                     string s = _evaluationStack.Pop().AsString();
                     if (!long.TryParse(s, out long result))
                     {
-                        throw new InvalidOperationException($"Cannot parse '{s}' as int");
+                        throw new InvalidOperationException($"Невозможно преобразовать '{s}' в int");
                     }
 
                     _evaluationStack.Push(new Value(result));
@@ -204,7 +204,7 @@ public class MltVm
                 break;
 
             case BuiltinFunctionCode.ToFloat:
-                _evaluationStack.Push(new Value((decimal)_evaluationStack.Pop().AsLong()));
+                _evaluationStack.Push(new Value((double)_evaluationStack.Pop().AsLong()));
                 break;
 
             default:
@@ -227,7 +227,7 @@ public class MltVm
         }
         else
         {
-            _evaluationStack.Push(new Value(a.AsDecimal() + b.AsDecimal()));
+            _evaluationStack.Push(new Value(a.AsDouble() + b.AsDouble()));
         }
     }
 
@@ -241,20 +241,20 @@ public class MltVm
             long divisor = b.AsLong();
             if (divisor == 0)
             {
-                throw new InvalidOperationException("Division by zero");
+                throw new InvalidOperationException("Деление на ноль");
             }
 
             _evaluationStack.Push(new Value(a.AsLong() / divisor));
         }
         else
         {
-            decimal divisor = b.AsDecimal();
+            double divisor = b.AsDouble();
             if (divisor == 0)
             {
-                throw new InvalidOperationException("Division by zero");
+                throw new InvalidOperationException("Деление на ноль");
             }
 
-            _evaluationStack.Push(new Value(a.AsDecimal() / divisor));
+            _evaluationStack.Push(new Value(a.AsDouble() / divisor));
         }
     }
 
@@ -267,21 +267,21 @@ public class MltVm
 
     private void PerformOrderedComparison(
         Func<long, long, bool> intOp,
-        Func<decimal, decimal, bool> floatOp)
+        Func<double, double, bool> floatOp)
     {
         Value b = _evaluationStack.Pop();
         Value a = _evaluationStack.Pop();
 
         bool result = (a.IsInt() && b.IsInt())
             ? intOp(a.AsLong(), b.AsLong())
-            : floatOp(a.AsDecimal(), b.AsDecimal());
+            : floatOp(a.AsDouble(), b.AsDouble());
 
         _evaluationStack.Push(new Value(result));
     }
 
     private void PerformIntOrFloatOp(
         Func<long, long, long> intOp,
-        Func<decimal, decimal, decimal> floatOp)
+        Func<double, double, double> floatOp)
     {
         Value b = _evaluationStack.Pop();
         Value a = _evaluationStack.Pop();
@@ -292,7 +292,7 @@ public class MltVm
         }
         else
         {
-            _evaluationStack.Push(new Value(floatOp(a.AsDecimal(), b.AsDecimal())));
+            _evaluationStack.Push(new Value(floatOp(a.AsDouble(), b.AsDouble())));
         }
     }
 
@@ -300,12 +300,12 @@ public class MltVm
     {
         if (instructions.Count == 0)
         {
-            throw new InvalidOperationException("Empty program");
+            throw new InvalidOperationException("Программа не содержит инструкций");
         }
 
         if (instructions[instructions.Count - 1].Code != InstructionCode.Halt)
         {
-            throw new InvalidOperationException("Program must end with Halt");
+            throw new InvalidOperationException("Программа должна завершаться инструкцией Halt");
         }
     }
 }

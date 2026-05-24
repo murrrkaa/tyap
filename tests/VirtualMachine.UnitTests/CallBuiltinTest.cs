@@ -55,7 +55,7 @@ public class CallBuiltinTest
             {
                 new List<Instruction>
                 {
-                    new Instruction(InstructionCode.Push, new Value(3.14m)),
+                    new Instruction(InstructionCode.Push, new Value(3.14)),
                     new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
                     new Instruction(InstructionCode.Push, new Value(0)),
                     new Instruction(InstructionCode.Halt),
@@ -69,7 +69,7 @@ public class CallBuiltinTest
                     new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
                     new Instruction(InstructionCode.Push, new Value("test")),
                     new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
-                    new Instruction(InstructionCode.Push, new Value(2.5m)),
+                    new Instruction(InstructionCode.Push, new Value(2.5)),
                     new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
                     new Instruction(InstructionCode.Push, new Value(0)),
                     new Instruction(InstructionCode.Halt),

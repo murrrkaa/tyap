@@ -102,7 +102,7 @@ public class Parser
     private MainFunctionDeclaration ParseMainFunction()
     {
         Match(TokenType.Function);
-        Match(TokenType.Main); // Используем Main из оригинального TokenType
+        Match(TokenType.Main);
 
         Match(TokenType.OpenParenthesis);
         Match(TokenType.CloseParenthesis);
@@ -459,7 +459,7 @@ public class Parser
 
             case TokenType.FloatLiteral:
                 _tokens.Advance();
-                return new LiteralExpression(ValueType.Float, new Value(decimal.Parse(token.Value!.ToString()!, CultureInfo.InvariantCulture)));
+                return new LiteralExpression(ValueType.Float, new Value(double.Parse(token.Value!.ToString()!, CultureInfo.InvariantCulture)));
 
             case TokenType.StringLiteral:
                 _tokens.Advance();

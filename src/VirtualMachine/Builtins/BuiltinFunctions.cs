@@ -1,5 +1,5 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
+using System.Text;
 
 using Mlt.Runtime;
 
@@ -21,29 +21,29 @@ public class BuiltinFunctions
 
     public long ReadInt()
     {
-        string input = _environment.ReadLine();
+        string input = ReadLine();
         if (long.TryParse(input, out long result))
         {
             return result;
         }
 
-        throw new InvalidOperationException($"Cannot parse '{input}' as int");
+        throw new InvalidOperationException($"Невозможно преобразовать '{input}' в int");
     }
 
-    public decimal ReadFloat()
+    public double ReadFloat()
     {
-        string input = _environment.ReadLine();
-        if (decimal.TryParse(input, NumberStyles.Float, CultureInfo.InvariantCulture, out decimal result))
+        string input = ReadLine();
+        if (double.TryParse(input, NumberStyles.Float, CultureInfo.InvariantCulture, out double result))
         {
             return result;
         }
 
-        throw new InvalidOperationException($"Cannot parse '{input}' as float");
+        throw new InvalidOperationException($"Невозможно преобразовать '{input}' в float");
     }
 
     public string ReadString()
     {
-        return _environment.ReadLine();
+        return ReadLine();
     }
 
     public long Len(Value text)
@@ -64,7 +64,7 @@ public class BuiltinFunctions
 
         if (start >= text.Length)
         {
-            return "";
+            return string.Empty;
         }
 
         if (length < 0)
@@ -88,7 +88,7 @@ public class BuiltinFunctions
             return result;
         }
 
-        throw new InvalidOperationException($"Cannot parse '{text}' as int");
+        throw new InvalidOperationException($"Невозможно преобразовать '{text}' в int");
     }
 
     public bool ToBool(Value value)
@@ -96,8 +96,28 @@ public class BuiltinFunctions
         return value.AsLong() != 0;
     }
 
-    public decimal ToFloat(Value value)
+    public double ToFloat(Value value)
     {
-        return (decimal)value.AsLong();
+        return (double)value.AsLong();
+    }
+
+    private string ReadLine()
+    {
+        StringBuilder sb = new StringBuilder();
+        while (true)
+        {
+            int ch = _environment.ReadChar();
+            if (ch == -1 || ch == '\n')
+            {
+                break;
+            }
+
+            if (ch != '\r')
+            {
+                sb.Append((char)ch);
+            }
+        }
+
+        return sb.ToString();
     }
 }

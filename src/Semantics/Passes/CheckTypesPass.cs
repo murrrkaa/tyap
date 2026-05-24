@@ -13,8 +13,6 @@ namespace Mlt.Semantics.Passes;
 
 public class CheckTypesPass : AbstractPass
 {
-    private readonly Stack<Dictionary<string, ValueType>> _scopes = new();
-
     public override void Visit(Program node)
     {
         node.MainFunction.Accept(this);
@@ -22,22 +20,27 @@ public class CheckTypesPass : AbstractPass
 
     public override void Visit(MainFunctionDeclaration node)
     {
-        PushScope();
         base.Visit(node);
-        PopScope();
 
         if (!HasReturnStatement(node.Body))
-            throw new TypeErrorException("Функция 'main' должна содержать оператор return");
+        {
+            throw new TypeErrorException(
+                "Функция 'main' должна содержать оператор return");
+        }
 
         foreach (ReturnStatement ret in FindReturnStatements(node.Body))
         {
             if (ret.Expression == null)
+            {
                 throw new TypeErrorException(
                     "Функция 'main' должна возвращать значение типа int");
+            }
 
             if (!ValueTypeUtil.AreCompatibleTypes(ValueType.Int, ret.Expression.ResultType))
+            {
                 throw new TypeErrorException(
                     $"Функция 'main' должна возвращать int, но возвращает {ret.Expression.ResultType}");
+            }
         }
     }
 
@@ -49,11 +52,9 @@ public class CheckTypesPass : AbstractPass
             !ValueTypeUtil.AreCompatibleTypes(node.ResolvedType, node.InitialValue.ResultType))
         {
             throw new TypeErrorException(
-                $"Cannot initialize variable '{node.Name}' of type {node.ResolvedType} " +
-                $"with expression of type {node.InitialValue.ResultType}");
+                $"Невозможно инициализировать переменную '{node.Name}' типа {node.ResolvedType} " +
+                $"значением типа {node.InitialValue.ResultType}");
         }
-
-        DeclareVariable(node.Name, node.ResolvedType);
     }
 
     public override void Visit(ConstantDeclaration node)
@@ -64,24 +65,9 @@ public class CheckTypesPass : AbstractPass
             !ValueTypeUtil.AreCompatibleTypes(node.ResolvedType, node.InitialValue.ResultType))
         {
             throw new TypeErrorException(
-                $"Cannot initialize constant '{node.Name}' of type {node.ResolvedType} " +
-                $"with expression of type {node.InitialValue.ResultType}");
+                $"Невозможно инициализировать константу '{node.Name}' типа {node.ResolvedType} " +
+                $"значением типа {node.InitialValue.ResultType}");
         }
-
-        DeclareVariable(node.Name, node.ResolvedType);
-    }
-
-    public override void Visit(AssignmentStatement node)
-    {
-        node.Value.Accept(this);
-
-        if (!TryResolveType(node.VariableName, out ValueType? varType))
-            throw new TypeErrorException(
-                $"Variable '{node.VariableName}' is not declared");
-
-        if (!ValueTypeUtil.AreCompatibleTypes(varType!, node.Value.ResultType))
-            throw new TypeErrorException(
-                $"Cannot assign {node.Value.ResultType} to {varType}");
     }
 
     public override void Visit(BinaryOperationExpression node)
@@ -93,8 +79,10 @@ public class CheckTypesPass : AbstractPass
             or BinaryOperation.GreaterThan or BinaryOperation.GreaterThanOrEqual)
         {
             if (!ValueTypeUtil.AreCompatibleTypes(node.Left.ResultType, node.Right.ResultType))
+            {
                 throw new TypeErrorException(
-                    $"Type mismatch in comparison: {node.Left.ResultType} and {node.Right.ResultType}");
+                    $"Несовместимые типы в сравнении: {node.Left.ResultType} и {node.Right.ResultType}");
+            }
 
             node.ResultType = ValueType.Bool;
             return;
@@ -103,29 +91,38 @@ public class CheckTypesPass : AbstractPass
         if (node.Operation is BinaryOperation.And or BinaryOperation.Or)
         {
             if (node.Left.ResultType != ValueType.Bool)
+            {
                 throw new TypeErrorException(
-                    $"Left operand of '{node.Operation}' must be bool, but got {node.Left.ResultType}");
+                    $"Левый операнд '{node.Operation}' должен быть bool, но получен {node.Left.ResultType}");
+            }
 
             if (node.Right.ResultType != ValueType.Bool)
+            {
                 throw new TypeErrorException(
-                    $"Right operand of '{node.Operation}' must be bool, but got {node.Right.ResultType}");
+                    $"Правый операнд '{node.Operation}' должен быть bool, но получен {node.Right.ResultType}");
+            }
 
             node.ResultType = ValueType.Bool;
             return;
         }
 
         if (!ValueTypeUtil.AreCompatibleTypes(node.Left.ResultType, node.Right.ResultType))
+        {
             throw new TypeErrorException(
-                $"Type mismatch in binary operation: {node.Left.ResultType} and {node.Right.ResultType}");
+                $"Несовместимые типы в операции: {node.Left.ResultType} и {node.Right.ResultType}");
+        }
 
         if (node.Left.ResultType == ValueType.String && node.Operation != BinaryOperation.Add)
+        {
             throw new TypeErrorException(
-                $"Operator {node.Operation} is not supported for type string. " +
-                $"Only '+' (concatenation) is allowed.");
+                $"Оператор {node.Operation} не поддерживается для строк. Разрешён только '+'.");
+        }
 
         if (node.Left.ResultType == ValueType.Bool)
+        {
             throw new TypeErrorException(
-                $"Operator {node.Operation} is not supported for type bool.");
+                $"Оператор {node.Operation} не поддерживается для типа bool.");
+        }
 
         node.ResultType = node.Left.ResultType;
     }
@@ -135,8 +132,10 @@ public class CheckTypesPass : AbstractPass
         base.Visit(node);
 
         if (node.Operand.ResultType != ValueType.Bool)
+        {
             throw new TypeErrorException(
-                $"Operator '!' requires bool, but got {node.Operand.ResultType}");
+                $"Оператор '!' требует bool, но получен {node.Operand.ResultType}");
+        }
 
         node.ResultType = ValueType.Bool;
     }
@@ -151,9 +150,11 @@ public class CheckTypesPass : AbstractPass
             ((BuiltinFunctionParameter)func.Parameters[0]).Type == ValueType.Any;
 
         if (!isVariadic && node.Arguments.Count != func.Parameters.Count)
+        {
             throw new TypeErrorException(
-                $"Function '{node.Name}' expects {func.Parameters.Count} arguments, " +
-                $"but got {node.Arguments.Count}");
+                $"Функция '{node.Name}' ожидает {func.Parameters.Count} аргументов, " +
+                $"но получено {node.Arguments.Count}");
+        }
 
         if (!isVariadic)
         {
@@ -164,8 +165,10 @@ public class CheckTypesPass : AbstractPass
 
                 if (expected != ValueType.Any &&
                     !ValueTypeUtil.AreCompatibleTypes(expected, actual))
+                {
                     throw new TypeErrorException(
-                        $"Argument {i + 1} of '{node.Name}' must be {expected}, but got {actual}");
+                        $"Аргумент {i + 1} функции '{node.Name}' должен быть {expected}, но получен {actual}");
+                }
             }
         }
 
@@ -179,43 +182,37 @@ public class CheckTypesPass : AbstractPass
 
     public override void Visit(VariableAccessExpression node)
     {
-        if (!TryResolveType(node.Name, out ValueType? type))
-            throw new TypeErrorException($"Variable '{node.Name}' is not declared");
-
-        node.ResultType = type!;
-    }
-
-    private void PushScope() => _scopes.Push(new Dictionary<string, ValueType>());
-    private void PopScope() => _scopes.Pop();
-
-    private void DeclareVariable(string name, ValueType type)
-    {
-        if (_scopes.Count > 0)
-            _scopes.Peek()[name] = type;
-    }
-
-    private bool TryResolveType(string name, out ValueType? type)
-    {
-        foreach (Dictionary<string, ValueType> scope in _scopes)
+        node.ResultType = node.Variable switch
         {
-            if (scope.TryGetValue(name, out type))
-                return true;
-        }
-
-        type = null;
-        return false;
+            VariableDeclaration v => v.ResolvedType,
+            ConstantDeclaration c => c.ResolvedType,
+            ParameterDeclaration p => p.ResolvedType,
+            _ => throw new TypeErrorException(
+                $"Неизвестный тип объявления для переменной '{node.Name}'"),
+        };
     }
 
     private static bool HasReturnStatement(BlockStatement block)
     {
         foreach (AstNode node in block.Nodes)
-            if (node is ReturnStatement) return true;
+        {
+            if (node is ReturnStatement)
+            {
+                return true;
+            }
+        }
+
         return false;
     }
 
     private static IEnumerable<ReturnStatement> FindReturnStatements(BlockStatement block)
     {
         foreach (AstNode node in block.Nodes)
-            if (node is ReturnStatement ret) yield return ret;
+        {
+            if (node is ReturnStatement ret)
+            {
+                yield return ret;
+            }
+        }
     }
 }
