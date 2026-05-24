@@ -421,7 +421,7 @@ public class ParserTest
 
         Parser parser = new(code);
 
-        Assert.Throws<Exception>(
+        Assert.Throws<ProgramAbortedException>(
             () => parser.ParseProgram());
     }
 
@@ -531,4 +531,5 @@ public class ParserTest
         BinaryOperationExpression andExpr = Assert.IsType<BinaryOperationExpression>(orExpr.Left);
         Assert.Equal(BinaryOperation.And, andExpr.Operation);
     }
+    
 }
