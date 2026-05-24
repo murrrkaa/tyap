@@ -1,4 +1,6 @@
 ﻿using Mlt.Runtime;
+using Mlt.Tests.TestLibrary.TestDoubles;
+using Mlt.VirtualMachine.Instructions;
 
 using Xunit;
 
@@ -72,5 +74,101 @@ public class EvaluationTest
         string result = ValueUtil.EscapeStringValue(input);
 
         Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void Add_Ints_Works()
+    {
+        List<Instruction> program =
+        [
+            new Instruction(InstructionCode.Push, 5L),
+            new Instruction(InstructionCode.Push, 3L),
+            new Instruction(InstructionCode.Add),
+            new Instruction(InstructionCode.Halt),
+        ];
+
+        FakeEnvironment environment = new();
+        MltVm vm = new(environment, program);
+
+        vm.RunProgram();
+
+        Assert.Equal(8, vm.ExitCode);
+    }
+
+    [Fact]
+    public void Divide_By_Zero_Throws()
+    {
+        List<Instruction> program =
+        [
+            new Instruction(InstructionCode.Push, 10L),
+            new Instruction(InstructionCode.Push, 0L),
+            new Instruction(InstructionCode.Divide),
+            new Instruction(InstructionCode.Halt),
+        ];
+
+        FakeEnvironment environment = new();
+        MltVm vm = new(environment, program);
+
+        Assert.Throws<InvalidOperationException>(() => vm.RunProgram());
+    }
+
+    [Fact]
+    public void DefineVar_And_LoadVar_Work()
+    {
+        List<Instruction> program =
+        [
+            new Instruction(InstructionCode.Push, 42L),
+            new Instruction(InstructionCode.DefineVar, "x"),
+            new Instruction(InstructionCode.LoadVar, "x"),
+            new Instruction(InstructionCode.Halt),
+        ];
+
+        FakeEnvironment environment = new();
+        MltVm vm = new(environment, program);
+
+        vm.RunProgram();
+
+        Assert.Equal(42, vm.ExitCode);
+    }
+
+    [Fact]
+    public void Equal_Returns_True()
+    {
+        List<Instruction> program =
+        [
+            new Instruction(InstructionCode.Push, 5L),
+            new Instruction(InstructionCode.Push, 5L),
+            new Instruction(InstructionCode.Equal),
+            new Instruction(InstructionCode.CallBuiltin, 0),
+            new Instruction(InstructionCode.Push, 0L),
+            new Instruction(InstructionCode.Halt),
+        ];
+
+        FakeEnvironment environment = new();
+        MltVm vm = new(environment, program);
+
+        vm.RunProgram();
+
+        Assert.Equal("true", environment.BufferedOutput);
+    }
+
+    [Fact]
+    public void Not_Works()
+    {
+        List<Instruction> program =
+        [
+            new Instruction(InstructionCode.Push, new Value(true)),
+            new Instruction(InstructionCode.Not),
+            new Instruction(InstructionCode.CallBuiltin, 0),
+            new Instruction(InstructionCode.Push, 0L),
+            new Instruction(InstructionCode.Halt),
+        ];
+
+        FakeEnvironment environment = new();
+        MltVm vm = new(environment, program);
+
+        vm.RunProgram();
+
+        Assert.Equal("false", environment.BufferedOutput);
     }
 }

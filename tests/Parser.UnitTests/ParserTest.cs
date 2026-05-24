@@ -224,9 +224,8 @@ public class ParserTest
 
         Program program = parser.ParseProgram();
 
-        ConstantDeclaration declaration =
-            Assert.IsType<ConstantDeclaration>(
-                program.MainFunction.Body.Nodes.Single());
+        ConstantDeclaration declaration = Assert.IsType<ConstantDeclaration>(
+            program.MainFunction.Body.Nodes.Single());
 
         Assert.Equal("pi", declaration.Name);
         Assert.NotNull(declaration.InitialValue);
@@ -521,15 +520,288 @@ public class ParserTest
         Parser parser = new(code);
         Program program = parser.ParseProgram();
 
-        PrintStatement print = Assert.IsType<PrintStatement>(
-            program.MainFunction.Body.Nodes.Single());
+        PrintStatement print = Assert.IsType<PrintStatement>(program.MainFunction.Body.Nodes.Single());
 
-   
         BinaryOperationExpression orExpr = Assert.IsType<BinaryOperationExpression>(print.Arguments.Single());
         Assert.Equal(BinaryOperation.Or, orExpr.Operation);
 
         BinaryOperationExpression andExpr = Assert.IsType<BinaryOperationExpression>(orExpr.Left);
         Assert.Equal(BinaryOperation.And, andExpr.Operation);
     }
-    
+
+    [Fact]
+    public void Should_Parse_True_Literal()
+    {
+        string code = """
+        function main(): int {
+            print(true);
+        }
+        """;
+
+        Parser parser = new(code);
+
+        Program program = parser.ParseProgram();
+
+        PrintStatement print =
+            Assert.IsType<PrintStatement>(
+                program.MainFunction.Body.Nodes.Single());
+
+        LiteralExpression literal =
+            Assert.IsType<LiteralExpression>(
+                print.Arguments.Single());
+
+        Assert.Equal(VmValueType.Bool, literal.Type);
+    }
+
+    [Fact]
+    public void Should_Parse_False_Literal()
+    {
+        string code = """
+        function main(): int {
+            print(false);
+        }
+        """;
+
+        Parser parser = new(code);
+
+        Program program = parser.ParseProgram();
+
+        PrintStatement print =
+            Assert.IsType<PrintStatement>(
+                program.MainFunction.Body.Nodes.Single());
+
+        LiteralExpression literal =
+            Assert.IsType<LiteralExpression>(
+                print.Arguments.Single());
+
+        Assert.Equal(VmValueType.Bool, literal.Type);
+    }
+
+    [Fact]
+    public void Should_Parse_Function_Call_Statement()
+    {
+        string code = """
+        function main(): int {
+            foo();
+        }
+        """;
+
+        Parser parser = new(code);
+
+        Program program = parser.ParseProgram();
+
+        FunctionCallStatement statement =
+            Assert.IsType<FunctionCallStatement>(
+                program.MainFunction.Body.Nodes.Single());
+
+        Assert.Equal("foo", statement.Call.Name);
+        Assert.Empty(statement.Call.Arguments);
+    }
+
+    [Fact]
+    public void Should_Parse_Function_Call_With_Arguments()
+    {
+        string code = """
+        function main(): int {
+            foo(1, true, 'abc');
+        }
+        """;
+
+        Parser parser = new(code);
+
+        Program program = parser.ParseProgram();
+
+        FunctionCallStatement statement =
+            Assert.IsType<FunctionCallStatement>(
+                program.MainFunction.Body.Nodes.Single());
+
+        Assert.Equal(3, statement.Call.Arguments.Count);
+    }
+
+    [Fact]
+    public void Should_Parse_Function_Call_Expression_Inside_Print()
+    {
+        string code = """
+        function main(): int {
+            print(sum(1, 2));
+        }
+        """;
+
+        Parser parser = new(code);
+
+        Program program = parser.ParseProgram();
+
+        PrintStatement print =
+            Assert.IsType<PrintStatement>(
+                program.MainFunction.Body.Nodes.Single());
+
+        FunctionCallExpression expression =
+            Assert.IsType<FunctionCallExpression>(
+                print.Arguments.Single());
+
+        Assert.Equal("sum", expression.Name);
+        Assert.Equal(2, expression.Arguments.Count);
+    }
+
+    [Fact]
+    public void Should_Parse_Subtraction()
+    {
+        string code = """
+        function main(): int {
+            print(10 - 5);
+        }
+        """;
+
+        Parser parser = new(code);
+        Program program = parser.ParseProgram();
+
+        PrintStatement print =
+            Assert.IsType<PrintStatement>(
+                program.MainFunction.Body.Nodes.Single());
+
+        BinaryOperationExpression expression =
+            Assert.IsType<BinaryOperationExpression>(
+                print.Arguments.Single());
+
+        Assert.Equal(BinaryOperation.Subtract, expression.Operation);
+    }
+
+    [Fact]
+    public void Should_Parse_Division()
+    {
+        string code = """
+        function main(): int {
+            print(10 / 2);
+        }
+        """;
+
+        Parser parser = new(code);
+        Program program = parser.ParseProgram();
+
+        PrintStatement print =
+            Assert.IsType<PrintStatement>(
+                program.MainFunction.Body.Nodes.Single());
+
+        BinaryOperationExpression expression =
+            Assert.IsType<BinaryOperationExpression>(
+                print.Arguments.Single());
+
+        Assert.Equal(BinaryOperation.Divide, expression.Operation);
+    }
+
+    [Fact]
+    public void Should_Parse_Equal_Comparison()
+    {
+        string code = """
+        function main(): int {
+            print(5 == 5);
+        }
+        """;
+
+        Parser parser = new(code);
+        Program program = parser.ParseProgram();
+
+        PrintStatement print =
+            Assert.IsType<PrintStatement>(
+                program.MainFunction.Body.Nodes.Single());
+
+        BinaryOperationExpression expression =
+            Assert.IsType<BinaryOperationExpression>(
+                print.Arguments.Single());
+
+        Assert.Equal(BinaryOperation.Equal, expression.Operation);
+    }
+
+    [Fact]
+    public void Should_Parse_NotEqual_Comparison()
+    {
+        string code = """
+        function main(): int {
+            print(5 != 3);
+        }
+        """;
+
+        Parser parser = new(code);
+        Program program = parser.ParseProgram();
+
+        PrintStatement print =
+            Assert.IsType<PrintStatement>(
+                program.MainFunction.Body.Nodes.Single());
+
+        BinaryOperationExpression expression =
+            Assert.IsType<BinaryOperationExpression>(
+                print.Arguments.Single());
+
+        Assert.Equal(BinaryOperation.NotEqual, expression.Operation);
+    }
+
+    [Fact]
+    public void Should_Parse_LessThan_Comparisons()
+    {
+        string code = """
+        function main(): int {
+            print(1 < 2, 1 <= 2);
+        }
+        """;
+
+        Parser parser = new(code);
+        Program program = parser.ParseProgram();
+
+        PrintStatement print =
+            Assert.IsType<PrintStatement>(
+                program.MainFunction.Body.Nodes.Single());
+
+        BinaryOperationExpression lt =
+            Assert.IsType<BinaryOperationExpression>(
+                print.Arguments[0]);
+
+        Assert.Equal(BinaryOperation.LessThan, lt.Operation);
+
+        BinaryOperationExpression lte =
+            Assert.IsType<BinaryOperationExpression>(
+                print.Arguments[1]);
+
+        Assert.Equal(BinaryOperation.LessThanOrEqual, lte.Operation);
+    }
+
+    [Fact]
+    public void Should_Parse_Unary_Not()
+    {
+        string code = """
+        function main(): int {
+            print(!true);
+        }
+        """;
+
+        Parser parser = new(code);
+        Program program = parser.ParseProgram();
+
+        PrintStatement print =
+            Assert.IsType<PrintStatement>(
+                program.MainFunction.Body.Nodes.Single());
+
+        Assert.IsType<UnaryNotExpression>(
+            print.Arguments.Single());
+    }
+
+    [Fact]
+    public void Should_Parse_Function_Without_Parameters()
+    {
+        string code = """
+        function foo(): void {
+        }
+
+        function main(): int {
+        }
+        """;
+
+        Parser parser = new(code);
+        Program program = parser.ParseProgram();
+
+        FunctionDeclaration function =
+            Assert.IsType<FunctionDeclaration>(
+                program.TopLevelStatements.Single());
+
+        Assert.Empty(function.Parameters);
+    }
 }

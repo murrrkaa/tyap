@@ -45,14 +45,17 @@ public class FakeEnvironment : IEnvironment
             {
                 break;
             }
+
             if (c == '\r')
             {
                 if (_input.TryPeek(out char next) && next == '\n')
                 {
                     _input.Dequeue();
                 }
+
                 break;
             }
+
             sb.Append(c);
         }
 
