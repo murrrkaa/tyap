@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 
@@ -32,6 +33,33 @@ public class FakeEnvironment : IEnvironment
         }
 
         return -1;
+    }
+
+    public string ReadLine()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        while (_input.TryDequeue(out char c))
+        {
+            if (c == '\n')
+            {
+                break;
+            }
+
+            if (c == '\r')
+            {
+                if (_input.TryPeek(out char next) && next == '\n')
+                {
+                    _input.Dequeue();
+                }
+
+                break;
+            }
+
+            sb.Append(c);
+        }
+
+        return sb.ToString();
     }
 
     public void Print(string text)

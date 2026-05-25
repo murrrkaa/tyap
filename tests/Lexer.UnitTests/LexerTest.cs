@@ -14,6 +14,8 @@ public class LexerTest
     [MemberData(nameof(GetStringLiteralsData))]
     [MemberData(nameof(GetOperatorsAndPunctuationData))]
     [MemberData(nameof(GetCommentsAndWhitespaceData))]
+    [MemberData(nameof(GetComparisonAndLogicalOperatorsData))]
+    [MemberData(nameof(GetBoolAndVoidKeywordData))]
     [MemberData(nameof(GetErrorCasesData))]
     public void Tokenize_ReturnsExpectedTokens(string code, List<Token> expected)
     {
@@ -67,6 +69,23 @@ public class LexerTest
                 new Token(TokenType.String, "string"),
                 new Token(TokenType.Return, "return"),
                 new Token(TokenType.Print, "print"),
+            }
+        },
+    };
+
+    public static TheoryData<string, List<Token>> GetBoolAndVoidKeywordData()
+        => new()
+    {
+        {
+            "bool void true false and or",
+            new List<Token>
+            {
+                new(TokenType.Bool, "bool"),
+                new(TokenType.Void, "void"),
+                new(TokenType.True, "true"),
+                new(TokenType.False, "false"),
+                new(TokenType.And, "and"),
+                new(TokenType.Or, "or"),
             }
         },
     };
@@ -184,15 +203,15 @@ public class LexerTest
             {
                 new Token(TokenType.Plus),
                 new Token(TokenType.Minus),
-                new Token(TokenType.Star),
-                new Token(TokenType.Slash),
+                new Token(TokenType.Multiply),
+                new Token(TokenType.Divide),
             }
         },
         {
             "=",
             new List<Token>
             {
-                new Token(TokenType.Assignment),
+                new Token(TokenType.Assign),
             }
         },
         {
@@ -208,6 +227,40 @@ public class LexerTest
                 new Token(TokenType.IntLiteral, 0),
                 new Token(TokenType.Semicolon),
                 new Token(TokenType.CloseBrace),
+            }
+        },
+    };
+
+    public static TheoryData<string, List<Token>> GetComparisonAndLogicalOperatorsData()
+        => new()
+    {
+        {
+            "== != < <= > >= !",
+            new List<Token>
+            {
+                new(TokenType.Equal),
+                new(TokenType.NotEqual),
+                new(TokenType.LessThan),
+                new(TokenType.LessThanOrEqual),
+                new(TokenType.GreaterThan),
+                new(TokenType.GreaterThanOrEqual),
+                new(TokenType.Not),
+            }
+        },
+        {
+            "a > b and c <= d or !e",
+            new List<Token>
+            {
+                new(TokenType.Identifier, "a"),
+                new(TokenType.GreaterThan),
+                new(TokenType.Identifier, "b"),
+                new(TokenType.And, "and"),
+                new(TokenType.Identifier, "c"),
+                new(TokenType.LessThanOrEqual),
+                new(TokenType.Identifier, "d"),
+                new(TokenType.Or, "or"),
+                new(TokenType.Not),
+                new(TokenType.Identifier, "e"),
             }
         },
     };

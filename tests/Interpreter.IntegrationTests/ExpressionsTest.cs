@@ -1,4 +1,4 @@
-using Mlt.Interpreter;
+﻿using Mlt.Interpreter;
 using Mlt.Tests.TestLibrary.TestDoubles;
 
 using Xunit;
@@ -79,7 +79,7 @@ public class ExpressionsTest
 
         string output = Run(code);
 
-        Assert.Equal("4.0", output);
+        Assert.Equal("4", output);
     }
 
     [Fact]
@@ -94,7 +94,7 @@ public class ExpressionsTest
 
         string output = Run(code);
 
-        Assert.Equal("10.0", output);
+        Assert.Equal("10", output);
     }
 
     [Fact]
@@ -109,7 +109,7 @@ public class ExpressionsTest
 
         string output = Run(code);
 
-        Assert.Equal("7.00", output);
+        Assert.Equal("7", output);
     }
 
     [Fact]
@@ -252,6 +252,87 @@ public class ExpressionsTest
         string output = Run(code);
 
         Assert.Equal("7", output);
+    }
+
+    [Fact]
+    public void Equal_Should_Work()
+    {
+        string code = """
+        function main(): int {
+            print(5 == 5);
+            return 0;
+        }
+        """;
+
+        Assert.Equal("true", Run(code));
+    }
+
+    [Fact]
+    public void NotEqual_Should_Work()
+    {
+        string code = """
+        function main(): int {
+            print(5 != 3);
+            return 0;
+        }
+        """;
+
+        Assert.Equal("true", Run(code));
+    }
+
+    [Fact]
+    public void Less_And_Greater_Should_Work()
+    {
+        string code = """
+        function main(): int {
+            print(3 < 5);
+            print(5 > 3);
+            return 0;
+        }
+        """;
+
+        Assert.Equal("truetrue", Run(code));
+    }
+
+    [Fact]
+    public void And_Should_Work()
+    {
+        string code = """
+        function main(): int {
+            print(true and true);
+            print(true and false);
+            return 0;
+        }
+        """;
+
+        Assert.Equal("truefalse", Run(code));
+    }
+
+    [Fact]
+    public void Or_Should_Work()
+    {
+        string code = """
+        function main(): int {
+            print(true or false);
+            print(false or false);
+            return 0;
+        }
+        """;
+
+        Assert.Equal("truefalse", Run(code));
+    }
+
+    [Fact]
+    public void Not_Should_Work()
+    {
+        string code = """
+        function main(): int {
+            print(!false);
+            return 0;
+        }
+        """;
+
+        Assert.Equal("true", Run(code));
     }
 
     private static string Run(string code)

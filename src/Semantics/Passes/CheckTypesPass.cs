@@ -13,8 +13,6 @@ namespace Mlt.Semantics.Passes;
 
 public class CheckTypesPass : AbstractPass
 {
-    private readonly Dictionary<string, ValueType> _variables = [];
-
     public override void Visit(Program node)
     {
         node.MainFunction.Accept(this);
@@ -24,11 +22,10 @@ public class CheckTypesPass : AbstractPass
     {
         base.Visit(node);
 
-        bool hasReturn = HasReturnStatement(node.Body);
-
-        if (!hasReturn)
+        if (!HasReturnStatement(node.Body))
         {
-            throw new TypeErrorException("Функция 'main' должна содержать оператор return");
+            throw new TypeErrorException(
+                "Функция 'main' должна содержать оператор return");
         }
 
         foreach (ReturnStatement ret in FindReturnStatements(node.Body))
@@ -42,62 +39,140 @@ public class CheckTypesPass : AbstractPass
             if (!ValueTypeUtil.AreCompatibleTypes(ValueType.Int, ret.Expression.ResultType))
             {
                 throw new TypeErrorException(
-                    $"Функция 'main' должна возвращать int, " +
-                    $"но возвращает {ret.Expression.ResultType}");
+                    $"Функция 'main' должна возвращать int, но возвращает {ret.Expression.ResultType}");
             }
         }
     }
 
     public override void Visit(VariableDeclaration node)
     {
-        base.Visit(node);
+        node.InitialValue?.Accept(this);
 
-        if (node.Initializer != null)
-        {
-            if (!ValueTypeUtil.AreCompatibleTypes(node.Type, node.Initializer.ResultType))
-            {
-                throw new TypeErrorException(
-                    $"Cannot initialize variable of type {node.Type} " +
-                    $"with expression of type {node.Initializer.ResultType}");
-            }
-        }
-
-        _variables[node.Name] = node.Type;
-    }
-
-    public override void Visit(AssignmentExpression node)
-    {
-        base.Visit(node);
-
-        if (!ValueTypeUtil.AreCompatibleTypes(node.Left.ResultType, node.Right.ResultType))
+        if (node.InitialValue != null &&
+            !ValueTypeUtil.AreCompatibleTypes(node.ResolvedType, node.InitialValue.ResultType))
         {
             throw new TypeErrorException(
-                $"Cannot assign {node.Right.ResultType} " +
-                $"to {node.Left.ResultType}");
+                $"Невозможно инициализировать переменную '{node.Name}' типа {node.ResolvedType} " +
+                $"значением типа {node.InitialValue.ResultType}");
         }
+    }
 
-        node.ResultType = node.Left.ResultType;
+    public override void Visit(ConstantDeclaration node)
+    {
+        node.InitialValue?.Accept(this);
+
+        if (node.InitialValue != null &&
+            !ValueTypeUtil.AreCompatibleTypes(node.ResolvedType, node.InitialValue.ResultType))
+        {
+            throw new TypeErrorException(
+                $"Невозможно инициализировать константу '{node.Name}' типа {node.ResolvedType} " +
+                $"значением типа {node.InitialValue.ResultType}");
+        }
     }
 
     public override void Visit(BinaryOperationExpression node)
     {
         base.Visit(node);
 
+        if (node.Operation is BinaryOperation.Equal or BinaryOperation.NotEqual
+            or BinaryOperation.LessThan or BinaryOperation.LessThanOrEqual
+            or BinaryOperation.GreaterThan or BinaryOperation.GreaterThanOrEqual)
+        {
+            if (!ValueTypeUtil.AreCompatibleTypes(node.Left.ResultType, node.Right.ResultType))
+            {
+                throw new TypeErrorException(
+                    $"Несовместимые типы в сравнении: {node.Left.ResultType} и {node.Right.ResultType}");
+            }
+
+            node.ResultType = ValueType.Bool;
+            return;
+        }
+
+        if (node.Operation is BinaryOperation.And or BinaryOperation.Or)
+        {
+            if (node.Left.ResultType != ValueType.Bool)
+            {
+                throw new TypeErrorException(
+                    $"Левый операнд '{node.Operation}' должен быть bool, но получен {node.Left.ResultType}");
+            }
+
+            if (node.Right.ResultType != ValueType.Bool)
+            {
+                throw new TypeErrorException(
+                    $"Правый операнд '{node.Operation}' должен быть bool, но получен {node.Right.ResultType}");
+            }
+
+            node.ResultType = ValueType.Bool;
+            return;
+        }
+
         if (!ValueTypeUtil.AreCompatibleTypes(node.Left.ResultType, node.Right.ResultType))
         {
             throw new TypeErrorException(
-                $"Type mismatch in binary operation: " +
-                $"{node.Left.ResultType} and {node.Right.ResultType}");
+                $"Несовместимые типы в операции: {node.Left.ResultType} и {node.Right.ResultType}");
         }
 
         if (node.Left.ResultType == ValueType.String && node.Operation != BinaryOperation.Add)
         {
             throw new TypeErrorException(
-                $"Operator {node.Operation} is not supported for type string. " +
-                $"Only '+' (concatenation) is allowed.");
+                $"Оператор {node.Operation} не поддерживается для строк. Разрешён только '+'.");
+        }
+
+        if (node.Left.ResultType == ValueType.Bool)
+        {
+            throw new TypeErrorException(
+                $"Оператор {node.Operation} не поддерживается для типа bool.");
         }
 
         node.ResultType = node.Left.ResultType;
+    }
+
+    public override void Visit(UnaryNotExpression node)
+    {
+        base.Visit(node);
+
+        if (node.Operand.ResultType != ValueType.Bool)
+        {
+            throw new TypeErrorException(
+                $"Оператор '!' требует bool, но получен {node.Operand.ResultType}");
+        }
+
+        node.ResultType = ValueType.Bool;
+    }
+
+    public override void Visit(FunctionCallExpression node)
+    {
+        base.Visit(node);
+
+        BuiltinFunction func = (BuiltinFunction)node.Function;
+
+        bool isVariadic = func.Parameters.Count == 1 &&
+            ((BuiltinFunctionParameter)func.Parameters[0]).Type == ValueType.Any;
+
+        if (!isVariadic && node.Arguments.Count != func.Parameters.Count)
+        {
+            throw new TypeErrorException(
+                $"Функция '{node.Name}' ожидает {func.Parameters.Count} аргументов, " +
+                $"но получено {node.Arguments.Count}");
+        }
+
+        if (!isVariadic)
+        {
+            for (int i = 0; i < func.Parameters.Count; i++)
+            {
+                ValueType expected = ((BuiltinFunctionParameter)func.Parameters[i]).Type;
+                ValueType actual = node.Arguments[i].ResultType;
+
+                if (expected != ValueType.Any &&
+                    !ValueTypeUtil.AreCompatibleTypes(expected, actual))
+                {
+                    throw new TypeErrorException(
+                        $"Аргумент {i + 1} функции '{node.Name}' должен быть {expected}, но получен {actual}");
+                }
+            }
+        }
+
+        node.ResultType = func.ResultType;
     }
 
     public override void Visit(LiteralExpression node)
@@ -107,12 +182,14 @@ public class CheckTypesPass : AbstractPass
 
     public override void Visit(VariableAccessExpression node)
     {
-        if (!_variables.TryGetValue(node.Name, out ValueType? type))
+        node.ResultType = node.Variable switch
         {
-            throw new TypeErrorException($"Variable '{node.Name}' is not declared");
-        }
-
-        node.ResultType = type!;
+            VariableDeclaration v => v.ResolvedType,
+            ConstantDeclaration c => c.ResolvedType,
+            ParameterDeclaration p => p.ResolvedType,
+            _ => throw new TypeErrorException(
+                $"Неизвестный тип объявления для переменной '{node.Name}'"),
+        };
     }
 
     private static bool HasReturnStatement(BlockStatement block)

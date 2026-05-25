@@ -25,3 +25,6 @@ sandbox/
 # Coverage
 tests/coverage/
 tests/coverage-report/
+
+# Visual Studio temporary files
+.vs/

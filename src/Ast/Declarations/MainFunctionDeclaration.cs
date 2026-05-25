@@ -1,4 +1,7 @@
-﻿using Mlt.Ast.Statements;
+﻿using Mlt.Ast;
+
+using Mlt.Ast.Statements;
+
 using Mlt.Runtime;
 
 using ValueType = Mlt.Runtime.ValueType;
@@ -8,7 +11,7 @@ namespace Mlt.Ast.Declarations;
 public sealed class MainFunctionDeclaration : Declaration
 {
     public MainFunctionDeclaration(BlockStatement body)
-        : base("main")
+        : base()
     {
         Body = body;
         ReturnType = ValueType.Int;

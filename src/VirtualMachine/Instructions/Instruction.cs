@@ -24,7 +24,7 @@ public class Instruction
         Operand = new Value(value);
     }
 
-    public Instruction(InstructionCode code, decimal value)
+    public Instruction(InstructionCode code, double value)
     {
         Code = code;
         Operand = new Value(value);

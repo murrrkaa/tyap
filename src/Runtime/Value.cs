@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 
 namespace Mlt.Runtime;
 
@@ -11,7 +12,7 @@ public class Value : IEquatable<Value>
         _value = value;
     }
 
-    public Value(decimal value)
+    public Value(double value)
     {
         _value = value;
     }
@@ -21,28 +22,35 @@ public class Value : IEquatable<Value>
         _value = value;
     }
 
+    public Value(bool value)
+    {
+        _value = value;
+    }
+
     public bool IsString() => _value is string;
 
     public bool IsInt() => _value is long;
 
-    public bool IsFloat() => _value is decimal;
+    public bool IsFloat() => _value is double;
+
+    public bool IsBool() => _value is bool;
 
     public string AsString()
     {
         return _value switch
         {
             string s => s,
-            _ => throw new InvalidOperationException($"Value {_value} is not a string"),
+            _ => throw new InvalidOperationException($"Значение {_value} не является строкой."),
         };
     }
 
-    public decimal AsDecimal()
+    public double AsDouble()
     {
         return _value switch
         {
-            decimal d => d,
-            long l => (decimal)l,
-            _ => throw new InvalidOperationException($"Value {_value} is not a number"),
+            double d => d,
+            long l => (double)l,
+            _ => throw new InvalidOperationException($"\r\nЗначение {{_value}} не является числом с плавающей запятой."),
         };
     }
 
@@ -51,7 +59,16 @@ public class Value : IEquatable<Value>
         return _value switch
         {
             long l => l,
-            _ => throw new InvalidOperationException($"Value {_value} is not an int"),
+            _ => throw new InvalidOperationException($"\r\nЗначение {{_value}} не является целым числом."),
+        };
+    }
+
+    public bool AsBool()
+    {
+        return _value switch
+        {
+            bool b => b,
+            _ => throw new InvalidOperationException($"Значение {_value} не является логическим значением."),
         };
     }
 
@@ -61,7 +78,8 @@ public class Value : IEquatable<Value>
         {
             string s => s,
             long l => l.ToString(CultureInfo.InvariantCulture),
-            decimal d => d.ToString(CultureInfo.InvariantCulture),
+            double d => d.ToString(CultureInfo.InvariantCulture),
+            bool b => b ? "true" : "false",
             _ => _value?.ToString() ?? "null",
         };
     }
@@ -77,7 +95,8 @@ public class Value : IEquatable<Value>
         {
             string s => other.IsString() && other.AsString() == s,
             long l => other.IsInt() && other.AsLong() == l,
-            decimal d => other.IsFloat() && other.AsDecimal() == d,
+            double d => other.IsFloat() && other.AsDouble() == d,
+            bool b => other.IsBool() && other.AsBool() == b,
             _ => Equals(_value, other._value),
         };
     }
