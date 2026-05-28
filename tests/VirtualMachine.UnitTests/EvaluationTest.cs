@@ -61,6 +61,31 @@ public class EvaluationTest
         Assert.Equal("int", VmValueType.Int.ToString());
         Assert.Equal("float", VmValueType.Float.ToString());
         Assert.Equal("string", VmValueType.String.ToString());
+        Assert.Equal("bool", VmValueType.Bool.ToString());
+    }
+
+    [Fact]
+    public void Value_Type_Checks()
+    {
+        Assert.True(new Value("a").IsString());
+        Assert.True(new Value(10L).IsInt());
+        Assert.True(new Value(10.5).IsFloat());
+        Assert.True(new Value(true).IsBool());
+    }
+
+    [Fact]
+    public void Value_Equals_Should_Work()
+    {
+        Assert.True(new Value(10L).Equals(new Value(10L)));
+        Assert.True(new Value("a").Equals(new Value("a")));
+        Assert.True(new Value(true).Equals(new Value(true)));
+    }
+
+    [Fact]
+    public void Value_Invalid_Cast_Should_Throw()
+    {
+        Assert.Throws<InvalidOperationException>(() =>
+            new Value("abc").AsLong());
     }
 
     [Theory]

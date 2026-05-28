@@ -70,7 +70,7 @@ public class BuiltinFunctionsTest
 
         FakeEnvironment environment = Execute(code);
 
-        Assert.Equal("12.0", environment.BufferedOutput);
+        Assert.Equal("12", environment.BufferedOutput);
     }
 
     [Fact]
@@ -372,7 +372,7 @@ public class BuiltinFunctionsTest
         InvalidOperationException ex =
             Assert.Throws<InvalidOperationException>(action);
 
-        Assert.Equal("Division by zero", ex.Message);
+        Assert.Equal("Деление на ноль", ex.Message);
     }
 
     [Fact]
@@ -419,6 +419,175 @@ public class BuiltinFunctionsTest
         Action action = () => Execute(code);
 
         Assert.ThrowsAny<Exception>(() => Execute(code));
+    }
+
+    [Fact]
+    public void Len_returns_string_length()
+    {
+        string code =
+        """
+        function main(): int {
+            print(len('hello'));
+            return 0;
+        }
+        """;
+
+        FakeEnvironment environment = Execute(code);
+
+        Assert.Equal("5", environment.BufferedOutput);
+    }
+
+    [Fact]
+    public void Substring_returns_part_of_string()
+    {
+        string code =
+        """
+        function main(): int {
+            print(substring('abcdef', 1, 3));
+            return 0;
+        }
+        """;
+
+        FakeEnvironment environment = Execute(code);
+
+        Assert.Equal("bcd", environment.BufferedOutput);
+    }
+
+    [Fact]
+    public void ToString_converts_int_to_string()
+    {
+        string code =
+        """
+        function main(): int {
+            print(toString(123));
+            return 0;
+        }
+        """;
+
+        FakeEnvironment environment = Execute(code);
+
+        Assert.Equal("123", environment.BufferedOutput);
+    }
+
+    [Fact]
+    public void ParseInt_converts_string_to_int()
+    {
+        string code =
+        """
+        function main(): int {
+            print(parseInt('456'));
+            return 0;
+        }
+        """;
+
+        FakeEnvironment environment = Execute(code);
+
+        Assert.Equal("456", environment.BufferedOutput);
+    }
+
+    [Fact]
+    public void ToBool_converts_zero_to_false()
+    {
+        string code =
+        """
+        function main(): int {
+            print(toBool(0));
+            return 0;
+        }
+        """;
+
+        FakeEnvironment environment = Execute(code);
+
+        Assert.Equal("false", environment.BufferedOutput);
+    }
+
+    [Fact]
+    public void ToBool_converts_non_zero_to_true()
+    {
+        string code =
+        """
+        function main(): int {
+            print(toBool(5));
+            return 0;
+        }
+        """;
+
+        FakeEnvironment environment = Execute(code);
+
+        Assert.Equal("true", environment.BufferedOutput);
+    }
+
+    [Fact]
+    public void ToFloat_converts_int_to_float()
+    {
+        string code =
+        """
+        function main(): int {
+            print(toFloat(12));
+            return 0;
+        }
+        """;
+
+        FakeEnvironment environment = Execute(code);
+
+        Assert.Equal("12", environment.BufferedOutput);
+    }
+
+    [Fact]
+    public void ReadInt_reads_integer()
+    {
+        FakeEnvironment environment = new();
+        environment.AddInput("42");
+
+        MltInterpreter interpreter = new(environment);
+
+        interpreter.Execute(
+        """
+        function main(): int {
+            print(readInt());
+            return 0;
+        }
+        """);
+
+        Assert.Equal("42", environment.BufferedOutput);
+    }
+
+    [Fact]
+    public void ReadFloat_reads_float()
+    {
+        FakeEnvironment environment = new();
+        environment.AddInput("2.5");
+
+        MltInterpreter interpreter = new(environment);
+
+        interpreter.Execute(
+        """
+        function main(): int {
+            print(readFloat());
+            return 0;
+        }
+        """);
+
+        Assert.Equal("2.5", environment.BufferedOutput);
+    }
+
+    [Fact]
+    public void ReadString_reads_string()
+    {
+        FakeEnvironment environment = new();
+        environment.AddInput("hello");
+
+        MltInterpreter interpreter = new(environment);
+
+        interpreter.Execute(
+        """
+        function main(): int {
+            print(readString());
+            return 0;
+        }
+        """);
+
+        Assert.Equal("hello", environment.BufferedOutput);
     }
 
     private static FakeEnvironment Execute(string code)
