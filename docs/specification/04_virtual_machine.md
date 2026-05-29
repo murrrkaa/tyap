@@ -27,7 +27,7 @@
 
 ### Типы данных в `Value`, поддерживаемые машиной:
 * `Int` (`long`)
-* `Float` (`decimal`)
+* `Float` (`double`)
 * `String` (`string`)
 * `Bool` (`bool`) — логическое значение.
 * `Unit` (пустое значение)
