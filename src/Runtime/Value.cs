@@ -50,7 +50,7 @@ public class Value : IEquatable<Value>
         {
             double d => d,
             long l => (double)l,
-            _ => throw new InvalidOperationException($"\r\nЗначение {{_value}} не является числом с плавающей запятой."),
+            _ => throw new InvalidOperationException($"\r\nЗначение {_value} не является числом с плавающей запятой."),
         };
     }
 
@@ -59,7 +59,7 @@ public class Value : IEquatable<Value>
         return _value switch
         {
             long l => l,
-            _ => throw new InvalidOperationException($"\r\nЗначение {{_value}} не является целым числом."),
+            _ => throw new InvalidOperationException($"\r\nЗначение {_value} не является целым числом."),
         };
     }
 

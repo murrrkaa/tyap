@@ -196,4 +196,54 @@ public class EvaluationTest
 
         Assert.Equal("false", environment.BufferedOutput);
     }
+
+    [Fact]
+    public void Value_AsString_Invalid_Type_Should_Throw()
+    {
+        Value value = new(10L);
+
+        InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() => value.AsString());
+
+        Assert.Equal("Значение 10 не является строкой.", ex.Message);
+    }
+
+    [Fact]
+    public void Value_AsDouble_From_Long_Should_Work()
+    {
+        Value value = new(10L);
+
+        double result = value.AsDouble();
+
+        Assert.Equal(10.0, result);
+    }
+
+    [Fact]
+    public void Value_AsDouble_Invalid_Type_Should_Throw()
+    {
+        Value value = new("abc");
+
+        InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() => value.AsDouble());
+
+        Assert.Contains("Значение abc не является числом с плавающей запятой.", ex.Message);
+    }
+
+    [Fact]
+    public void Value_AsBool_Invalid_Type_Should_Throw()
+    {
+        Value value = new("abc");
+
+        InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() => value.AsBool());
+
+        Assert.Equal("Значение abc не является логическим значением.", ex.Message);
+    }
+
+    [Fact]
+    public void Value_GetHashCode_Should_Work()
+    {
+        Value value = new(123L);
+
+        int hash = value.GetHashCode();
+
+        Assert.NotEqual(0, hash);
+    }
 }

@@ -335,6 +335,138 @@ public class ExpressionsTest
         Assert.Equal("true", Run(code));
     }
 
+    [Fact]
+    public void LessOrEqual_Should_Work()
+    {
+        string code = """
+        function main(): int {
+        print(5 <= 5);
+        print(4 <= 5);
+        return 0;
+        }
+        """;
+
+        Assert.Equal("truetrue", Run(code));
+    }
+
+    [Fact]
+    public void GreaterOrEqual_Should_Work()
+    {
+        string code = """
+        function main(): int {
+        print(5 >= 5);
+        print(6 >= 5);
+        return 0;
+        }
+        """;
+
+        Assert.Equal("truetrue", Run(code));
+    }
+
+    [Fact]
+    public void And_With_True_And_False_Should_Return_False()
+    {
+        string code = """
+        function main(): int {
+        print(true and false);
+        return 0;
+        }
+        """;
+
+        Assert.Equal("false", Run(code));
+    }
+
+    [Fact]
+    public void Or_With_True_And_False_Should_Return_True()
+    {
+        string code = """
+        function main(): int {
+        print(true or false);
+        return 0;
+        }
+        """;
+
+        Assert.Equal("true", Run(code));
+    }
+
+    [Fact]
+    public void Not_True_Should_Return_False()
+    {
+        string code = """
+        function main(): int {
+        print(!true);
+        return 0;
+        }
+        """;
+
+        Assert.Equal("false", Run(code));
+    }
+
+    [Fact]
+    public void Equal_With_Incompatible_Types_Should_Throw()
+    {
+        string code = """
+        function main(): int {
+        print(5 == 'hello');
+        return 0;
+        }
+        """;
+
+        Assert.ThrowsAny<Exception>(() => Run(code));
+    }
+
+    [Fact]
+    public void And_With_Left_Not_Bool_Should_Throw()
+    {
+        string code = """
+        function main(): int {
+        print(5 and true);
+        return 0;
+        }
+        """;
+
+        Assert.ThrowsAny<Exception>(() => Run(code));
+    }
+
+    [Fact]
+    public void And_With_Right_Not_Bool_Should_Throw()
+    {
+        string code = """
+        function main(): int {
+        print(true and 5);
+        return 0;
+        }
+        """;
+
+        Assert.ThrowsAny<Exception>(() => Run(code));
+    }
+
+    [Fact]
+    public void Bool_Addition_Should_Throw()
+    {
+        string code = """
+        function main(): int {
+        print(true + false);
+        return 0;
+        }
+        """;
+
+        Assert.ThrowsAny<Exception>(() => Run(code));
+    }
+
+    [Fact]
+    public void Unary_Not_With_Int_Should_Throw()
+    {
+        string code = """
+        function main(): int {
+        print(!5);
+        return 0;
+        }
+        """;
+
+        Assert.ThrowsAny<Exception>(() => Run(code));
+    }
+
     private static string Run(string code)
     {
         FakeEnvironment environment = new();

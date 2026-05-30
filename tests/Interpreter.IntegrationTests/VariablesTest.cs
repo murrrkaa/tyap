@@ -1,6 +1,5 @@
 using Mlt.Interpreter;
 using Mlt.Tests.TestLibrary.TestDoubles;
-
 using Xunit;
 
 namespace Mlt.Interpreter.IntegrationTests;
@@ -18,9 +17,7 @@ public class VariablesTest
         }
         """;
 
-        string output = Run(code);
-
-        Assert.Equal("10", output);
+        Assert.Equal("10", Run(code));
     }
 
     [Fact]
@@ -35,9 +32,7 @@ public class VariablesTest
         }
         """;
 
-        string output = Run(code);
-
-        Assert.Equal("20", output);
+        Assert.Equal("20", Run(code));
     }
 
     [Fact]
@@ -51,9 +46,33 @@ public class VariablesTest
         }
         """;
 
-        string output = Run(code);
+        Assert.Equal("7", Run(code));
+    }
 
-        Assert.Equal("7", output);
+    [Fact]
+    public void Variable_With_Invalid_Initialization_Should_Throw()
+    {
+        string code = """
+        function main(): int {
+        var x: int = 'abc';
+        return 0;
+        }
+        """;
+
+        Assert.ThrowsAny<Exception>(() => Run(code));
+    }
+
+    [Fact]
+    public void Constant_With_Invalid_Initialization_Should_Throw()
+    {
+        string code = """
+        function main(): int {
+        const text: int = 'hello';
+        return 0;
+        }
+        """;
+
+        Assert.ThrowsAny<Exception>(() => Run(code));
     }
 
     private static string Run(string code)

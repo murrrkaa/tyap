@@ -590,6 +590,45 @@ public class BuiltinFunctionsTest
         Assert.Equal("hello", environment.BufferedOutput);
     }
 
+    [Fact]
+    public void Len_Without_Arguments_Should_Throw()
+    {
+        string code = """
+        function main(): int {
+        print(len());
+        return 0;
+        }
+        """;
+
+        Assert.ThrowsAny<Exception>(() => Execute(code));
+    }
+
+    [Fact]
+    public void Len_With_Wrong_Type_Should_Throw()
+    {
+        string code = """
+        function main(): int {
+        print(len(10));
+        return 0;
+        }
+        """;
+
+        Assert.ThrowsAny<Exception>(() => Execute(code));
+    }
+
+    [Fact]
+    public void Substring_With_Wrong_Argument_Type_Should_Throw()
+    {
+        string code = """
+        function main(): int {
+        print(substring(5, 1, 2));
+        return 0;
+        }
+        """;
+
+        Assert.ThrowsAny<Exception>(() => Execute(code));
+    }
+
     private static FakeEnvironment Execute(string code)
     {
         FakeEnvironment environment = new FakeEnvironment();
