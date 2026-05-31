@@ -75,6 +75,34 @@ public class VariablesTest
         Assert.ThrowsAny<Exception>(() => Run(code));
     }
 
+    [Fact]
+    public void Bool_Variable_Should_Work()
+    {
+        string code = """
+        function main(): int {
+        var flag: bool = true;
+        print(flag);
+        return 0;
+        }
+        """;
+
+        Assert.Equal("true", Run(code));
+    }
+
+    [Fact]
+    public void Float_Variable_Should_Work()
+    {
+        string code = """
+        function main(): int {
+        var x: float = 3.14;
+        print(x);
+        return 0;
+        }
+        """;
+
+        Assert.Equal("3.14", Run(code));
+    }
+
     private static string Run(string code)
     {
         FakeEnvironment env = new();

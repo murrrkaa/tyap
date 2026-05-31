@@ -78,6 +78,7 @@ public class EvaluationTest
     {
         Assert.True(new Value(10L).Equals(new Value(10L)));
         Assert.True(new Value("a").Equals(new Value("a")));
+        Assert.True(new Value(3.14).Equals(new Value(3.14)));
         Assert.True(new Value(true).Equals(new Value(true)));
     }
 
@@ -245,5 +246,137 @@ public class EvaluationTest
         int hash = value.GetHashCode();
 
         Assert.NotEqual(0, hash);
+    }
+
+    [Fact]
+    public void Void_Value_Should_Work()
+    {
+        Value value = Value.Void;
+
+        Assert.True(value.IsVoid());
+        Assert.Equal("void", value.ToString());
+        Assert.True(value.Equals(Value.Void));
+    }
+
+    [Fact]
+    public void Value_AsLong_Should_Work()
+    {
+        Value value = new(42L);
+
+        long result = value.AsLong();
+
+        Assert.Equal(42, result);
+    }
+
+    [Fact]
+    public void Value_AsBool_Should_Work()
+    {
+        Value value = new(true);
+
+        bool result = value.AsBool();
+
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void Value_AsString_Should_Work()
+    {
+        Value value = new("hello");
+
+        string result = value.AsString();
+
+        Assert.Equal("hello", result);
+    }
+
+    [Fact]
+    public void Value_AsDouble_From_Double_Should_Work()
+    {
+        Value value = new(3.14);
+
+        double result = value.AsDouble();
+
+        Assert.Equal(3.14, result);
+    }
+
+    [Fact]
+    public void Value_AsLong_Invalid_Type_Should_Throw()
+    {
+        Value value = new("abc");
+
+        InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() => value.AsLong());
+
+        Assert.Equal("Значение abc не является целым числом.", ex.Message);
+    }
+
+    [Fact]
+    public void LessThan_For_Ints_Should_Work()
+    {
+        Value left = new(5L);
+        Value right = new(10L);
+
+        Assert.True(left.LessThan(right));
+    }
+
+    [Fact]
+    public void LessThan_For_Floats_Should_Work()
+    {
+        Value left = new(1.5);
+        Value right = new(2.5);
+
+        Assert.True(left.LessThan(right));
+    }
+
+    [Fact]
+    public void LessThan_For_Strings_Should_Work()
+    {
+        Value left = new("abc");
+        Value right = new("bcd");
+
+        Assert.True(left.LessThan(right));
+    }
+
+    [Fact]
+    public void LessThanOrEqual_Should_Work()
+    {
+        Value left = new(10L);
+        Value right = new(10L);
+
+        Assert.True(left.LessThanOrEqual(right));
+    }
+
+    [Fact]
+    public void GreaterThan_Should_Work()
+    {
+        Value left = new(10L);
+        Value right = new(5L);
+
+        Assert.True(left.GreaterThan(right));
+    }
+
+    [Fact]
+    public void GreaterThanOrEqual_Should_Work()
+    {
+        Value left = new(10L);
+        Value right = new(10L);
+
+        Assert.True(left.GreaterThanOrEqual(right));
+    }
+
+    [Fact]
+    public void LessThan_For_Incompatible_Types_Should_Throw()
+    {
+        Value left = new(10L);
+        Value right = new("abc");
+
+        Assert.Throws<InvalidOperationException>(() => left.LessThan(right));
+    }
+
+    [Fact]
+    public void ToString_Should_Work_For_All_Types()
+    {
+        Assert.Equal("abc", new Value("abc").ToString());
+        Assert.Equal("10", new Value(10L).ToString());
+        Assert.Equal("3.14", new Value(3.14).ToString());
+        Assert.Equal("true", new Value(true).ToString());
     }
 }

@@ -467,6 +467,45 @@ public class ExpressionsTest
         Assert.ThrowsAny<Exception>(() => Run(code));
     }
 
+    [Fact]
+    public void Add_With_Incompatible_Types_Should_Throw()
+    {
+        string code = """
+        function main(): int {
+        print(1 + true);
+        return 0;
+        }
+        """;
+
+        Assert.ThrowsAny<Exception>(() => Run(code));
+    }
+
+    [Fact]
+    public void String_Subtraction_Should_Throw()
+    {
+        string code = """
+        function main(): int {
+        print('a' - 'b');
+        return 0;
+        }
+        """;
+
+        Assert.ThrowsAny<Exception>(() => Run(code));
+    }
+
+    [Fact]
+    public void LessThan_For_Bool_Should_Throw()
+    {
+        string code = """
+        function main(): int {
+        print(true < false);
+        return 0;
+        }
+        """;
+
+        Assert.ThrowsAny<Exception>(() => Run(code));
+    }
+
     private static string Run(string code)
     {
         FakeEnvironment environment = new();

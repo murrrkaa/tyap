@@ -1,4 +1,6 @@
-﻿using Mlt.Tests.TestLibrary.TestDoubles;
+﻿using System;
+
+using Mlt.Tests.TestLibrary.TestDoubles;
 
 using Xunit;
 
@@ -219,6 +221,130 @@ public class FunctionsTest
         """;
 
         Assert.Equal("true", Run(code));
+    }
+
+    [Fact]
+    public void Function_With_Wrong_Argument_Type_Should_Throw()
+    {
+        string code = """
+        function sum(a: int): int {
+        return a;
+        }
+
+        function main(): int {
+        print(sum('abc'));
+        return 0;
+        }
+        """;
+
+        Assert.ThrowsAny<Exception>(() => Run(code));
+    }
+
+    [Fact]
+    public void Function_With_Wrong_Argument_Count_Should_Throw()
+    {
+        string code = """
+        function sum(a: int): int {
+        return a;
+        }
+
+        function main(): int {
+        print(sum());
+        return 0;
+        }
+        """;
+
+        Assert.ThrowsAny<Exception>(() => Run(code));
+    }
+
+    [Fact]
+    public void Function_Without_Return_Should_Throw()
+    {
+        string code = """
+        function test(): int {
+        print(1);
+        }
+
+        function main(): int {
+        return 0;
+        }
+        """;
+
+        Assert.ThrowsAny<Exception>(() => Run(code));
+    }
+
+    [Fact]
+    public void Function_Return_Without_Value_Should_Throw()
+    {
+        string code = """
+        function test(): int {
+        return;
+        }
+
+        function main(): int {
+        return 0;
+        }
+        """;
+
+        Assert.ThrowsAny<Exception>(() => Run(code));
+    }
+
+    [Fact]
+    public void Function_Returning_Wrong_Type_Should_Throw()
+    {
+        string code = """
+        function test(): int {
+        return 'hello';
+        }
+
+        function main(): int {
+        return 0;
+        }
+        """;
+
+        Assert.ThrowsAny<Exception>(() => Run(code));
+    }
+
+    [Fact]
+    public void Void_Function_Returning_Value_Should_Throw()
+    {
+        string code = """
+        function test(): void {
+        return 5;
+        }
+
+        function main(): int {
+        return 0;
+        }
+        """;
+
+        Assert.ThrowsAny<Exception>(() => Run(code));
+    }
+
+    [Fact]
+    public void Len_With_Wrong_Argument_Count_Should_Throw()
+    {
+        string code = """
+        function main(): int {
+        print(len());
+        return 0;
+        }
+        """;
+
+        Assert.ThrowsAny<Exception>(() => Run(code));
+    }
+
+    [Fact]
+    public void Len_With_Wrong_Type_Should_Throw()
+    {
+        string code = """
+        function main(): int {
+        print(len(123));
+        return 0;
+        }
+        """;
+
+        Assert.ThrowsAny<Exception>(() => Run(code));
     }
 
     private static string Run(string code)

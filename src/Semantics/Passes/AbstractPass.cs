@@ -9,6 +9,11 @@ public abstract class AbstractPass : IAstVisitor
 {
     public virtual void Visit(Program node)
     {
+        foreach (Declaration declaration in node.TopLevelStatements)
+        {
+            declaration.Accept(this);
+        }
+
         node.MainFunction.Accept(this);
     }
 
