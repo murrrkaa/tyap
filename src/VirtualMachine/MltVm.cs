@@ -14,8 +14,8 @@ public class MltVm
     private int _instructionPointer;
     private long _exitCode;
     private readonly Stack<Value> _evaluationStack;
-    private readonly Dictionary<string, Value> _variables = new();
-    private Value? _result;
+    private readonly Stack<Dictionary<string, Value>> _variableScopes = new();
+    private readonly Stack<int> _callStack = new();
 
     public MltVm(IEnvironment environment, IReadOnlyList<Instruction> instructions)
     {
@@ -25,7 +25,7 @@ public class MltVm
         _instructionPointer = 0;
         _exitCode = 0;
         _evaluationStack = new Stack<Value>();
-        _result = null;
+        _variableScopes.Push(new Dictionary<string, Value>());
     }
 
     public long ExitCode => _exitCode;
@@ -46,16 +46,35 @@ public class MltVm
                     _evaluationStack.Pop();
                     break;
 
+                case InstructionCode.PushVars:
+                    _variableScopes.Push(new Dictionary<string, Value>());
+                    break;
+
+                case InstructionCode.PopVars:
+                    {
+                        if (_variableScopes.Count > 1)
+                        {
+                            _variableScopes.Pop();
+                        }
+
+                        break;
+                    }
+
                 case InstructionCode.DefineVar:
-                    _variables[instruction.Operand!.AsString()] = _evaluationStack.Pop();
+                    _variableScopes.Peek()[instruction.Operand!.AsString()] =
+                        _evaluationStack.Pop();
                     break;
 
                 case InstructionCode.StoreVar:
-                    _variables[instruction.Operand!.AsString()] = _evaluationStack.Pop();
-                    break;
+                    {
+                        string varName = instruction.Operand!.AsString();
+                        Value value = _evaluationStack.Pop();
+                        StoreVariable(varName, value);
+                        break;
+                    }
 
                 case InstructionCode.LoadVar:
-                    _evaluationStack.Push(_variables[instruction.Operand!.AsString()]);
+                    _evaluationStack.Push(LoadVariable(instruction.Operand!.AsString()));
                     break;
 
                 case InstructionCode.Add:
@@ -122,31 +141,73 @@ public class MltVm
                     _instructionPointer = (int)instruction.Operand!.AsLong();
                     break;
 
+                case InstructionCode.Call:
+                    _callStack.Push(_instructionPointer);
+                    _instructionPointer = (int)instruction.Operand!.AsLong();
+                    break;
+
+                case InstructionCode.Return:
+                    _instructionPointer = _callStack.Pop();
+                    break;
+
                 case InstructionCode.CallBuiltin:
                     CallBuiltin((BuiltinFunctionCode)instruction.Operand!.AsLong());
                     break;
 
                 case InstructionCode.Halt:
-                    if (_evaluationStack.Count > 0)
                     {
-                        Value finalVal = _evaluationStack.Pop();
-                        if (finalVal.IsInt())
+                        if (_evaluationStack.Count > 0)
                         {
-                            _exitCode = finalVal.AsLong();
-                        }
-                        else if (finalVal.IsFloat())
-                        {
-                            _exitCode = (long)finalVal.AsDouble();
-                        }
-                    }
+                            Value result = _evaluationStack.Pop();
 
-                    return _result ?? new Value(0L);
+                            if (result.IsInt())
+                            {
+                                _exitCode = result.AsLong();
+                            }
+                            else if (result.IsFloat())
+                            {
+                                _exitCode = (long)result.AsDouble();
+                            }
+
+                            return result;
+                        }
+
+                        _exitCode = 0;
+                        return new Value(0L);
+                    }
 
                 default:
                     throw new NotImplementedException(
                         $"Instruction {instruction.Code} is not supported");
             }
         }
+    }
+
+    private void StoreVariable(string name, Value value)
+    {
+        foreach (Dictionary<string, Value> scope in _variableScopes)
+        {
+            if (scope.ContainsKey(name))
+            {
+                scope[name] = value;
+                return;
+            }
+        }
+
+        throw new InvalidOperationException($"Переменная '{name}' не объявлена");
+    }
+
+    private Value LoadVariable(string name)
+    {
+        foreach (Dictionary<string, Value> scope in _variableScopes)
+        {
+            if (scope.TryGetValue(name, out Value? value))
+            {
+                return value;
+            }
+        }
+
+        throw new InvalidOperationException($"Переменная '{name}' не объявлена");
     }
 
     private void CallBuiltin(BuiltinFunctionCode code)

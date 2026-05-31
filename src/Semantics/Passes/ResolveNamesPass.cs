@@ -20,22 +20,27 @@ public sealed class ResolveNamesPass : AbstractPass
                 "print",
                 [new BuiltinFunctionParameter("value", ValueType.Any)],
                 ValueType.Void),
+
             ["readInt"] = new BuiltinFunction(
                 "readInt",
                 [],
                 ValueType.Int),
+
             ["readFloat"] = new BuiltinFunction(
                 "readFloat",
                 [],
                 ValueType.Float),
+
             ["readString"] = new BuiltinFunction(
                 "readString",
                 [],
                 ValueType.String),
+
             ["len"] = new BuiltinFunction(
                 "len",
                 [new BuiltinFunctionParameter("s", ValueType.String)],
                 ValueType.Int),
+
             ["substring"] = new BuiltinFunction(
                 "substring",
                 [
@@ -44,41 +49,54 @@ public sealed class ResolveNamesPass : AbstractPass
                     new BuiltinFunctionParameter("count", ValueType.Int),
                 ],
                 ValueType.String),
+
             ["toString"] = new BuiltinFunction(
                 "toString",
                 [new BuiltinFunctionParameter("x", ValueType.Any)],
                 ValueType.String),
+
             ["parseInt"] = new BuiltinFunction(
                 "parseInt",
                 [new BuiltinFunctionParameter("s", ValueType.String)],
                 ValueType.Int),
+
             ["toBool"] = new BuiltinFunction(
                 "toBool",
                 [new BuiltinFunctionParameter("x", ValueType.Int)],
                 ValueType.Bool),
+
             ["toFloat"] = new BuiltinFunction(
                 "toFloat",
                 [new BuiltinFunctionParameter("x", ValueType.Int)],
                 ValueType.Float),
         };
 
-    private readonly Stack<Dictionary<string, (AbstractVariableDeclaration Declaration, bool IsMutable)>> _scopes = new();
+    private readonly Stack<
+        Dictionary<string, (AbstractVariableDeclaration Declaration, bool IsMutable)>
+    > _scopes = new();
 
-    private readonly HashSet<string> _customFunctions = new();
+    private readonly Dictionary<string, FunctionDeclaration> _customFunctions = new();
 
     public override void Visit(Program node)
     {
         PushScope();
 
-        foreach (Declaration decl in node.TopLevelStatements)
+        foreach (Declaration declaration in node.TopLevelStatements)
         {
-            if (decl is FunctionDeclaration func)
+            if (declaration is FunctionDeclaration function)
             {
-                _customFunctions.Add(func.Name);
+                if (_customFunctions.ContainsKey(function.Name))
+                {
+                    throw new Exception(
+                        $"Семантическая ошибка: функция '{function.Name}' уже объявлена.");
+                }
+
+                _customFunctions[function.Name] = function;
             }
         }
 
         base.Visit(node);
+
         PopScope();
     }
 
@@ -86,38 +104,45 @@ public sealed class ResolveNamesPass : AbstractPass
     {
         PushScope();
 
-        foreach (ParameterDeclaration param in node.Parameters.OfType<ParameterDeclaration>())
+        foreach (ParameterDeclaration parameter in node.Parameters.OfType<ParameterDeclaration>())
         {
-            Declare(param.Name, param, isMutable: false);
+            Declare(parameter.Name, parameter, isMutable: true);
         }
 
         node.Body.Accept(this);
+
         PopScope();
     }
 
     public override void Visit(MainFunctionDeclaration node)
     {
         PushScope();
+
         base.Visit(node);
+
         PopScope();
     }
 
     public override void Visit(BlockStatement node)
     {
         PushScope();
+
         base.Visit(node);
+
         PopScope();
     }
 
     public override void Visit(VariableDeclaration node)
     {
         node.InitialValue?.Accept(this);
+
         Declare(node.Name, node, isMutable: true);
     }
 
     public override void Visit(ConstantDeclaration node)
     {
         node.InitialValue?.Accept(this);
+
         Declare(node.Name, node, isMutable: false);
     }
 
@@ -140,21 +165,22 @@ public sealed class ResolveNamesPass : AbstractPass
 
     public override void Visit(VariableAccessExpression node)
     {
-        if (!TryResolve(node.Name, out AbstractVariableDeclaration? decl, out _))
+        if (!TryResolve(node.Name, out AbstractVariableDeclaration? declaration, out _))
         {
             throw new Exception(
                 $"Семантическая ошибка: использование необъявленной переменной '{node.Name}'.");
         }
 
-        node.Variable = decl!;
+        node.Variable = declaration!;
     }
 
     public override void Visit(FunctionCallExpression node)
     {
         base.Visit(node);
 
-        if (_customFunctions.Contains(node.Name))
+        if (_customFunctions.TryGetValue(node.Name, out FunctionDeclaration? function))
         {
+            node.Function = function;
             return;
         }
 
@@ -164,12 +190,14 @@ public sealed class ResolveNamesPass : AbstractPass
             return;
         }
 
-        throw new Exception($"Семантическая ошибка: неизвестная функция '{node.Name}'.");
+        throw new Exception(
+            $"Семантическая ошибка: неизвестная функция '{node.Name}'.");
     }
 
     private void PushScope()
     {
-        _scopes.Push(new Dictionary<string, (AbstractVariableDeclaration, bool)>());
+        _scopes.Push(
+            new Dictionary<string, (AbstractVariableDeclaration Declaration, bool IsMutable)>());
     }
 
     private void PopScope()
@@ -177,7 +205,10 @@ public sealed class ResolveNamesPass : AbstractPass
         _scopes.Pop();
     }
 
-    private void Declare(string name, AbstractVariableDeclaration decl, bool isMutable)
+    private void Declare(
+        string name,
+        AbstractVariableDeclaration declaration,
+        bool isMutable)
     {
         if (_scopes.Count == 0)
         {
@@ -190,27 +221,28 @@ public sealed class ResolveNamesPass : AbstractPass
                 $"Семантическая ошибка: переменная '{name}' уже объявлена в текущей области видимости.");
         }
 
-        _scopes.Peek()[name] = (decl, isMutable);
+        _scopes.Peek()[name] = (declaration, isMutable);
     }
 
     private bool TryResolve(
         string name,
-        out AbstractVariableDeclaration? decl,
+        out AbstractVariableDeclaration? declaration,
         out bool isMutable)
     {
-        foreach (Dictionary<string, (AbstractVariableDeclaration Declaration, bool IsMutable)> scope in _scopes)
+        foreach (Dictionary<string,
+            (AbstractVariableDeclaration Declaration, bool IsMutable)> scope in _scopes)
         {
             if (scope.TryGetValue(
                 name,
                 out (AbstractVariableDeclaration Declaration, bool IsMutable) entry))
             {
-                decl = entry.Declaration;
+                declaration = entry.Declaration;
                 isMutable = entry.IsMutable;
                 return true;
             }
         }
 
-        decl = null;
+        declaration = null;
         isMutable = false;
         return false;
     }

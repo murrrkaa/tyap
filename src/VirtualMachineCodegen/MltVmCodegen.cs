@@ -15,20 +15,81 @@ namespace Mlt.VirtualMachineCodegen;
 public class MltVmCodegen : IAstVisitor
 {
     private readonly List<Instruction> _instructions = new();
+    private readonly Dictionary<string, int> _functionAddresses = new();
+    private readonly List<(int InstructionIndex, string FunctionName)> _pendingCalls = new();
+
+    private bool _insideMain;
 
     public List<Instruction> GenerateCode(Program program)
     {
         program.Accept(this);
         _instructions.Add(new Instruction(InstructionCode.Halt));
+
+        foreach ((int index, string name) in _pendingCalls)
+        {
+            if (!_functionAddresses.TryGetValue(name, out int address))
+            {
+                throw new InvalidOperationException($"Функция '{name}' не найдена");
+            }
+
+            _instructions[index] = new Instruction(InstructionCode.Call, address);
+        }
+
         return _instructions;
     }
 
-    public void Visit(Program node) => node.MainFunction.Accept(this);
+    public void Visit(Program node)
+    {
+        if (node.TopLevelStatements.OfType<FunctionDeclaration>().Any())
+        {
+            int jumpIndex = _instructions.Count;
+            _instructions.Add(new Instruction(InstructionCode.Jump, 0));
 
-    public void Visit(MainFunctionDeclaration node) => node.Body.Accept(this);
+            foreach (Declaration decl in node.TopLevelStatements)
+            {
+                if (decl is FunctionDeclaration func)
+                {
+                    func.Accept(this);
+                }
+            }
+
+            _instructions[jumpIndex] = new Instruction(InstructionCode.Jump, _instructions.Count);
+        }
+
+        node.MainFunction.Accept(this);
+    }
+
+    public void Visit(MainFunctionDeclaration node)
+    {
+        _insideMain = true;
+
+        _instructions.Add(new Instruction(InstructionCode.PushVars));
+
+        node.Body.Accept(this);
+
+        _instructions.Add(new Instruction(InstructionCode.Push, new Value(0L)));
+        _instructions.Add(new Instruction(InstructionCode.PopVars));
+        _instructions.Add(new Instruction(InstructionCode.Halt));
+
+        _insideMain = false;
+    }
 
     public void Visit(FunctionDeclaration node)
     {
+        _functionAddresses[node.Name] = _instructions.Count;
+
+        _instructions.Add(new Instruction(InstructionCode.PushVars));
+
+        IReadOnlyList<AbstractParameterDeclaration> parameters = node.Parameters;
+        for (int i = parameters.Count - 1; i >= 0; i--)
+        {
+            _instructions.Add(new Instruction(InstructionCode.DefineVar, parameters[i].Name));
+        }
+
+        node.Body.Accept(this);
+
+        _instructions.Add(new Instruction(InstructionCode.PopVars));
+        _instructions.Add(new Instruction(InstructionCode.Return));
     }
 
     public void Visit(BuiltinFunction node)
@@ -51,7 +112,21 @@ public class MltVmCodegen : IAstVisitor
         }
     }
 
-    public void Visit(ReturnStatement node) => node.Expression?.Accept(this);
+    public void Visit(ReturnStatement node)
+    {
+        node.Expression?.Accept(this);
+
+        if (_insideMain)
+        {
+            _instructions.Add(new Instruction(InstructionCode.PopVars));
+            _instructions.Add(new Instruction(InstructionCode.Halt));
+        }
+        else
+        {
+            _instructions.Add(new Instruction(InstructionCode.PopVars));
+            _instructions.Add(new Instruction(InstructionCode.Return));
+        }
+    }
 
     public void Visit(ExpressionStatement node) => node.Expression.Accept(this);
 
@@ -156,7 +231,7 @@ public class MltVmCodegen : IAstVisitor
             arg.Accept(this);
         }
 
-        BuiltinFunctionCode code = node.Name switch
+        BuiltinFunctionCode? builtinCode = node.Name switch
         {
             "print" => BuiltinFunctionCode.Print,
             "readInt" => BuiltinFunctionCode.ReadInt,
@@ -168,11 +243,19 @@ public class MltVmCodegen : IAstVisitor
             "parseInt" => BuiltinFunctionCode.ParseInt,
             "toBool" => BuiltinFunctionCode.ToBool,
             "toFloat" => BuiltinFunctionCode.ToFloat,
-            _ => throw new NotImplementedException($"Builtin '{node.Name}' is not supported"),
+            _ => null,
         };
 
-        _instructions.Add(new Instruction(
-            InstructionCode.CallBuiltin,
-            new Value((long)code)));
+        if (builtinCode.HasValue)
+        {
+            _instructions.Add(new Instruction(
+                InstructionCode.CallBuiltin,
+                new Value((long)builtinCode.Value)));
+            return;
+        }
+
+        int callIndex = _instructions.Count;
+        _instructions.Add(new Instruction(InstructionCode.Call, 0));
+        _pendingCalls.Add((callIndex, node.Name));
     }
 }
