@@ -1,4 +1,6 @@
-﻿using Mlt.Runtime;
+﻿using System.Reflection;
+
+using Mlt.Runtime;
 using Mlt.Tests.TestLibrary.TestDoubles;
 using Mlt.VirtualMachine.Instructions;
 
@@ -378,5 +380,78 @@ public class EvaluationTest
         Assert.Equal("10", new Value(10L).ToString());
         Assert.Equal("3.14", new Value(3.14).ToString());
         Assert.Equal("true", new Value(true).ToString());
+    }
+
+    [Fact]
+    public void Value_LessThanOrEqual_Double_Should_Work()
+    {
+        Value left = new(3.14);
+        Value right = new(5.0);
+
+        bool result = left.LessThanOrEqual(right);
+
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void Value_LessThanOrEqual_String_Should_Work()
+    {
+        Value left = new("abc");
+        Value right = new("xyz");
+
+        bool result = left.LessThanOrEqual(right);
+
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void Value_LessThanOrEqual_Invalid_Types_Should_Throw()
+    {
+        Value left = new(10L);
+        Value right = new("abc");
+
+        InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() => left.LessThanOrEqual(right));
+
+        Assert.Contains("Невозможно сравнить значения", ex.Message);
+    }
+
+    [Fact]
+    public void Value_Void_Equals_Should_Work()
+    {
+        Assert.True(Value.Void.Equals(Value.Void));
+    }
+
+    [Fact]
+    public void Value_Void_ToString_Should_Return_Void()
+    {
+        string result = Value.Void.ToString();
+
+        Assert.Equal("void", result);
+    }
+
+    [Fact]
+    public void Value_Equals_Unknown_Type_Should_Throw()
+    {
+        ConstructorInfo ctor =
+            typeof(Value).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, null, [typeof(object)], null)!;
+
+        Value value = (Value)ctor.Invoke([new object()]);
+
+        InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() => value.Equals(new Value(1L)));
+
+        Assert.Contains("Неизвестный тип значения", ex.Message);
+    }
+
+    [Fact]
+    public void Value_ToString_Unknown_Type_Should_Throw()
+    {
+        ConstructorInfo ctor =
+            typeof(Value).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, null, [typeof(object)], null)!;
+
+        Value value = (Value)ctor.Invoke([new object()]);
+
+        InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() => value.ToString());
+
+        Assert.Contains("Неизвестный тип значения", ex.Message);
     }
 }
