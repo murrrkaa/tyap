@@ -117,11 +117,6 @@ public class Value : IEquatable<Value>
             return false;
         }
 
-        if (IsVoid() && other.IsVoid())
-        {
-            return true;
-        }
-
         return _value switch
         {
             string s => other.IsString() && other.AsString() == s,
@@ -129,7 +124,7 @@ public class Value : IEquatable<Value>
             double d => other.IsFloat() && other.AsDouble() == d,
             bool b => other.IsBool() && other.AsBool() == b,
             VoidValue => other.IsVoid(),
-            _ => false,
+            _ => throw new InvalidOperationException($"Неизвестный тип значения: {_value?.GetType()}"),
         };
     }
 
@@ -146,7 +141,7 @@ public class Value : IEquatable<Value>
             double d => d.ToString(CultureInfo.InvariantCulture),
             bool b => b ? "true" : "false",
             VoidValue => "void",
-            _ => _value?.ToString() ?? "null",
+            _ => throw new InvalidOperationException($"Неизвестный тип значения: {_value?.GetType()}"),
         };
     }
 }
